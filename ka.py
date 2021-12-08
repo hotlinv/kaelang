@@ -1,5 +1,5 @@
 import glob
-kps = glob.iglob(r"./lib/*.kp.py")
+kps = glob.iglob(r"./kalib/*.kp.py")
 for kp in kps:
     with open(kp, "r", encoding='UTF-8') as kpf:
         lines = kpf.readlines()
