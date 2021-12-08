@@ -39,7 +39,10 @@ def match(code):
             gup = re.findall(r[0], code)
             return r[1], gup if type(gup[0])!=tuple else gup[0]
 
-def typeconv(val):
+def typeconv(val, foo):
+    farg = foo[foo.index("(")+1:-1]
+    if farg=="*":
+        return [typeconv(v, "f()") for v in val.split("、")]
     if val.startswith("“") and val.endswith("”"):#字符串
         return '"'+val[1:-1]+'"'
     elif val.startswith("《") and (val.endswith("》") or val.endswith("》的值")):#变量
@@ -62,10 +65,17 @@ with open(sys.argv[1], "r", encoding='UTF-8') as kf:
                 continue
             m = match(statement)
             if m:
-                arg = [typeconv(a) for a in m[1]]
-                #print(arg)
-                args = ",".join(arg)
-                kc = f"{m[0]}({args})"
-            #print("&&&", kc)
-            c = compile(kc, "", "exec")
-            exec(c)
+                arg = []
+                for a in m[1]:
+                    v = typeconv(a, m[0])
+                    if type(v)==list:
+                        arg.extend(v)
+                    else:
+                        arg.append(v)
+                #args = ",".join(arg)
+                foo = m[0].replace("*", ",".join(["{}" for i in range(len(arg))]))
+                kc = f"{foo}".format(*arg)
+
+                #print("&&&", kc)
+                c = compile(kc, kf.name, "exec")
+                exec(c)
