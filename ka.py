@@ -37,7 +37,15 @@ def match(code):
         m = r[0].match(code)
         if m:
             gup = re.findall(r[0], code)
+            # print("$$$", gup)
             return r[1], gup if type(gup[0])!=tuple else gup[0]
+
+def matchSub(code):
+    for r in res:
+        m = r[0].match(code)
+        if m:
+            gup = re.findall(r[0], code)
+            return r[1], gup
 
 def typeconv(val, foo):
     if val.startswith("“") and val.endswith("”"):#字符串
@@ -50,7 +58,6 @@ def typeconv(val, foo):
 def run(statement):
     m = match(statement)
     if m:
-        #print("&&&", m)
         arg = []
         foo = m[0]
         farg = m[0][m[0].index("(")+1:-1]
@@ -61,18 +68,29 @@ def run(statement):
         else:
             fargs = [fo.strip() for fo in farg.split(",")]
             fis = [int(fo[1:-1]) for fo in fargs if fo.startswith("<") and fo.endswith(">")]
+            lis = [int(fo[1:-1]) for fo in fargs if fo.startswith("[") and fo.endswith("]")]
             for i, a in enumerate(m[1]):
                 if i in fis:
                     kcsub = run(a)
                     #print(">>", kcsub)
                     arg.append("'"+kcsub+"'")
+                elif i in lis:
+                    subm = matchSub(a)
+                    fmt = subm[0]
+                    mres = subm[1]
+                    sublst = []
+                    for r in mres:
+                        subks = ["'"+run(ri)+"'" for ri in r]
+                        sublst.append(fmt.replace("<", "{").replace(">", "}").format(*subks))
+                    arg.append("["+",".join(sublst)+"]")
+                    # print("###", arg)
                 else:
                     v = typeconv(a, m[0])
                     if type(v)==list:
                         arg.extend(v)
                     else:
                         arg.append(v)
-            foo=foo.replace("<", "{").replace(">", "}")
+            foo=foo.replace("<", "{").replace(">", "}").replace("[", "{").replace("]", "}")
         #args = ",".join(arg)
         kc = f"{foo}".format(*arg)
         return kc
@@ -88,9 +106,9 @@ with open(sys.argv[1], "r", encoding='UTF-8') as kf:
     codes = []
     for line in lines:
         for statement in line.split("。"):
-            if statement is None or statement=="" or statement.startswith("【注】"):
+            if statement is None or statement=="" or statement.startswith(u"【注】"):
                 continue
             kc = run(statement)
-            #print("&&&", kc)
+            print("&&&", kc)
             if kc:
                 exec(compile(kc, kf.name, "exec"))
