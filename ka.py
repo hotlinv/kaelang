@@ -1,5 +1,10 @@
 import glob
-kps = glob.iglob(r"./kalib/*.kp.py")
+
+ka_vals = {} #放变量
+ka_sys = {} #放语言语法映射
+
+kps = glob.glob(r"./kalib/*.kp")
+kps.extend(glob.glob(r"./kalib/*.kp.py"))
 for kp in kps:
     with open(kp, "r", encoding='UTF-8') as kpf:
         lines = kpf.readlines()
@@ -26,6 +31,8 @@ for kp in kps:
         code = "\n".join(codes)
         c = compile(code, kpf.name, "exec")
         exec(c)
+        c2 = compile("ka_sys.update(ka_pmap())", "kae", "exec")
+        exec(c2)
 
 import sys, re
 res = []
@@ -98,8 +105,7 @@ def run(statement):
 整数="整数"
 浮点数="浮点数"
 字符串="字符串"
-
-ka_vals = {}
+循环子="循环子"
 
 with open(sys.argv[1], "r", encoding='UTF-8') as kf:
     lines = [l.strip() for l in kf.readlines()]
