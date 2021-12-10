@@ -127,6 +127,10 @@ with open(sys.argv[1], "r", encoding='UTF-8') as kf:
             if statement is None or statement=="":
                 continue
             kc = run(statement)
-            print2kb(kc)
-            if kc:
-                exec(compile(kc, kf.name, "exec"))
+            codes.append(kc)
+    print2kb("\n".join(codes))
+    kac = open("kae.kc", 'w+', encoding='utf-8')
+    for c in codes:
+        print(eval(c), file=kac)
+        exec(compile(eval(c), kf.name, "exec"))
+    kac.close()

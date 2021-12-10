@@ -1,0 +1,9 @@
+ka_vals["一星期中某一天"]=run('列表：1到7')
+for idx, 一星期中某一天 in enumerate(iter(ka_range(1, 7))):
+    exec(ka_out("星期",一星期中某一天))
+ka_vals["一行"]=[]
+ka_vals['一行'].extend([3, 'X', 7, '=', 21, '\t', '\t', '！'])
+ka_vals['一行拼接后']=''.join([str(i) for i in ka_vals['一行']])
+print(*('3X7=21\t\t！',))
+ka_vals["行"]=run('列表：1到9')
+ka_vals["列"]=run('列表：1到9')
