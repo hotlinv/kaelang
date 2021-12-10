@@ -27,12 +27,13 @@ for kp in kps:
         mapcode = "\n".join(mapcodes)
         m = compile(mapcode, kpf.name, "exec")
         exec(m)
+        mup = compile("ka_sys.update(ka_pmap())", "kae", "exec")
+        exec(mup)
 
         code = "\n".join(codes)
         c = compile(code, kpf.name, "exec")
         exec(c)
-        c2 = compile("ka_sys.update(ka_pmap())", "kae", "exec")
-        exec(c2)
+        
 
 import sys, re
 res = []
@@ -102,10 +103,15 @@ def run(statement):
         kc = f"{foo}".format(*arg)
         return kc
 
-整数="整数"
-浮点数="浮点数"
-字符串="字符串"
-循环子="循环子"
+# 整数="整数"
+# 浮点数="浮点数"
+# 字符串="字符串"
+# 循环子="循环子"
+
+def print2kb(txt):
+    kb = open("kae.kb", 'w+', encoding='utf-8')
+    print(txt, file=kb)
+    kb.close()
 
 with open(sys.argv[1], "r", encoding='UTF-8') as kf:
     lines = [l.strip() for l in kf.readlines()]
@@ -115,6 +121,6 @@ with open(sys.argv[1], "r", encoding='UTF-8') as kf:
             if statement is None or statement=="" or statement.startswith(u"【注】"):
                 continue
             kc = run(statement)
-            #print("&&&", kc)
+            print2kb(kc)
             if kc:
                 exec(compile(kc, kf.name, "exec"))
