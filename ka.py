@@ -109,6 +109,6 @@ with open(sys.argv[1], "r", encoding='UTF-8') as kf:
             if statement is None or statement=="" or statement.startswith(u"【注】"):
                 continue
             kc = run(statement)
-            print("&&&", kc)
+            #print("&&&", kc)
             if kc:
                 exec(compile(kc, kf.name, "exec"))

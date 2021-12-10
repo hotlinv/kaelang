@@ -47,6 +47,6 @@ def ka_sel(iflist, elsefoo):
     for con, foo in iflist:
         textline.append(text.format(con, foo))
     textline.append(elsetxt.format(elsefoo))
-    print("XXXXXXXXXXXXXXx", textline)
+    # print("XXXXXXXXXXXXXXx", textline)
     exec(compile("\n".join(textline)[2:], "core", "exec"))
     
