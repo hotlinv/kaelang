@@ -66,6 +66,10 @@ def typeconv(val, foo):
 def run(statement):
     m = match(statement)
     if m:
+        if "(" not in m[0]:#简单的值
+            if "{" in m[0]:#依然要带入
+                return f"{m[0]}".format(*m[1])
+            return m[0]
         arg = []
         foo = m[0]
         farg = m[0][m[0].index("(")+1:-1]

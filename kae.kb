@@ -1,2 +1,1 @@
-for idx, 一星期中某一天 in enumerate(iter(ka_range(1, 7))):
-    ka_pr("星期",一星期中某一天)
+ka_pr(ka_vals["一行"])
