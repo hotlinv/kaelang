@@ -121,8 +121,10 @@ with open(sys.argv[1], "r", encoding='UTF-8') as kf:
     lines = [l.strip() for l in kf.readlines()]
     codes = []
     for line in lines:
+        if u"【注】" in line:
+            line = line.split(u"【注】")[0]
         for statement in line.split("。"):
-            if statement is None or statement=="" or statement.startswith(u"【注】"):
+            if statement is None or statement=="":
                 continue
             kc = run(statement)
             print2kb(kc)

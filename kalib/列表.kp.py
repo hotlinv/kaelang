@@ -15,6 +15,5 @@ def ka_join(lst):
 def ka_append(name, lst):
     ls = lst.split("、")
     lst2 = [eval(eval(f"run('{co}')")) for co in ls]
-    #print(lst2)
     ft = f"ka_vals['{name}'].extend({lst2})"
     exec(compile(ft, "list_append", "exec"))
