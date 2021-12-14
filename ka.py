@@ -2,6 +2,7 @@ import glob
 
 ka_vals = {} #放变量
 ka_sys = {} #放语言语法映射
+ka_fragments = {"now":0, "codes":[], "o":{}}
 
 kps = glob.glob(r"./kalib/*.kp")
 kps.extend(glob.glob(r"./kalib/*.kp.py"))
@@ -117,6 +118,32 @@ def print2kb(txt):
     print(txt, file=kb)
     kb.close()
 
+ma_next = re.compile(u"(?:如下|以下)(?:动作|操作)：")
+ma_sub = re.compile(u"^((?:\d|\.)+)）(.+)")
+
+DEF_TMP = """
+def {0}():
+    {1}
+"""
+def subdef(fraglst):
+    fragruns = ["exec({})".format(f) if f.startswith("run(") else "exec({})".format(run(f)) for f in fraglst]
+    ka_fragments["codes"].append(DEF_TMP.format("sub_{}".format(ka_fragments["now"]), "\n    ".join(fragruns)))
+
+def fragment(statement):
+    global ka_fragments
+    if ma_sub.match(statement):#子代码段
+        subgup = ma_sub.findall(statement)
+        ordi = subgup[0][0]
+        substat = subgup[0][1]
+        print(ka_fragments["ptr"])
+        ka_fragments["o"][ka_fragments["ptr"]].append(substat)
+        #print("###", statement, ka_now_fragment , ordi.split("."))
+        if ka_fragments["now"] != len(ordi.split(".")):#结束该篇章
+            subdef(ka_fragments["o"][ka_fragments["ptr"]])
+            ka_fragments["now"] = len(ordi.split("."))
+            ka_fragments["ptr"] = "p_{0}".format(ka_fragments["now"])
+        #ka_fragments.append("+"*ka_now_fragment+substat)
+
 with open(sys.argv[1], "r", encoding='UTF-8') as kf:
     lines = [l.strip() for l in kf.readlines()]
     codes = []
@@ -124,12 +151,30 @@ with open(sys.argv[1], "r", encoding='UTF-8') as kf:
         if u"【注】" in line:
             line = line.split(u"【注】")[0]
         for statement in line.split("。"):
+            statement = statement.strip()
             if statement is None or statement=="":
                 continue
+            if ma_next.search(statement):#下面要开启新的篇章了
+                fragment(statement)
+                ka_fragments["now"] += 1
+                ka_fragments["ptr"] = "p_{0}".format(ka_fragments["now"])
+                ka_fragments["o"][ka_fragments["ptr"]] = []
+                #ka_now_frag_ptr = []
+                continue
+            if ka_fragments["now"]!=0:
+                fragment(statement)
+                continue
             kc = run(statement)
+            if kc is None:#解析不了的语句
+                kc = "! "+statement
+            #ka_fragments.append(kc)
             codes.append(kc)
+    print(ka_fragments)
     print2kb("\n".join(codes))
     kac = open("kae.kc", 'w+', encoding='utf-8')
+    for c in ka_fragments["codes"]:
+        print(c, file=kac)
+    exec(compile("\n".join(ka_fragments["codes"]), kf.name, "exec"))
     for c in codes:
         print(eval(c), file=kac)
         exec(compile(eval(c), kf.name, "exec"))

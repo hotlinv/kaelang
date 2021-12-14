@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#kae过程性文件
+*.kb
+*.kc
+
 # C extensions
 *.so
 
