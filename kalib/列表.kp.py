@@ -19,6 +19,6 @@ def ka_append(name, lst):
     #print(ka_vals)
     lst2 = [eval(eval(f"parse('{co}')")) for co in ls]
     ft = f"ka_vals['{name}'].extend({lst2})"
-    #print(ft)
+    #print(lst, ft)
     exec(compile(ft, "list_append", "exec"))
     
