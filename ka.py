@@ -58,8 +58,12 @@ def matchSub(code):
             return r[1], gup
 
 def typeconv(val, foo):
-    if val.startswith("“") and val.endswith("”"):#字符串
-        return '"'+val[1:-1]+'"'
+    m = match(val)
+    if m: #内部还有表达式
+        #print(">>>", val, m)
+        return f"{m[0].format(*m[1])}"
+    # elif val.startswith("“") and val.endswith("”"):#字符串
+    #     return '"'+val[1:-1]+'"'
     elif val.startswith("《") and (val.endswith("》") or val.endswith("》的值")):#变量
         return "ka_vals[\""+val[1:val.rindex("》")]+"\"]"
     else:
@@ -87,7 +91,7 @@ def parse(statement):
                 if i in fis:
                     kcsub = parse(a)
                     #print(">>", kcsub)
-                    arg.append("'"+kcsub+"'")
+                    arg.append("'"+kcsub.replace("'", r"\'")+"'")
                 elif i in lis:
                     subm = matchSub(a)
                     fmt = subm[0]
@@ -136,6 +140,7 @@ def {0}(**aa):
     {1}
 """
 def mkdef(ka_fragments, fooname):
+    #print("ttt", fooname)
     fraglst = ka_fragments["codes"][fooname]
     #"exec({})".format(f) if f.startswith("parse(") else "exec({})".format(parse(f))
     fragruns = [parse(f) for f in fraglst]
@@ -186,7 +191,7 @@ with open(sys.argv[1], "r", encoding='UTF-8') as kf:
     lines = [l.strip() for l in kf.readlines()]
     # codes = []
     #codes存放代码段
-    ka_fragments = {"step":0, "codes":{"main":[]}, "stack":["main"], "foo":[ins.getsource(prepare)]}
+    ka_fragments = {"step":0, "codes":{"main":[]}, "stack":["main"], "foo":[]}
     for line in lines:
         if u"【注】" in line:
             line = line.split(u"【注】")[0]

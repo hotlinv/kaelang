@@ -22,7 +22,7 @@ ka_pmap=lambda:{
     u"(.+)不等于(.+)":"ka_neq({0}, {1})",
     u"(.+)和(.+)不相等":"ka_neq({0}, {1})",
     u"(\d+)乘(\d+)":"ka_mu({0}, {1})",
-    u"(.+)乘(.+)":"ka_mu(<0>, <1>)",
+    u"(.[^“”]+)乘(.[^“”]+)":"ka_mu(<0>, <1>)",
     u"(\d+)与(\d+)求积":"ka_mu({0}, {1})",
     u"(\w+)与(\w+)求积":"ka_mu(<0>, <1>)",
     u"(\d+)加(\d+)":"ka_add({0}, {1})",
@@ -35,7 +35,7 @@ ka_pmap=lambda:{
     u"(\w+)与(\w+)求差":"ka_mi(<0>, <1>)",
     u"^制表符$":"r'\t'",
     u"^(\d+)$":"{0}",
-    u"^“(.+)”$":"'{0}'",
+    u"^“(.+)”$":'"{0}"',
     u"^!(\w+)$":"!{0}",
     u"^《(\w+)》当前值$":'ka_get("{0}")',
 }
@@ -90,13 +90,14 @@ def ka_sel(iflist, elsefoo):
     exec(compile(ft, "core_if", "exec"))
     
 def ka_for(it, foo, aa):
-    #print("XXXX", it, foo, eval(f"ka_vals['{it}']"))
+    #print("XXXX", it, foo, ka_vals)
     # print("$$", aa)
     if foo.startswith("!"):
         up = 'ka_vals.update({'+f"'《{it}》当前索引':idx,'《{it}》当前值':{it}"+"})\n    "
         foo = up+foo[1:]+"(**aa)"
     else:
-        foo = foo.replace(f"《{it}》当前值", f"{it}").replace(f"《{it}》当前索引", f"idx")
+        up = 'ka_vals.update({'+f"'《{it}》当前索引':idx,'《{it}》当前值':{it}"+"})\n    "
+        foo = up+foo.replace(f"《{it}》当前值", f"{it}").replace(f"《{it}》当前索引", f"idx")
     fortext = "for idx, {0} in enumerate(iter({1})):\n    {2}"
     ft = fortext.format(it, eval(f"ka_vals['{it}']"), foo)
     #return ft
