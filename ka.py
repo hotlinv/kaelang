@@ -1,8 +1,9 @@
 import glob
+import inspect as ins
+from pprint import pprint
 
 ka_vals = {} #放变量
 ka_sys = {} #放语言语法映射
-ka_fragments = {"now":0, "codes":[], "o":{}}
 
 kps = glob.glob(r"./kalib/*.kp")
 kps.extend(glob.glob(r"./kalib/*.kp.py"))
@@ -64,7 +65,7 @@ def typeconv(val, foo):
     else:
         return str(val)
 
-def run(statement):
+def parse(statement):
     m = match(statement)
     if m:
         if "(" not in m[0]:#简单的值
@@ -84,7 +85,7 @@ def run(statement):
             lis = [int(fo[1:-1]) for fo in fargs if fo.startswith("[") and fo.endswith("]")]
             for i, a in enumerate(m[1]):
                 if i in fis:
-                    kcsub = run(a)
+                    kcsub = parse(a)
                     #print(">>", kcsub)
                     arg.append("'"+kcsub+"'")
                 elif i in lis:
@@ -93,7 +94,7 @@ def run(statement):
                     mres = subm[1]
                     sublst = []
                     for r in mres:
-                        subks = ["'"+run(ri)+"'" for ri in r]
+                        subks = ["'"+parse(ri)+"'" for ri in r]
                         sublst.append(fmt.replace("<", "{").replace(">", "}").format(*subks))
                     arg.append("["+",".join(sublst)+"]")
                     # print("###", arg)
@@ -107,46 +108,85 @@ def run(statement):
         #args = ",".join(arg)
         kc = f"{foo}".format(*arg)
         return kc
+    else:#解析不了的语句
+        return statement
 
 # 整数="整数"
 # 浮点数="浮点数"
 # 字符串="字符串"
 # 循环子="循环子"
 
-def print2kb(txt):
+def print2kb(codes):
     kb = open("kae.kb", 'w+', encoding='utf-8')
-    print(txt, file=kb)
+    print(codes, file=kb)
     kb.close()
 
-ma_next = re.compile(u"(?:如下|以下)(?:动作|操作)：")
+ma_next = re.compile(u"((?:如下|以下)(?:动作|操作)：)")
 ma_sub = re.compile(u"^((?:\d|\.)+)）(.+)")
 
+def prepare(argmap):
+    for k,v in argmap.items():
+        # cmd = f"{k}={v}"
+        # print("::", cmd)
+        # exec(cmd)
+        print("::", k,"=", v)
+
 DEF_TMP = """
-def {0}():
+def {0}(**aa):
     {1}
 """
-def subdef(fraglst):
-    fragruns = ["exec({})".format(f) if f.startswith("run(") else "exec({})".format(run(f)) for f in fraglst]
-    ka_fragments["codes"].append(DEF_TMP.format("sub_{}".format(ka_fragments["now"]), "\n    ".join(fragruns)))
+def mkdef(ka_fragments, fooname):
+    fraglst = ka_fragments["codes"][fooname]
+    #"exec({})".format(f) if f.startswith("parse(") else "exec({})".format(parse(f))
+    fragruns = [parse(f) for f in fraglst]
+    ka_fragments["foo"].append(DEF_TMP.format("sub_{}".format(ka_fragments["step"]), "\n    ".join(fragruns)))
 
-def fragment(statement):
-    global ka_fragments
-    if ma_sub.match(statement):#子代码段
+def startSubFrag(statement, ka_fragments, ordi, substat):
+    #print("{", statement, ordi, ka_fragments["step"])
+    ka_fragments["step"] += 1
+    subfname = "sub_{}".format(ka_fragments["step"])
+    cmd = "{0}!{1}".format(re.sub(ma_next, "", substat),subfname)
+    ka_fragments["codes"][ka_fragments["stack"][-1]].append(cmd)
+    ka_fragments["stack"].append(subfname)
+    ka_fragments["codes"][subfname] = []
+
+def endSubFrag(statement, ka_fragments, ordi, substat):
+    #
+    #print("}", statement)
+    subfname = ka_fragments["stack"][-1]
+    mkdef(ka_fragments, subfname)
+    step = len([i for i in ordi.split(".") if i!=""])
+    #print(len(ka_fragments["stack"])-step-1)
+    for s in range(len(ka_fragments["stack"])-step-1):
+        ka_fragments["stack"].pop() #= [s for i, s in enumerate(ka_fragments["stack"]) if i<ka_fragments["step"]]
+    #ka_fragments["codes"][ka_fragments["stack"][-1]].append(subfname)
+    ka_fragments["step"] = step
+    ka_fragments["codes"][ka_fragments["stack"][-1]].append(substat)
+
+def fragment(statement, ka_fragments):
+    if ma_sub.match(statement):#前有标号，已经在子篇章里面了
         subgup = ma_sub.findall(statement)
         ordi = subgup[0][0]
         substat = subgup[0][1]
-        print(ka_fragments["ptr"])
-        ka_fragments["o"][ka_fragments["ptr"]].append(substat)
-        #print("###", statement, ka_now_fragment , ordi.split("."))
-        if ka_fragments["now"] != len(ordi.split(".")):#结束该篇章
-            subdef(ka_fragments["o"][ka_fragments["ptr"]])
-            ka_fragments["now"] = len(ordi.split("."))
-            ka_fragments["ptr"] = "p_{0}".format(ka_fragments["now"])
-        #ka_fragments.append("+"*ka_now_fragment+substat)
+        #print("X",statement, ordi)
+        #ka_fragments["o"][ka_fragments["ptr"]].append(substat)
+        if ma_next.search(substat):#开启子篇章
+            startSubFrag(statement, ka_fragments, ordi, substat)
+        elif len(ordi.split(".")) < ka_fragments["step"]:#结束该篇章
+            endSubFrag(statement, ka_fragments, ordi, substat)
+        else:
+            ka_fragments["codes"][ka_fragments["stack"][-1]].append(substat)
+    else:
+        if ma_next.search(statement):
+            startSubFrag(statement, ka_fragments, None, statement)
+        else:
+            endSubFrag(statement, ka_fragments, "", statement)
 
 with open(sys.argv[1], "r", encoding='UTF-8') as kf:
     lines = [l.strip() for l in kf.readlines()]
-    codes = []
+    # codes = []
+    #codes存放代码段
+    ka_fragments = {"step":0, "codes":{"main":[]}, "stack":["main"], "foo":[ins.getsource(prepare)]}
     for line in lines:
         if u"【注】" in line:
             line = line.split(u"【注】")[0]
@@ -154,28 +194,25 @@ with open(sys.argv[1], "r", encoding='UTF-8') as kf:
             statement = statement.strip()
             if statement is None or statement=="":
                 continue
-            if ma_next.search(statement):#下面要开启新的篇章了
-                fragment(statement)
-                ka_fragments["now"] += 1
-                ka_fragments["ptr"] = "p_{0}".format(ka_fragments["now"])
-                ka_fragments["o"][ka_fragments["ptr"]] = []
-                #ka_now_frag_ptr = []
+            if ma_next.search(statement) or ka_fragments["step"]!=0:#下面要开启新的子篇章了或已经在序号里面了
+                fragment(statement, ka_fragments)
                 continue
-            if ka_fragments["now"]!=0:
-                fragment(statement)
-                continue
-            kc = run(statement)
-            if kc is None:#解析不了的语句
-                kc = "! "+statement
-            #ka_fragments.append(kc)
-            codes.append(kc)
-    print(ka_fragments)
-    print2kb("\n".join(codes))
+            ka_fragments["codes"]["main"].append(statement)
+
+    mainlines = ["    {0}".format(parse(ml)) for ml in ka_fragments["codes"]["main"]]
+    kc = DEF_TMP.format("main", "\n".join(mainlines)[4:])
+    ka_fragments["foo"].append(kc)
+            # codes.append(kc)
+    ka_fragments["foo"].append("main(vals={})")
+    #pprint(ka_fragments)
+    
+    # print2kb("\n".join(codes))
     kac = open("kae.kc", 'w+', encoding='utf-8')
-    for c in ka_fragments["codes"]:
-        print(c, file=kac)
-    exec(compile("\n".join(ka_fragments["codes"]), kf.name, "exec"))
-    for c in codes:
-        print(eval(c), file=kac)
-        exec(compile(eval(c), kf.name, "exec"))
+    print("".join(ka_fragments["foo"]), file=kac)
+    # exec(compile("\n".join(ka_fragments["codes"]), kf.name, "exec"))
+    # for c in codes:
+    #     print(eval(c), file=kac)
+    #     
     kac.close()
+    
+    exec(compile("".join(ka_fragments["foo"]), kf.name, "exec"))
