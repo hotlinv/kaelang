@@ -92,3 +92,4 @@ def ka_pil_draw_polygon(imgname, colorname, polyname):
     #print(img.mode, color)
     pdraw = ImageDraw.Draw(img)
     pdraw.polygon([tuple(p) for p in poly] ,fill=color)
+    
