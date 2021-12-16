@@ -19,7 +19,7 @@ def catch2cn(fn):
             return fn(*args)
         except Exception as e:
             fndoc = ins.getdoc(fn)
-            err = u"{}出错：{}".format(fndoc, str(e))
+            err = u"{} 出错了：{}".format(fndoc, str(e))
             #print(err)
             logging.error(err)
     return inner
@@ -27,41 +27,61 @@ def catch2cn(fn):
 ka_vals = {} #放变量
 ka_sys = {} #放语言语法映射
 res = []
+ka_types = {} #放数据类型
+
+ma_import = re.compile(u"^#\s*【引用】(.+)")
+ma_code = re.compile(u"^#\s*【实现】")
+ma_map = re.compile(u"^#\s*【映射】")
 
 @catch2cn
-def loadkp():
+def parsePk(kpf):
+    """分析库文件"""
+    lines = kpf.readlines()
+    codes = []
+    mapcodes = []
+    now=None
+    for line in lines:
+        # print(line)
+        if ma_import.match(line):
+            imps = ma_import.findall(line)[0]
+            for imp in imps.split("、"):
+                impm = compile(f"import {imp}", kpf.name+" 导入{imp}", "exec")
+                try:
+                    exec(impm, globals())
+                except:
+                    raise Exception(f"{kpf.name}导入依赖库{imp}失败，请确认是否安装该库")
+            continue
+        elif ma_code.match(line):
+            now="code"
+            continue
+        elif ma_map.match(line):
+            now="map"
+            continue
+        if now=="code":
+            codes.append(line)
+        elif now=="map":
+            mapcodes.append(line)
+
+    mapcode = "\n".join(mapcodes)
+    m = compile(mapcode, kpf.name, "exec")
+    exec(m, globals())
+    mup = compile("ka_sys.update(ka_pmap())", "kae", "exec")
+    exec(mup, globals())
+
+    code = "\n".join(codes)
+    c = compile(code, kpf.name, "exec")
+    exec(c, globals())
+
+@catch2cn
+def loadkps():
+    """加载库目录下所有包文件(包括.kp和.kp.py)"""
     kps = glob.glob(r"./kalib/*.kp")
     kps.extend(glob.glob(r"./kalib/*.kp.py"))
     for kp in kps:
         #print(kp)
         with open(kp, "r", encoding='UTF-8') as kpf:
-            lines = kpf.readlines()
-            codes = []
-            mapcodes = []
-            now=None
-            for line in lines:
-                # print(line)
-                if line.startswith(u"# 【实现】"):
-                    now="code"
-                    continue
-                elif line.startswith(u"# 【映射】"):
-                    now="map"
-                    continue
-                if now=="code":
-                    codes.append(line)
-                elif now=="map":
-                    mapcodes.append(line)
-
-            mapcode = "\n".join(mapcodes)
-            m = compile(mapcode, kpf.name, "exec")
-            exec(m, globals())
-            mup = compile("ka_sys.update(ka_pmap())", "kae", "exec")
-            exec(mup, globals())
-
-            code = "\n".join(codes)
-            c = compile(code, kpf.name, "exec")
-            exec(c, globals())
-loadkp()
+            parsePk(kpf)
+loadkps()
 for k,v in eval("ka_sys").items():
     res.append([re.compile(k), v])
 

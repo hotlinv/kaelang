@@ -1,4 +1,4 @@
-# 【导入】PIL、numpy
+# 【引用】PIL、numpy
 
 # 【映射】
 ka_pmap=lambda:{
