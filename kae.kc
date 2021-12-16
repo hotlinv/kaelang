@@ -4,4 +4,6 @@ def main(**aa):
     ka_pil_resize('lena.png', 200, 100)
     ka_pil_convert('lena.png', 'RGB')
     ka_pil_save('lena.png', "d:/lena2.jpg")
+    ka_new("图像1", '空图像', '：模式为：“1”，大小为：横：300，竖：200')
+    ka_pil_show('图像1')
 main(vals={})

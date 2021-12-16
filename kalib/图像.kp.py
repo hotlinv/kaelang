@@ -11,7 +11,18 @@ ka_pmap=lambda:{
 
 # 【实现】
 from PIL import Image
+from PIL import ImageDraw
 import os
+
+_ka_imgmode=re.compile(u"模式为：“(\w+)”")
+_ka_imgsize=re.compile(u"(?:大小|尺寸)?为：(?:横|长)?：(\d+)(?:像素)*?(?:，)?\s*竖：(\d+)(?:像素)*")
+
+def ka_new_empty_image(name, value):
+    mm = _ka_imgmode.findall(value)
+    sm = _ka_imgsize.findall(value)
+    ka_vals[name]=Image.new(mm[0], [int(s) for s in sm[0]])
+
+registType("空图像", ka_new_empty_image)
 
 @catch2cn
 def ka_pil_open(path, name):

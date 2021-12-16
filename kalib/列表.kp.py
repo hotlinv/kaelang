@@ -6,6 +6,12 @@ ka_pmap=lambda:{
 }
 
 # 【实现】
+
+def ka_new_emptylist(name, value):
+    exec(f"ka_vals[\"{name}\"]=[]")
+
+registType("空列表", ka_new_emptylist)
+
 @catch2cn
 def ka_range(b, e):
     """区间范围"""

@@ -29,6 +29,11 @@ ka_sys = {} #放语言语法映射
 res = []
 ka_types = {} #放数据类型
 
+@catch2cn
+def registType(typename, foo):
+    """注册数据类型"""
+    ka_types[typename]=foo
+
 ma_import = re.compile(u"^#\s*【引用】(.+)")
 ma_code = re.compile(u"^#\s*【实现】")
 ma_map = re.compile(u"^#\s*【映射】")

@@ -52,20 +52,25 @@ def ka_get(key):
     """获取变量"""
     return ka_vals["《"+key+"》当前值"]
 
+def ka_new_str(name, value):
+    value=value.replace("“","\"").replace("”","\"")
+    exec(f"ka_vals[\"{name}\"]={value}")
+
+def ka_new_num(name, value):
+    exec(f"ka_vals[\"{name}\"]={value}")
+
+def ka_new_itor(name, value):
+    exec(f"ka_vals[\"{name}\"]=parse('{value}')")
+
+registType("字符串", ka_new_str)
+registType("整数", ka_new_num)
+registType("浮点数", ka_new_num)
+registType("循环子", ka_new_itor)
+
 @catch2cn
 def ka_new(name, type, value):
     """创建新对象"""
-    #print(name, type)
-    if type=="字符串":
-        value=value.replace("“","\"").replace("”","\"")
-        exec(f"ka_vals[\"{name}\"]={value}")
-    elif type=="整数" or type=="浮点数":
-        exec(f"ka_vals[\"{name}\"]={value}")
-    elif type=="循环子":
-        exec(f"ka_vals[\"{name}\"]=parse('{value}')")
-    elif type=="空列表":
-        exec(f"ka_vals[\"{name}\"]=[]")
-        #print(abc)
+    ka_types[type](name, value)
 @catch2cn
 def ka_gt(v1, v2):
     """比较大于"""
