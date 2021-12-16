@@ -1,3 +1,5 @@
+# 【导入】PIL、numpy
+
 # 【映射】
 ka_pmap=lambda:{
 	u"打开在(.+)的图(?:像|片)文件“(.+)”":"ka_pil_open({0}, '{1}')",
@@ -10,17 +12,28 @@ ka_pmap=lambda:{
 # 【实现】
 from PIL import Image
 import os
+
+@catch2cn
 def ka_pil_open(path, name):
+    """打开图像"""
     ka_vals[name] = Image.open(os.path.join(path, name))
 
+@catch2cn
 def ka_pil_show(name):
+    """显示图像"""
     ka_vals[name].show()
 
+@catch2cn
 def ka_pil_resize(name, w, h):
+    """改变图像大小"""
     ka_vals[name] = ka_vals[name].resize((w, h))
 
+@catch2cn
 def ka_pil_save(name, path):
+    """图像另存"""
     ka_vals[name].save(path)
 
+@catch2cn
 def ka_pil_convert(name, mode):
+    """图像模式转换"""
     ka_vals[name] = ka_vals[name].convert(mode)
