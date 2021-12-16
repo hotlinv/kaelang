@@ -6,7 +6,7 @@ def main(**aa):
     ka_pil_save('lena.png', "d:/lena0101.jpg")
     ka_new("图像1", '空图像', '：模式为：“二值图”，大小为：横：600，竖：500')
     ka_new("白色填充色", '色刷', '白色')
-    ka_loadfile('yaml', '点.yml', '多边形点集')
+    ka_loadfile('yaml', '测试数据/点.yml', '多边形点集')
     ka_pil_draw_polygon('图像1', '白色填充色', '多边形点集')
     ka_pil_save('图像1', "d:/图像1.jpg")
     ka_img_splitrect('图像1', '切割矩形')
