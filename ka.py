@@ -253,7 +253,7 @@ def main():
                 line = line.split(u"【注】")[0]
             for statement in line.split("。"):
                 statement = statement.strip()
-                if statement is None or statement=="":
+                if statement is None or statement=="" or statement.startswith("开个玩笑哈~"):
                     continue
                 if ma_next.search(statement) or ka_fragments["step"]!=0:#下面要开启新的子篇章了或已经在序号里面了
                     fragment(statement, ka_fragments)
