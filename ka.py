@@ -28,6 +28,7 @@ ka_vals = {} #放变量
 ka_sys = {} #放语言语法映射
 res = []
 ka_types = {} #放数据类型
+ka_mount = {} #放数据目录
 
 @catch2cn
 def registType(typename, foo):
@@ -90,6 +91,8 @@ loadkps()
 for k,v in eval("ka_sys").items():
     res.append([re.compile(k), v])
 
+ka_load_urlmaps()
+# print(ka_mount)
 # 
 
 @catch2cn

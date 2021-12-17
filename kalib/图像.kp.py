@@ -2,11 +2,11 @@
 
 # 【映射】
 ka_pmap=lambda:{
-	u"打开在(.+)的图(?:像|片)文件“(.+)”":"ka_pil_open({0}, '{1}')",
+	u"打开在(.+)的图(?:像|片)文件“(.+)”":"ka_pil_open(ka_path('{0}'), '{1}')",
     u"(?:将|改变)图(?:像|片)《(.+)》大小(?:改)?为横：(\d+)(?:，)?\s*竖：(\d+)":"ka_pil_resize('{0}', {1}, {2})",
     u"(?:将|改变)图(?:像|片)《(.+)》(?:改|转)?为“(\w+)”模式":"ka_pil_convert('{0}', '{1}')",
     u"(?:显示|展示)图(?:像|片)《(.+)》":"ka_pil_show('{0}')",
-    u"将图(?:像|片)《(.+)》另存为：(.+)":"ka_pil_save('{0}', {1})",
+    u"将图(?:像|片)《(.+)》另存为：(.+)":"ka_pil_save('{0}', ka_path('{1}'))",
     u"在图(?:像|片)《(.+)》上用色刷《(.+)》绘制多边形图案《(.+)》":"ka_pil_draw_polygon('{0}', '{1}', '{2}')",
 }
 
@@ -23,6 +23,7 @@ _colors = {"白色":(255,255,255,255), "黑色":(0,0,0,255), "红色":(255, 0, 0
 
 @catch2cn
 def getmode(name):
+    """获取图像模式"""
     if name in _modes:
         return _modes[name]
     else:
@@ -30,6 +31,7 @@ def getmode(name):
 
 @catch2cn
 def getcolor(name):
+    """获取颜色元组"""
     if name in _colors:
         return _colors[name]
     else:
@@ -53,7 +55,8 @@ registType("色刷", ka_new_fillcolor)
 @catch2cn
 def ka_pil_open(path, name):
     """打开图像"""
-    ka_vals[name] = Image.open(os.path.join(path, name))
+    # print(path, name)
+    ka_vals[name] = Image.open(path)
 
 @catch2cn
 def ka_pil_show(name):
@@ -92,4 +95,3 @@ def ka_pil_draw_polygon(imgname, colorname, polyname):
     #print(img.mode, color)
     pdraw = ImageDraw.Draw(img)
     pdraw.polygon([tuple(p) for p in poly] ,fill=color)
-    

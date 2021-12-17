@@ -1,11 +1,32 @@
 # 【映射】
 ka_pmap=lambda:{
 	u"^当前目录$":"ka_workspace()",
-    u"从“(.+)”(?:读取|加载)(?:本地)?(json|yaml)文件(?:，)?(?:并)?(?:将其命名为)?“(.+)”":"ka_loadfile('{1}', '{0}', '{2}')"
+    u"从(.+)(?:读取|加载)(?:本地)?(json|yaml)?数据(?:，)?(?:并)?(?:将其命名为)?“(.+)”":"ka_loadfile('{1}', ka_path('{0}'), '{2}')"
 }
 
 # 【实现】
 import os, json, yaml
+
+@catch2cn
+def ka_load_urlmaps():
+    '''加载路径对应文件'''
+    global ka_mount
+    f = open("urlmap.yml", 'r',encoding='utf-8')
+    y = yaml.load(f, Loader=yaml.FullLoader)
+    ka_mount = y
+
+_ka_path_m=re.compile(u"(?:(.+)国)?(?:(.+)省)?(?:(.+)市)?(?:(.+)区)?(?:(.+)街道)?(?:(.+)社区)?(?:(.+)路)?(?:(.+)号)?(?:(.+)楼)?(?:(.+)单元)?(?:(.+)间)?")
+@catch2cn
+def ka_path(path):
+    mf = [p for p in _ka_path_m.findall(path)[0]]
+    t = mf[0]
+    ext = mf[10]
+    guo = ka_mount[t+"国"]
+    mf[1] = guo[mf[1]+"省"]
+    mf[9] = f"{mf[9]}.{mf[10]}"
+    ospath = [p2 for p2 in mf[1:-1] if p2!=""]
+    # print("##", mf, ospath, os.path.join(*ospath))
+    return os.path.join(*ospath)
 
 @catch2cn
 def ka_workspace():
@@ -22,7 +43,7 @@ def ka_loadjson(path, name):
 @catch2cn
 def ka_loadyaml(path, name):
     """加载文件（yaml或json）"""
-    f = open(path)
+    f = open(path, 'r',encoding='utf-8')
     y = yaml.load(f, Loader=yaml.FullLoader)
     ka_vals[name] = y
 
@@ -33,3 +54,7 @@ def ka_loadfile(type, path, name):
         ka_loadjson(path, name)
     elif type=="yaml":
         ka_loadyaml(path, name)
+    elif path.endswith(".yml"):
+        ka_loadyaml(path, name)
+    elif path.endswith(".json"):
+        ka_loadjson(path, name)
