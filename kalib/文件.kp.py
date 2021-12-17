@@ -16,10 +16,11 @@ def ka_load_urlmaps():
     y = yaml.load(f, Loader=yaml.FullLoader)
     ka_mount = y
 
-_ka_path_m=re.compile(u"(?:(.+)国)?(?:(.+)省)?(?:(.+)市)?(?:(.+)区)?(?:(.+)街道)?(?:(.+)社区)?(?:(.+)路)?(?:(.+)号)?(?:(.+)楼)?(?:(.+)单元)?(?:(.+)间)?")
+_ka_path_m=re.compile(u"(?:(.+)国)?(?:(.+)省)?(?:(.+)市)?(?:(.+)县)?(?:(.+)乡)?(?:(.+)村)?(?:(.+)路)?(?:(.+)号)?(?:(.+)楼)?(?:(.+)室)?(?:(.+)间)?")
 @catch2cn
 def ka_path(path):
     mf = [p for p in _ka_path_m.findall(path)[0]]
+    #print(">>>", mf)
     t = mf[0]
     ext = mf[10]
     guo = ka_mount[t+"国"]
