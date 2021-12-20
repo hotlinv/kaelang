@@ -116,13 +116,25 @@ def matchSub(code):
 def typeconv(val, foo):
     """类型转换"""
     m = match(val)
+    #print(">>>", val, m)
     if m: #内部还有表达式
         #print(">>>", val, m)
-        return f"{m[0].format(*m[1])}"
+        if "<" in m[0] and ">" in m[0]:
+            foo = m[0]
+            # farg = m[0][m[0].index("(")+1:-1]
+            arg = []
+            for i, a in enumerate(m[1]):
+                arg.append(parse(a))
+            foo=foo.replace("<", "{").replace(">", "}").replace("[", "{").replace("]", "}")
+            pa = f"{foo}".format(*arg)
+            #print(">>>>>>", pa)
+            return pa
+        else:
+            return f"{m[0].format(*m[1])}"
     # elif val.startswith("“") and val.endswith("”"):#字符串
     #     return '"'+val[1:-1]+'"'
-    elif val.startswith("《") and (val.endswith("》") or val.endswith("》的值")):#变量
-        return "ka_vals[\""+val[1:val.rindex("》")]+"\"]"
+    # elif val.startswith("《") and (val.endswith("》") or val.endswith("》的值")):#变量
+    #     return "ka_vals[\""+val[1:val.rindex("》")]+"\"]"
     else:
         return str(val)
 @catch2cn
@@ -156,7 +168,7 @@ def parse(statement):
                     mres = subm[1]
                     sublst = []
                     for r in mres:
-                        subks = ["'"+parse(ri)+"'" for ri in r]
+                        subks = ["'"+parse(ri).replace("'", r"\'")+"'" for ri in r]
                         sublst.append(fmt.replace("<", "{").replace(">", "}").format(*subks))
                     arg.append("["+",".join(sublst)+"]")
                     # print("###", arg)
