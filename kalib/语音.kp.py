@@ -2,13 +2,15 @@
 
 # 【映射】
 ka_pmap=lambda:{
-    u"语音说：(.+)":"ka_speak(*)",
+    #u"语音说：(.+)":"ka_speak(*)",
 }
 
 # 【实现】
 import pyttsx3 as tts
 
+ka_outputs["语音"] = "ka_speak(*)"
+
 @catch2cn
 def ka_speak(*a):
-    """打印"""
+    """语音输出"""
     tts.speak(*a)

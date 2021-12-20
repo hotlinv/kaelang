@@ -29,6 +29,7 @@ ka_sys = {} #放语言语法映射
 res = []
 ka_types = {} #放数据类型
 ka_mount = {} #放数据目录
+ka_outputs = {} #存放输出设备
 
 @catch2cn
 def registType(typename, foo):
@@ -149,7 +150,7 @@ def parse(statement):
         arg = []
         foo = m[0]
         farg = m[0][m[0].index("(")+1:-1]
-        if farg=="*":
+        if "*" in farg:
             arg.extend([typeconv(v, "f()") for v in m[1][0].split("、")])
             foo=foo.replace("*", ",".join(["{}" for i in range(len(arg))]))
             #print(foo, arg)

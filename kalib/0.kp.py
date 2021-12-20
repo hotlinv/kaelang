@@ -3,7 +3,7 @@ KA_DEF = u"(?:新建|创建|定义|有)?"
 KA_AS = u"(?:称作|称为|名为|叫|名叫|叫做)"
 ka_pmap=lambda:{
     u"^“(.+)”$":'"{0}"',
-	u"(?:在|于|用|使用)?(?:控制台)?(?:打印|输出|说)[：:]\s*(.+)":"ka_out(*)",
+	u"(?:在|于|用|使用)?(控制台|语音)?(?:打印|输出|说)[：:]\s*(.+)":"ka_out('{0}', '{1}')",
     u"(?:把|将)?(.+)，并打印":"ka_out(<0>)",
 	KA_DEF+u"一个"+KA_AS+"(“.+”)的(.+)，(?:值|初始化)为(.+)":"ka_new({0}, '{1}', '{2}')",
     KA_DEF+u"一个(.[^名]+)"+KA_AS+"(“.+”)，(?:值|初始化)为(.+)":"ka_new({1}, '{0}', '{2}')",
@@ -43,10 +43,25 @@ ka_pmap=lambda:{
 
 # 【实现】
 
+ka_outputs[""] = "ka_std_print(*)"
+ka_outputs["控制台"] = "ka_std_print(*)"
+ka_outputs["终端"] = "ka_std_print(*)"
+
 @catch2cn
-def ka_out(*a):
-    """打印"""
+def ka_std_print(*a):
+    """终端打印"""
     print(*a)
+
+@catch2cn
+def ka_out(out, a):
+    """输出"""
+    # print(">>>>", a)
+    arg = []
+    arg.extend([parse(v) for v in a.split("、")])
+    foo = ka_outputs[out]
+    foo=foo.replace("*", ",".join(["{}" for i in range(len(arg))]))
+    # print(">>>", foo.format(*arg))
+    exec(foo.format(*arg))
 
 @catch2cn
 def ka_get(key):
@@ -131,7 +146,9 @@ def ka_for(it, foo, aa):
         foo = up+foo[1:]+"(**aa)"
     else:
         up = 'ka_vals.update({'+f"'《{it}》当前索引':idx,'《{it}》当前值':{it}"+"})\n    "
-        foo = up+foo.replace(f"《{it}》当前值", f"{it}").replace(f"《{it}》当前索引", f"idx")
+        # foo = up+foo.replace(f"《{it}》当前值", f"{it}").replace(f"《{it}》当前索引", f"idx")
+        foo = up+foo
+        # foo = up+foo[1:]+"(**aa)"
     fortext = "for idx, {0} in enumerate(iter({1})):\n    {2}"
     ft = fortext.format(it, eval(f"ka_vals['{it}']"), foo)
     #return ft
