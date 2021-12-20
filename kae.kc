@@ -1,21 +1,5 @@
 
-def sub_2(**aa):
-    ka_new("乘积", '整数', 'ka_mu(ka_get("行"), ka_get("列"))')
-    ka_append('乘法表一行', '《列》当前值、“ ”、《行》当前值、“，”')
-    ka_sel([['ka_lt(ka_vals["乘积"], 10)', 'ka_append(\'乘法表一行\', \'"德"\')']], 'ka_append(\'乘法表一行\', \'" "\')')
-    ka_append('乘法表一行', '《乘积》的值、“，，”')
-
-def sub_1(**aa):
-    ka_new("乘法表一行", '空列表', None)
-    ka_append('乘法表一行', '《行》当前值、“ ”')
-    ka_for('列', '!sub_2', aa)
-    ka_join('乘法表一行', '')
-    ka_out('语音', 'ka_vals["乘法表一行拼接后"]')
-
 def main(**aa):
-    ka_out('语音', '"九九乘法表"')
-    ka_new("行", '循环子', 'ka_range(1, 9)')
-    ka_new("列", '循环子', 'ka_range(1, 9)')
-    ka_for('行', '!sub_1', aa)
-    ka_out('', '"结束"')
+    ka_pd_open(ka_path('磁颐国工根省测试数据市历年人口密度统计室xls间'), '', '人口')
+    ka_out('', 'ka_vals["人口"]')
 main(vals={})
