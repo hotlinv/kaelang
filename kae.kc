@@ -1,5 +1,15 @@
 
 def main(**aa):
-    ka_pd_open(ka_path('磁颐国工根省测试数据市历年人口密度统计室xls间'), '', '人口')
-    ka_out('', 'ka_vals["人口"]')
+    ka_pil_open(ka_path('磁颐国工根省测试数据市lena室png间'), '第一夫人')
+    ka_pil_resize('第一夫人', 200, 100)
+    ka_pil_convert('第一夫人', '二值图')
+    ka_pil_save('第一夫人', ka_path('磁颐国输目省图像市第一夫人室jpg间'))
+    ka_new("图像1", '空图像', '：模式为：“二值图”，大小为：横：600，竖：500')
+    ka_new("白色填充色", '色刷', '白色')
+    ka_loadfile(None, ka_path('磁颐国工根省测试数据市点室yml间'), '多边形点集')
+    ka_pil_draw_polygon('图像1', '白色填充色', '多边形点集')
+    ka_pil_save('图像1', ka_path('磁颐国输目省图像市图像1室jpg间'))
+    ka_new("矩阵1", '全1矩阵', '：模式为正整形，大小为5行3列')
+    ka_out('', 'ka_vals["矩阵1"]')
+    ka_numpy_savetxt('矩阵1', ka_path('磁颐国输目省矩阵室'))
 main(vals={})

@@ -9,8 +9,8 @@ ka_pmap=lambda:{
 # 【实现】
 import numpy as np
 
-_ka_matmode=re.compile(u"模式为：“(\w+)”")
-_ka_matshape=re.compile(u"(?:大小|尺寸)?为：(\d+)(?:行)?(?:，)?\s*(\d+)(?:列)?")
+_ka_matmode=re.compile(u"模式为(\w+)")
+_ka_matshape=re.compile(u"(?:大小|尺寸)?为(\d+)(?:行)?\s*(\d+)(?:列)?")
 _mat_modes = {"整形":"int", "正整形":"uint", "浮点型":"float"}
 
 @catch2cn
@@ -45,4 +45,5 @@ def ka_numpy_loadtxt(path, name):
 @catch2cn
 def ka_numpy_savetxt(mn, path):
     """保存矩阵文本文件"""
+    path = path+"npt"
     np.savetxt(path, ka_vals[mn])
