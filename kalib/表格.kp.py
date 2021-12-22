@@ -26,6 +26,10 @@ def ka_pd_save(path, name ):
     path = path+"xlsx"
     # print("###", path)
     df = pd.DataFrame(ka_vals[name])
+    # def style_func(x):
+    #     color='red' if x!="" else ''
+    #     return ';'.join([f'background-color:{color}'])
+    # df = df.style.applymap(style_func)
     df.to_excel(path,            # 路径和文件名
             sheet_name=name,     # sheet 的名字
             float_format='%.2f',  # 保留两位小数
