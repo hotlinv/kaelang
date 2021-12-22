@@ -353,7 +353,7 @@ kæ有两种注释，一种是单行注释，一种是单句注释。单行注�
 #### 安装教程
 
 1. 安装python3
-1. pip3 install pyyaml
+1. pip3 install -r requirements.txt 
 2. 没有了
 
 #### 使用说明
