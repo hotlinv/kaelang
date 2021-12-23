@@ -1,7 +1,18 @@
 
+def sub_2(**aa):
+    ka_append('乘法表一行', ka_get("行"),"X",ka_get("列"),"=",ka_mu(ka_get("行"), ka_get("列")),r'	')
+
+def sub_1(**aa):
+    ka_new("乘法表一行", '空列表', None)
+    ka_for('行', '!sub_2', aa)
+    ka_join('乘法表一行', '')
+    ka_out('', ka_vals["乘法表一行拼接后"])
+
 def main(**aa):
-    ka_pd_open(ka_path('磁颐国工根省测试数据市历年人口密度统计室xls间'), '', '人口')
-    ka_out('', ka_vals["人口"])
-    ka_new("矩阵1", '全1矩阵', '模式为正整形、大小为5行3列')
-    ka_pd_save(ka_path('磁颐国输目省表格1室'), '矩阵1')
+    ka_new("一星期", '循环子', 'ka_range(1, 7)')
+    ka_for('一星期', 'ka_out(\'\', "星期",ka_get("一星期"))', aa)
+    ka_new("行", '循环子', 'ka_range(1, 9)')
+    ka_new("列", '循环子', 'ka_range(1, 9)')
+    ka_for('列', '!sub_1', aa)
+    ka_out('', "结束")
 main(vals={})
