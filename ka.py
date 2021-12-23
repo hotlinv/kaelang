@@ -3,6 +3,8 @@ import inspect as ins
 from pprint import pprint
 import sys, re
 import logging
+import jieba
+
 # 配置logging
 logging.basicConfig(
     level=logging.INFO,
@@ -12,6 +14,7 @@ logging.basicConfig(
         logging.StreamHandler()  # for print at console
     ]
 )
+jieba.setLogLevel(logging.INFO)
 
 def catch2cn(fn):
     def inner(*args):
@@ -30,6 +33,53 @@ res = []
 ka_types = {} #放数据类型
 ka_mount = {} #放数据目录
 ka_outputs = {} #存放输出设备
+
+ 
+# 1读取同义词表，并生成一个字典。
+ka_combine_dict = {}
+
+# 初始化各种字典
+def initDict():
+    for line in open("dict/同义词.txt", "r", encoding='utf-8'):
+        seperate_word = line.strip().split()
+        for i, word in enumerate(seperate_word):
+            if i!=0:
+                ka_combine_dict[word] = seperate_word[0]
+ 
+            # 2提升同义词词典中的词的词频，使其能够被jieba识别出来
+            if len(word)>1:
+                jieba.suggest_freq(word, tune=True)
+
+initDict()
+
+# 通过jieba分词
+def cutWords(string1):
+    # 3将语句切分成单词
+    seg_list = list(jieba.cut(string1, cut_all=False))
+
+    # 4将“”《》内容合并（不做分词）
+    start = False
+    seg_list2 = []
+    for i, word in enumerate(seg_list):
+        if (word == "“" or word == "《") and not start :
+            start = True
+            seg_list2.append([word])
+            continue
+        if (word == "”" or word == "》") and start:
+            start = False
+            seg_list2[-1].append(word)
+            seg_list2[-1] = "".join(seg_list2[-1])
+            continue
+        if not start:
+            seg_list2.append(word)
+        else:
+            seg_list2[-1].append(word)
+    # print(seg_list2)
+    return seg_list2
+ 
+def replaceSynonymWords(words):
+    # 返回同义词替换后的句子
+    return [ka_combine_dict[word] if word in ka_combine_dict else word for word in words]
 
 @catch2cn
 def registType(typename, foo):
@@ -150,37 +200,42 @@ def parse(statement):
         arg = []
         foo = m[0]
         farg = m[0][m[0].index("(")+1:-1]
+        fargts = list(m[1])
         if "*" in farg:
-            arg.extend([typeconv(v, "f()") for v in m[1][0].split("、")])
-            foo=foo.replace("*", ",".join(["{}" for i in range(len(arg))]))
-            #print(foo, arg)
-        else:
-            fargs = [fo.strip() for fo in farg.split(",")]
-            fis = [int(fo[1:-1]) for fo in fargs if fo.startswith("<") and fo.endswith(">")]
-            lis = [int(fo[1:-1]) for fo in fargs if fo.startswith("[") and fo.endswith("]")]
-            for i, a in enumerate(m[1]):
-                if i in fis:
-                    kcsub = parse(a)
-                    #print(">>", kcsub)
-                    arg.append("'"+kcsub.replace("'", r"\'")+"'")
-                elif i in lis:
-                    subm = matchSub(a)
-                    fmt = subm[0]
-                    mres = subm[1]
-                    sublst = []
-                    for r in mres:
-                        subks = ["'"+parse(ri).replace("'", r"\'")+"'" for ri in r]
-                        sublst.append(fmt.replace("<", "{").replace(">", "}").format(*subks))
-                    arg.append("["+",".join(sublst)+"]")
-                    # print("###", arg)
+            aa = fargts[1].split("、")
+            fargts.pop()
+            fargts.extend(aa)
+            foo=re.sub(r"\*\d+\*", ",".join(["{"+f"{i+1}"+"}" for i in range(len(aa))]), foo)
+            #print (foo)
+            
+        
+        fargs = [fo.strip() for fo in farg.split(",")]
+        fis = [int(fo[1:-1]) for fo in fargs if fo.startswith("<") and fo.endswith(">")]
+        lis = [int(fo[1:-1]) for fo in fargs if fo.startswith("[") and fo.endswith("]")]
+        for i, a in enumerate(fargts):
+            if i in fis:
+                kcsub = parse(a)
+                #print(">>", kcsub)
+                arg.append("'"+kcsub.replace("'", r"\'")+"'")
+            elif i in lis:
+                subm = matchSub(a)
+                fmt = subm[0]
+                mres = subm[1]
+                sublst = []
+                for r in mres:
+                    subks = ["'"+parse(ri).replace("'", r"\'")+"'" for ri in r]
+                    sublst.append(fmt.replace("<", "{").replace(">", "}").format(*subks))
+                arg.append("["+",".join(sublst)+"]")
+                # print("###", arg)
+            else:
+                v = typeconv(a, foo)
+                if type(v)==list:
+                    arg.extend(v)
                 else:
-                    v = typeconv(a, m[0])
-                    if type(v)==list:
-                        arg.extend(v)
-                    else:
-                        arg.append(v)
-            foo=foo.replace("<", "{").replace(">", "}").replace("[", "{").replace("]", "}")
+                    arg.append(v)
+        foo=foo.replace("<", "{").replace(">", "}").replace("[", "{").replace("]", "}")
         #args = ",".join(arg)
+        #print(foo, arg)
         kc = f"{foo}".format(*arg)
         return kc
     else:#解析不了的语句
@@ -267,10 +322,15 @@ def main():
         for line in lines:
             if u"【注】" in line:
                 line = line.split(u"【注】")[0]
-            for statement in line.split("。"):
+            for statement in re.split(r"。|！|？", line):
                 statement = statement.strip()
-                if statement is None or statement=="" or statement.startswith("开个玩笑哈~"):
+                #print(statement)
+                if statement is None or statement=="" or statement.startswith("开个玩笑哈~") or statement.endswith("……"):
                     continue
+                try:
+                    statement = "".join(replaceSynonymWords(cutWords(statement)))
+                except:
+                    print("cut err!", statement)
                 if ma_next.search(statement) or ka_fragments["step"]!=0:#下面要开启新的子篇章了或已经在序号里面了
                     fragment(statement, ka_fragments)
                     continue
@@ -294,4 +354,5 @@ def main():
         
         exec(compile("".join(ka_fragments["foo"]), kf.name, "exec"), globals())
 
-main()
+if __name__=="__main__":
+    main()

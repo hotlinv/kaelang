@@ -3,7 +3,7 @@ KA_DEF = u"(?:新建|创建|定义|有)?"
 KA_AS = u"(?:称作|称为|名为|叫|名叫|叫做)"
 ka_pmap=lambda:{
     u"^“(.+)”$":'"{0}"',
-	u"(?:在|于|用|使用)?(控制台|语音)?(?:打印|输出|说)[：:]\s*(.+)":"ka_out('{0}', '{1}')",
+	u"(?:在|于|用|使用)?(控制台|语音)?(?:打印|输出|说)[：:]\s*(.+)":"ka_out('{0}', *1*)",
     u"(?:把|将)?(.+)，并打印":"ka_out(<0>)",
 	KA_DEF+u"一个"+KA_AS+"(“.+”)的(.+)，(?:值|初始化)为(.+)":"ka_new({0}, '{1}', '{2}')",
     KA_DEF+u"一个(.[^名]+)"+KA_AS+"(“.+”)，(?:值|初始化)为(.+)":"ka_new({1}, '{0}', '{2}')",
@@ -36,6 +36,7 @@ ka_pmap=lambda:{
     u"^(\d+)与(\d+)求差$":"ka_mi({0}, {1})",
     u"^(\w+)与(\w+)求差$":"ka_mi(<0>, <1>)",
     u"^制表符$":"r'\t'",
+    u"^感叹号$":"r'！'",
     u"^(\d+)$":"{0}",
     u"^!(\w+)$":"!{0}",
     u"^《(\w+)》当前值$":'ka_get("{0}")',
@@ -54,14 +55,14 @@ def ka_std_print(*a):
     print(*a)
 
 @catch2cn
-def ka_out(out, a):
+def ka_out(out, *arg):
     """输出"""
-    # print(">>>>", a)
-    arg = []
-    arg.extend([parse(v) for v in a.split("、")])
+    #print(">>>>", arg)
+    # arg = []
+    # arg.extend([parse(v) for v in a.split("、")])
     foo = ka_outputs[out]
-    foo=foo.replace("*", ",".join(["{}" for i in range(len(arg))]))
-    # print(">>>", foo.format(*arg))
+    foo=foo.replace("*", ",".join(['"""{}"""' for i in range(len(arg))]))
+    #print(">>>", foo.format(*arg))
     exec(foo.format(*arg))
 
 @catch2cn

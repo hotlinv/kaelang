@@ -1,10 +1,10 @@
 # 【映射】
 ka_pmap=lambda:{
 	u"列表：(\w+)到(\w+)":"ka_range({0}, {1})",
-    u"在《(.+)》中插入：(.+)":"ka_append('{0}', '{1}')",
-    u"将列表《(.+)》(?:用“(.*)”)?(?:来)?(?:进行)?拼接":"ka_join('{0}', '{1}')",
-    u"将列表《(.+)》(?:正向|从小到大)?(?:进行)?排序":"ka_sort('{0}')",
-    u"将列表《(.+)》(?:反向|从大到小)?(?:进行)?排序":"ka_rsort('{0}')",
+    u"在《(.+)》中插入：(.+)":"ka_append('{0}', *1*)",
+    u"把列表《(.+)》(?:用“(.*)”)?(?:来)?(?:进行)?拼接":"ka_join('{0}', '{1}')",
+    u"把列表《(.+)》(?:正向|从小到大)?(?:进行)?排序":"ka_sort('{0}')",
+    u"把列表《(.+)》(?:反向|从大到小)?(?:进行)?排序":"ka_rsort('{0}')",
 }
 
 # 【实现】
@@ -26,12 +26,12 @@ def ka_join(lst, op):
     exec(compile(ft, "list_join", "exec"))
     
 @catch2cn
-def ka_append(name, lst):
+def ka_append(name, *ls):
     """列表中追加数据"""
-    ls = lst.split("、")
-    #print(ka_vals)
-    lst2 = [eval(eval(f"parse('{co}')")) for co in ls]
-    ft = f"ka_vals['{name}'].extend({lst2})"
+    # ls = lst.split("、")
+    #print(ls)
+    #lst2 = [eval(eval(f"parse('{co}')")) for co in ls]
+    ft = f"ka_vals['{name}'].extend({ls})"
     #print(lst, ft)
     exec(compile(ft, "list_append", "exec"))
     
