@@ -40,7 +40,8 @@ ka_combine_dict = {}
 
 # 初始化各种字典
 def initDict():
-    for line in open("dict/同义词.txt", "r", encoding='utf-8'):
+    jieba.load_userdict(r"dict/分词词典.txt")
+    for line in open(r"dict/同义词.txt", "r", encoding='utf-8'):
         seperate_word = line.strip().split()
         for i, word in enumerate(seperate_word):
             if i!=0:
