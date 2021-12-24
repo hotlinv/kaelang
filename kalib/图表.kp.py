@@ -29,9 +29,10 @@ def ka_plot_show_imgs(images):
     if imns[0].mode=="L":
         plt.gray()
     for i, im in enumerate(imns):
-        c = len(imns)%4  #默认一排4张
-        r = int(len(imns)/4)+1
+        c = 4 if len(imns)>4 else len(imns)  #默认一排4张
+        r = int((len(imns)-1)/4)+1
         idx = i+1
+        #print(r, c, idx)
         ax = fig.add_subplot(r*100+c*10+idx)  # left side
         ax.imshow(im)
     plt.show()
