@@ -10,6 +10,11 @@ ka_pmap=lambda:{
     u"把图像《(.+)》输出：(.+)":"ka_pil_save('{0}', ka_path('{1}'))",
     u"在图像《(.+)》上用色刷《(.+)》绘制多边形图案《(.+)》":"ka_pil_draw_polygon('{0}', '{1}', '{2}')",
     u"把图像《(.+)》增强为原来的([0-9]*\.?[0-9]*)倍":"ka_pil_im_enhance('{0}', {1})",
+    u"把图像《(.+)》向右旋转90度":"ka_pil_im_rotate('{0}', 270)",
+    u"把图像《(.+)》向左旋转90度":"ka_pil_im_rotate('{0}', 90)",
+    u"把图像《(.+)》向(?:左|右)旋转180度":"ka_pil_im_rotate('{0}', 180)",
+    u"把图像《(.+)》上下翻转":"ka_pil_im_flip('{0}', 1)",
+    u"把图像《(.+)》左右翻转":"ka_pil_im_flip('{0}', 0)",
 }
 
 # 【实现】
@@ -104,3 +109,27 @@ def ka_pil_im_enhance(name, scale):
     from PIL import ImageEnhance
     enh = ImageEnhance.Contrast(ka_vals[name])
     ka_vals[name+"增强后"] = enh.enhance(scale)
+
+@catch2cn
+def ka_pil_im_rotate(name, angle=90):
+    """图像旋转"""
+    im = ka_vals[name]
+    oname = name+"旋转后"
+    if angle==90:
+        ka_vals[oname] = im.transpose(Image.ROTATE_90)
+    if angle==180:
+        ka_vals[oname] = im.transpose(Image.ROTATE_180)
+    elif angle==-90 or angle==270:
+        ka_vals[oname] = im.transpose(Image.ROTATE_270)
+    else:
+        raise Exception(f"暂不支持非90度倍数的旋转")
+
+@catch2cn
+def ka_pil_im_flip(name, axis=0):
+    """图像翻转"""
+    im = ka_vals[name]
+    oname = name+"翻转后"
+    if axis==0:
+        ka_vals[oname] = im.transpose(Image.FLIP_LEFT_RIGHT)
+    else:
+        ka_vals[oname] = im.transpose(Image.FLIP_TOP_BOTTOM)
