@@ -8,5 +8,6 @@ def main(**aa):
     ka_pil_convert('第一夫人', '灰度图')
     ka_imga_minimum_filter('第一夫人', '窗口大小为12')
     ka_imga_minimum_filter('图像1', '窗口大小为64')
-    ka_plot_show_imgs('《第一夫人》、《第一夫人最小滤波后》')
+    ka_pil_im_enhance('第一夫人', 5)
+    ka_plot_show_imgs('《第一夫人》、《第一夫人最小滤波后》、《第一夫人》、《第一夫人增强后》', 2)
 main(vals={})

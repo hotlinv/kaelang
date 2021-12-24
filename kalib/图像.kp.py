@@ -9,6 +9,7 @@ ka_pmap=lambda:{
     u"展示图像《(.+)》":"ka_pil_show('{0}')",
     u"把图像《(.+)》输出：(.+)":"ka_pil_save('{0}', ka_path('{1}'))",
     u"在图像《(.+)》上用色刷《(.+)》绘制多边形图案《(.+)》":"ka_pil_draw_polygon('{0}', '{1}', '{2}')",
+    u"把图像《(.+)》增强为原来的([0-9]*\.?[0-9]*)倍":"ka_pil_im_enhance('{0}', {1})",
 }
 
 # 【实现】
@@ -96,3 +97,10 @@ def ka_pil_draw_polygon(imgname, colorname, polyname):
     #print(img.mode, color)
     pdraw = ImageDraw.Draw(img)
     pdraw.polygon([tuple(p) for p in poly] ,fill=color)
+
+@catch2cn
+def ka_pil_im_enhance(name, scale):
+    """增强图像"""
+    from PIL import ImageEnhance
+    enh = ImageEnhance.Contrast(ka_vals[name])
+    ka_vals[name+"增强后"] = enh.enhance(scale)

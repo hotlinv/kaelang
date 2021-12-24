@@ -2,7 +2,7 @@
 
 # 【映射】
 ka_pmap=lambda:{
-    u"在图板上并排(?:展示|绘制)图像(.+)":"ka_plot_show_imgs('{0}')",
+    u"在图板上(?:按照一行(\d)张)?并排(?:展示|绘制)图像(.+)":"ka_plot_show_imgs('{1}', {0})",
     u"在图板上(?:展示|绘制)图像《(.+)》":"ka_plot_show_img('{0}')",
 }
 
@@ -20,17 +20,20 @@ def ka_plot_show_img(name):
     plt.show()
 
 @catch2cn
-def ka_plot_show_imgs(images):
+def ka_plot_show_imgs(images, col=None):
     """图板上显示多张图像"""
+    if col is None:
+        col = 4 #默认一排4张
     _ka_img_names=re.compile(u"《(.[^《》]+)》")
     ims = _ka_img_names.findall(images)
     imns = [ka_vals[n] for n in ims]
     fig = plt.figure("多图对比") # 图像窗口名称
     if imns[0].mode=="L":
         plt.gray()
+    #print(col)
     for i, im in enumerate(imns):
-        c = 4 if len(imns)>4 else len(imns)  #默认一排4张
-        r = int((len(imns)-1)/4)+1
+        c = col if len(imns)>col else len(imns)  
+        r = int((len(imns)-1)/col)+1
         idx = i+1
         #print(r, c, idx)
         ax = fig.add_subplot(r*100+c*10+idx)  # left side
