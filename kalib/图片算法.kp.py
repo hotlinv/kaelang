@@ -19,6 +19,7 @@ def ka_imga_splitrect(imgname, rectname):
 
 _ka_imga_window_size=re.compile(u"窗口大小为(\d+)")
 
+@catch2cn
 def ka_imga_minimum_filter(imgname, param):
     """图像最小滤波操作"""
     ws = _ka_imga_window_size.findall(param)

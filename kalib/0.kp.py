@@ -13,6 +13,8 @@ ka_pmap=lambda:{
     u"判断：((?:如果).+，(?:则).+，)+(?:否则)(.+)":"ka_sel([0], <1>)",
     u"(?:启动)循环《(.+)》，(?:运行|执行)(.+)":"ka_for('{0}', <1>, aa)",
     u"(?:如果)(.+?)，(?:则)(.+?)，":"[<0>, <1>]",
+    u"(?:把|将)(.+)《(.+?)》进行(.+)":"ka_call('{0}', '{1}', '{2}')",
+    u"(?:把|将)(?:其|它|他|她)(?:定义|重定义)为(.+)":"ka_rename('{0}')",
     u"(.+)比(.+)大":"ka_gt({0}, {1})",
     u"(.+)大于(.+)":"ka_gt({0}, {1})",
     u"(.+)比(.+)小":"ka_lt({0}, {1})",
@@ -70,7 +72,7 @@ def ka_cn2int(nu, defnu):
     # print(nu)
     if nu is None or nu == "":
         return defnu
-    if isinstance(nu, int):
+    if nu.isdigit():
         return int(nu)
     else:
         cnn = "零一二三四五六七八九十"
@@ -86,15 +88,39 @@ def ka_get(key):
     """获取变量"""
     return ka_vals["《"+key+"》当前值"]
 
+@catch2cn
+def ka_call(type, objname, nextop):
+    print("call =>", type, objname, nextop)
+    nextops = re.split(r"，", nextop)
+    runmatch = type+nextops[0]
+    for k, v in ka_callable_foos.items():
+        if k==runmatch:
+            print("call ===>>>", v.format(objname))
+            exec(v.format(objname))
+    #m = re.compile(u"^(?:然后|并|且|接着|接下来))?")
+    if len(nextops)>1:#执行后面的语句
+        for i in range(1, len(nextops)):
+            #print(nextops[i])
+            eval(parse(nextops[i]))
+
+@catch2cn
+def ka_rename(newname):
+    print(ka_lastit, newname)
+    if ka_lastit in ka_vals:
+        ka_vals[newname] = ka_vals[ka_lastit]
+
 def ka_new_str(name, value):
     value=value.replace("“","\"").replace("”","\"")
     exec(f"ka_vals[\"{name}\"]={value}")
+    return name
 
 def ka_new_num(name, value):
     exec(f"ka_vals[\"{name}\"]={value}")
+    return name
 
 def ka_new_itor(name, value):
     exec(f"ka_vals[\"{name}\"]=parse('{value}')")
+    return name
 
 registType("字符串", ka_new_str)
 registType("整数", ka_new_num)
@@ -102,9 +128,11 @@ registType("浮点数", ka_new_num)
 registType("循环子", ka_new_itor)
 
 @catch2cn
+@lastit
 def ka_new(name, type, value):
     """创建新对象"""
     ka_types[type](name, value)
+    return name
 @catch2cn
 def ka_gt(v1, v2):
     """比较大于"""

@@ -4,6 +4,7 @@ from pprint import pprint
 import sys, re
 import logging
 import jieba
+import functools
 
 # 配置logging
 logging.basicConfig(
@@ -17,14 +18,24 @@ logging.basicConfig(
 jieba.setLogLevel(logging.INFO)
 
 def catch2cn(fn):
+    @functools.wraps(fn) #要加这句，不然inspect的get方法认不到函数，只能认到inner
     def inner(*args):
         try:
             return fn(*args)
         except Exception as e:
             fndoc = ins.getdoc(fn)
-            err = u"{} 出错了：{}".format(fndoc, str(e))
+            err = u"{} 出错了：{}".format(fndoc.split()[0], str(e))
             #print(err)
             logging.error(err)
+    return inner
+
+def lastit(fn):#内部有产生新数据，会返回新数据名字。
+    @functools.wraps(fn) #要加这句，不然inspect的get方法认不到函数，只能认到inner
+    def inner(*args):
+        newname = fn(*args)
+        global ka_lastit
+        ka_lastit = newname
+        return newname
     return inner
 
 ka_vals = {} #放变量
@@ -33,7 +44,8 @@ res = []
 ka_types = {} #放数据类型
 ka_mount = {} #放数据目录
 ka_outputs = {} #存放输出设备
-
+ka_lastit = "" #它/他/她的指代
+ka_callable_foos = {} #“把XXX执行XX”这样的句子自动对应的操作
  
 # 1读取同义词表，并生成一个字典。
 ka_combine_dict = {}
@@ -87,6 +99,20 @@ def registType(typename, foo):
     """注册数据类型"""
     ka_types[typename]=foo
 
+# 抽取callbable函数
+def scan_callable():
+    foos = ins.getmembers(sys.modules['__main__'], ins.isfunction)#拿到主模块下所有的函数
+    #print(foos)
+    for fn in [f for f in foos if f[0].startswith("ka")]:
+        fndoc = ins.getdoc(fn[1])
+        #print(fn, fndoc)
+        if fndoc and "[k]" in fndoc:
+            fnds = [d for d in fndoc.split() if "[k]" in d]
+            for fnd in fnds:
+                fnl = fnd.split("·")
+                ka_callable_foos[fnl[0][3:]] = f"{fn[0]}({fnl[1]})"
+        #    pass
+
 ma_import = re.compile(u"^#\s*【引用】(.+)")
 ma_code = re.compile(u"^#\s*【实现】")
 ma_map = re.compile(u"^#\s*【映射】")
@@ -139,6 +165,8 @@ def loadkps():
         #print(kp)
         with open(kp, "r", encoding='UTF-8') as kpf:
             parsePk(kpf)
+    scan_callable()
+    print(ka_callable_foos)
 loadkps()
 for k,v in eval("ka_sys").items():
     res.append([re.compile(k), v])
@@ -315,6 +343,7 @@ def fragment(statement, ka_fragments):
             endSubFrag(statement, ka_fragments, "", statement)
 @catch2cn
 def main():
+    """主运行函数"""
     with open(sys.argv[1], "r", encoding='UTF-8') as kf:
         lines = [l.strip() for l in kf.readlines()]
         # codes = []
