@@ -66,6 +66,22 @@ def ka_out(out, *arg):
     exec(foo.format(*arg))
 
 @catch2cn
+def ka_cn2int(nu, defnu):
+    # print(nu)
+    if nu is None or nu == "":
+        return defnu
+    if isinstance(nu, int):
+        return int(nu)
+    else:
+        cnn = "零一二三四五六七八九十"
+        n = cnn.find(nu)
+        if n==-1 and nu=="两":
+            return 2
+        else:
+            return defnu
+        return n
+
+@catch2cn
 def ka_get(key):
     """获取变量"""
     return ka_vals["《"+key+"》当前值"]
