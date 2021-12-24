@@ -119,13 +119,17 @@ def ka_pil_im_enhance(name, scale):
 @catch2cn
 @lastit
 def ka_pil_im_rotate(name, angle=90):
-    """图像旋转"""
+    """图像旋转
+    [k]图像向左(?:进行)?(\d+)度旋转·'{0}',{1}
+    [k]图像向右(?:进行)?(\d+)度旋转·'{0}',-{1}
+    """
+    #print(angle)
     im = ka_vals[name]
     oname = name+"旋转后"
     if angle==90:
         ka_vals[oname] = im.transpose(Image.ROTATE_90)
         ka_vals[f"{oname}_type"] = "图像"
-    if angle==180:
+    elif angle==180 or angle==-180:
         ka_vals[oname] = im.transpose(Image.ROTATE_180)
         ka_vals[f"{oname}_type"] = "图像"
     elif angle==-90 or angle==270:
