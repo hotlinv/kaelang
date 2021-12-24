@@ -15,10 +15,18 @@ def ka_load_urlmaps():
     f = open("urlmap.yml", 'r',encoding='utf-8')
     y = yaml.load(f, Loader=yaml.FullLoader)
     ka_mount = y
+    #把路径加入分词中
+    for k, val in y.items():
+        jieba.suggest_freq(k, tune=True)
+        if val:
+            for sk, sv in val.items():
+                jieba.suggest_freq(sk, tune=True)
+
 
 _ka_path_m=re.compile(u"(?:(.+)国)?(?:(.+)省)?(?:(.+)市)?(?:(.+)县)?(?:(.+)乡)?(?:(.+)村)?(?:(.+)路)?(?:(.+)号)?(?:(.+)楼)?(?:(.+)室)?(?:(.+)间)?")
 @catch2cn
 def ka_path(path):
+    '''路径分析'''
     mf = [p for p in _ka_path_m.findall(path)[0]]
     #print(">>>", mf)
     t = mf[0]
