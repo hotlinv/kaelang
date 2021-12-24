@@ -13,7 +13,8 @@ ka_pmap=lambda:{
     u"判断：((?:如果).+，(?:则).+，)+(?:否则)(.+)":"ka_sel([0], <1>)",
     u"(?:启动)循环《(.+)》，(?:运行|执行)(.+)":"ka_for('{0}', <1>, aa)",
     u"(?:如果)(.+?)，(?:则)(.+?)，":"[<0>, <1>]",
-    u"(?:把|将)(.+)?《(.+?)》进行(.+)":"ka_call('{0}', '{1}', '{2}')",
+    u"(?:把|将)(.+)?《(.+?)》进行(.+)":"ka_call('{0}', '{1}', '{2}', None)",
+    u"(?:把|将)(.+)?《(.+?)》(.+)进行(.+)":"ka_call('{0}', '{1}', '{3}', '{2}')",
     u"(?:把|将)(?:其|它|他|她)(?:定义|重定义)为(.+)":"ka_rename('{0}')",
     u"(.+)比(.+)大":"ka_gt({0}, {1})",
     u"(.+)大于(.+)":"ka_gt({0}, {1})",
@@ -89,18 +90,19 @@ def ka_get(key):
     return ka_vals["《"+key+"》当前值"]
 
 @catch2cn
-def ka_call(_type, objname, nextop):
+def ka_call(_type, objname, nextop, usesth):
     if _type is None or _type=="":
         _type = ka_vals[f"{objname}_type"]
     nextops = re.split(r"，", nextop)
-    runmatch = _type+nextops[0]
+    txtemp = lambda x: x if x else ""
+    runmatch = _type+ txtemp(usesth) +nextops[0]
     for k, v in ka_callable_foos.items():
-        #print("call =>", _type, objname, nextop, runmatch, k)
+        #print("call =>", _type, objname, nextop, runmatch, k, usesth)
         m = re.match(k, runmatch)
         if m:
             g = m.groups()
             g = [gi if gi else "" for gi in g]
-            #print("call ===>>>", v.format(objname, *g))
+            #print("call ===>>>", g)
             exec(v.format(objname, *g))
     if len(nextops)>1:#执行后面的语句
         for i in range(1, len(nextops)):
