@@ -2,7 +2,7 @@
 
 # 【映射】
 ka_pmap=lambda:{
-    u"在图板上(?:展示|绘制)图像《(.[^《》、]+)》、《(.[^《》、]+)》":"ka_plot_show_2img('{0}','{1}')",
+    u"在图板上并排(?:展示|绘制)图像(.+)":"ka_plot_show_imgs('{0}')",
     u"在图板上(?:展示|绘制)图像《(.+)》":"ka_plot_show_img('{0}')",
 }
 
@@ -20,15 +20,18 @@ def ka_plot_show_img(name):
     plt.show()
 
 @catch2cn
-def ka_plot_show_2img(name1, name2):
-    """图板上显示2张图像"""
-    fig = plt.figure("双图对比") # 图像窗口名称
-    if ka_vals[name1].mode=="L":
+def ka_plot_show_imgs(images):
+    """图板上显示多张图像"""
+    _ka_img_names=re.compile(u"《(.[^《》]+)》")
+    ims = _ka_img_names.findall(images)
+    imns = [ka_vals[n] for n in ims]
+    fig = plt.figure("多图对比") # 图像窗口名称
+    if imns[0].mode=="L":
         plt.gray()
-    ax1 = fig.add_subplot(121)  # left side
-    ax2 = fig.add_subplot(122)  # right side
-    ax1.imshow(ka_vals[name1])
-    #ax1.title(name1) # 图像题目
-    ax2.imshow(ka_vals[name2])
-    #ax2.title(name2) # 图像题目
+    for i, im in enumerate(imns):
+        c = len(imns)%4  #默认一排4张
+        r = int(len(imns)/4)+1
+        idx = i+1
+        ax = fig.add_subplot(r*100+c*10+idx)  # left side
+        ax.imshow(im)
     plt.show()
