@@ -13,8 +13,8 @@ ka_pmap=lambda:{
     u"判断：((?:如果).+，(?:则).+，)+(?:否则)(.+)":"ka_sel([0], <1>)",
     u"(?:启动)循环《(.+)》，(?:运行|执行)(.+)":"ka_for('{0}', <1>, aa)",
     u"(?:如果)(.+?)，(?:则)(.+?)，":"[<0>, <1>]",
-    u"(?:把|将)(.+)?《(.+?)》进行(.+)":"ka_call('{0}', '{1}', '{2}', None)",
-    u"(?:把|将)(.+)?《(.+?)》(.+)进行(.+)":"ka_call('{0}', '{1}', '{3}', '{2}')",
+    u"(?:把|将|对)(.+)?《(.+?)》进行(.+)":"ka_call('{0}', '{1}', '{2}', None)",
+    u"(?:把|将|对)(.+)?《(.+?)》(.+)进行(.+)":"ka_call('{0}', '{1}', '{3}', '{2}')",
     u"(?:把|将)(?:其|它|他|她)(?:定义|重定义)为(.+)":"ka_rename('{0}')",
     u"(.+)比(.+)大":"ka_gt({0}, {1})",
     u"(.+)大于(.+)":"ka_gt({0}, {1})",
@@ -102,12 +102,13 @@ def ka_call(_type, objname, nextop, usesth):
         if m:
             g = m.groups()
             g = [gi if gi else "" for gi in g]
+            if len(nextops)>1:#执行后面的语句
+                for i in range(1, len(nextops)):
+                    #print(nextops[i])
+                    g.append(parse(nextops[i]))
             #print("call ===>>>", g)
             exec(v.format(objname, *g))
-    if len(nextops)>1:#执行后面的语句
-        for i in range(1, len(nextops)):
-            #print(nextops[i])
-            eval(parse(nextops[i]))
+    
 
 @catch2cn
 def ka_rename(newname):
