@@ -166,7 +166,7 @@ def loadkps():
         with open(kp, "r", encoding='UTF-8') as kpf:
             parsePk(kpf)
     scan_callable()
-    print(ka_callable_foos)
+    # print(ka_callable_foos)
 loadkps()
 for k,v in eval("ka_sys").items():
     res.append([re.compile(k), v])
@@ -341,6 +341,8 @@ def fragment(statement, ka_fragments):
             startSubFrag(statement, ka_fragments, None, statement)
         else:
             endSubFrag(statement, ka_fragments, "", statement)
+
+_ka_m_then = re.compile(u"^然后|最后")
 @catch2cn
 def main():
     """主运行函数"""
@@ -360,11 +362,21 @@ def main():
                 try:
                     statement = "".join(replaceSynonymWords(cutWords(statement)))
                 except:
-                    print("cut err!", statement)
-                if ma_next.search(statement) or ka_fragments["step"]!=0:#下面要开启新的子篇章了或已经在序号里面了
-                    fragment(statement, ka_fragments)
-                    continue
-                ka_fragments["codes"]["main"].append(statement)
+                    print("分词失败!", statement)
+                stat = re.split("，", statement) #判断并|且|接着|然后这些开头的，将其换成句子
+                ss = []
+                for si in stat:
+                    if _ka_m_then.match(si):
+                        ss.append(si[2:])#去掉 然后|最后
+                    elif len(ss)==0:
+                        ss.append(si)
+                    else:
+                        ss[-1]=ss[-1]+"，"+si
+                for s in ss:
+                    if ma_next.search(s) or ka_fragments["step"]!=0:#下面要开启新的子篇章了或已经在序号里面了
+                        fragment(s, ka_fragments)
+                        continue
+                    ka_fragments["codes"]["main"].append(s)
 
         mainlines = ["    {0}".format(parse(ml)) for ml in ka_fragments["codes"]["main"]]
         kc = DEF_TMP.format("main", "\n".join(mainlines)[4:])

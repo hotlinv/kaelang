@@ -90,14 +90,13 @@ def ka_get(key):
 
 @catch2cn
 def ka_call(type, objname, nextop):
-    print("call =>", type, objname, nextop)
+    # print("call =>", type, objname, nextop)
     nextops = re.split(r"，", nextop)
     runmatch = type+nextops[0]
     for k, v in ka_callable_foos.items():
         if k==runmatch:
-            print("call ===>>>", v.format(objname))
+            # print("call ===>>>", v.format(objname))
             exec(v.format(objname))
-    #m = re.compile(u"^(?:然后|并|且|接着|接下来))?")
     if len(nextops)>1:#执行后面的语句
         for i in range(1, len(nextops)):
             #print(nextops[i])
@@ -105,7 +104,7 @@ def ka_call(type, objname, nextop):
 
 @catch2cn
 def ka_rename(newname):
-    print(ka_lastit, newname)
+    # print(ka_lastit, newname)
     if ka_lastit in ka_vals:
         ka_vals[newname] = ka_vals[ka_lastit]
 
