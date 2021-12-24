@@ -26,6 +26,7 @@ def ka_new_zeros(name, value):
     mm = _ka_matmode.findall(value)
     sm = _ka_matshape.findall(value)
     ka_vals[name]=np.zeros(tuple([int(s) for s in sm[0]]), dtype=mat_getmode(mm[0]))
+    ka_vals[f"{name}_type"]="矩阵"
 
 @catch2cn
 def ka_new_ones(name, value):
@@ -33,6 +34,7 @@ def ka_new_ones(name, value):
     mm = _ka_matmode.findall(value)
     sm = _ka_matshape.findall(value)
     ka_vals[name]=np.ones(tuple([int(s) for s in sm[0]]), dtype=mat_getmode(mm[0]))
+    ka_vals[f"{name}_type"]="矩阵"
 
 registType("全0矩阵", ka_new_zeros)
 registType("全1矩阵", ka_new_ones)

@@ -2,7 +2,7 @@
 ka_pmap=lambda:{
 	u"列表：(\w+)到(\w+)":"ka_range({0}, {1})",
     u"在《(.+)》中插入：(.+)":"ka_append('{0}', *1*)",
-    u"把列表《(.+)》(?:用“(.*)”)?(?:来)?(?:进行)?拼接":"ka_join('{0}', '{1}')",
+    # u"把列表《(.+)》(?:用“(.*)”)?(?:来)?(?:进行)?拼接":"ka_join('{0}', '{1}')",
     u"把列表《(.+)》(?:正向|从小到大)?(?:进行)?排序":"ka_sort('{0}')",
     u"把列表《(.+)》(?:反向|从大到小)?(?:进行)?排序":"ka_rsort('{0}')",
 }
@@ -10,7 +10,8 @@ ka_pmap=lambda:{
 # 【实现】
 
 def ka_new_emptylist(name, value):
-    exec(f"ka_vals[\"{name}\"]=[]")
+    ka_vals[f"{name}"]=[]
+    ka_vals[f"{name}_type"]="列表"
 
 registType("空列表", ka_new_emptylist)
 
@@ -21,7 +22,10 @@ def ka_range(b, e):
 
 @catch2cn
 def ka_join(lst, op):
-    """把列表数据连成一行字符串"""
+    """把列表数据连成一行字符串
+    [k]列表(?:用“(.*)”)?拼接·'{0}','{1}'
+    """
+    print(lst, op)
     ft = f"ka_vals['{lst}拼接后']='{op}'.join([str(i) for i in ka_vals['{lst}']])"
     exec(compile(ft, "list_join", "exec"))
     

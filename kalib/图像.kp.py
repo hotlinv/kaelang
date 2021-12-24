@@ -50,11 +50,13 @@ def ka_new_empty_image(name, value):
     mm = _ka_imgmode.findall(value)
     sm = _ka_imgsize.findall(value)
     ka_vals[name]=Image.new(getmode(mm[0]), [int(s) for s in sm[0]])
+    ka_vals[f"{name}_type"] = "图像"
 
 @catch2cn
 def ka_new_fillcolor(name, value):
     """新建画刷"""
     ka_vals[name]=getcolor(value)
+    ka_vals[f"{name}_type"] = "画刷"
 
 registType("空图像", ka_new_empty_image)
 registType("色刷", ka_new_fillcolor)
@@ -64,6 +66,7 @@ def ka_pil_open(path, name):
     """打开图像"""
     # print(path, name)
     ka_vals[name] = Image.open(path)
+    ka_vals[f"{name}_type"] = "图像"
 
 @catch2cn
 def ka_pil_show(name):
@@ -110,6 +113,7 @@ def ka_pil_im_enhance(name, scale):
     from PIL import ImageEnhance
     enh = ImageEnhance.Contrast(ka_vals[name])
     ka_vals[name+"增强后"] = enh.enhance(scale)
+    ka_vals[f"{name}增强后_type"] = "图像"
     return name+"增强后"
 
 @catch2cn
@@ -120,10 +124,13 @@ def ka_pil_im_rotate(name, angle=90):
     oname = name+"旋转后"
     if angle==90:
         ka_vals[oname] = im.transpose(Image.ROTATE_90)
+        ka_vals[f"{oname}_type"] = "图像"
     if angle==180:
         ka_vals[oname] = im.transpose(Image.ROTATE_180)
+        ka_vals[f"{oname}_type"] = "图像"
     elif angle==-90 or angle==270:
         ka_vals[oname] = im.transpose(Image.ROTATE_270)
+        ka_vals[f"{oname}_type"] = "图像"
     else:
         raise Exception(f"暂不支持非90度倍数的旋转")
     return oname
@@ -139,6 +146,8 @@ def ka_pil_im_flip(name, axis=0):
     oname = name+"翻转后"
     if axis==0:
         ka_vals[oname] = im.transpose(Image.FLIP_LEFT_RIGHT)
+        ka_vals[f"{oname}_type"] = "图像"
     else:
         ka_vals[oname] = im.transpose(Image.FLIP_TOP_BOTTOM)
+        ka_vals[f"{oname}_type"] = "图像"
     return oname
