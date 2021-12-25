@@ -109,7 +109,8 @@ def ka_pil_draw_polygon(imgname, colorname, polyname):
 @catch2cn
 @lastit
 def ka_pil_im_enhance(name, scale):
-    """增强图像"""
+    """增强图像
+    """
     from PIL import ImageEnhance
     enh = ImageEnhance.Contrast(ka_vals[name])
     ka_vals[name+"增强后"] = enh.enhance(scale)
