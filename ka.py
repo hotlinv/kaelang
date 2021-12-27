@@ -67,7 +67,8 @@ def initDict():
     for jlline in open(r"dict/鸡肋词.txt", "r", encoding='utf-8'):
         ka_jl_words.extend(jlline.strip().split())
         for i, jlword in enumerate(ka_jl_words):
-            jieba.suggest_freq(jlword, tune=True)
+            if len(jlword)>1:
+                jieba.suggest_freq(jlword, tune=True)
 
 initDict()
 

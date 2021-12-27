@@ -1,12 +1,21 @@
 
+def sub_2(**aa):
+    ka_new("乘积", '整数', 'ka_mu(ka_get("行"), ka_get("列"))')
+    ka_append('乘法表一行', ka_get("列")," ",ka_get("行"),"，")
+    ka_sel([['ka_lt(ka_vals["乘积"], 11)', 'ka_append(\'乘法表一行\', "德")']], 'ka_append(\'乘法表一行\', " ")')
+    ka_append('乘法表一行', ka_vals["乘积"],"，，")
+
+def sub_1(**aa):
+    ka_new("乘法表一行", '空列表', None)
+    ka_append('乘法表一行', ka_get("行")," ")
+    ka_for('列', '!sub_2', aa)
+    ka_call('列表', '乘法表一行', '拼接', None)
+    ka_out('语音', ka_vals["乘法表一行拼接后"])
+
 def main(**aa):
-    ka_out('控制台', "你好，世界2")
-    ka_out('语音', "你好，世界")
-    ka_new("出版年份", '整数', '2001')
-    ka_out('控制台', ka_vals["出版年份"])
-    ka_new("2001两倍", '整数', 'ka_add(ka_vals["出版年份"], ka_vals["出版年份"])')
-    ka_out('', ka_vals["2001两倍"])
-    ka_new("字典", '字符串', '"新华字典"')
-    ka_out('', "《",ka_vals["字典"],"》：",ka_vals["出版年份"],"版")
-    ka_sel([['ka_lt(ka_vals["出版年份"], 2005)', 'ka_out(\'\', "老字典")'],['ka_gt(ka_vals["出版年份"], 2010)', 'ka_out(\'\', "新字典")']], 'ka_out(\'\', "不新不旧版")')
+    ka_out('语音', "九九乘法表")
+    ka_new("行", '循环子', 'ka_range(1, 9)')
+    ka_new("列", '循环子', 'ka_range(1, 9)')
+    ka_for('行', '!sub_1', aa)
+    ka_out('', "结束")
 main(vals={})
