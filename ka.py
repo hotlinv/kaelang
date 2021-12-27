@@ -49,6 +49,8 @@ ka_callable_foos = {} #“把XXX执行XX”这样的句子自动对应的操作
  
 # 1读取同义词表，并生成一个字典。
 ka_combine_dict = {}
+# 鸡肋词
+ka_jl_words = []
 
 # 初始化各种字典
 def initDict():
@@ -62,6 +64,10 @@ def initDict():
             # 2提升同义词词典中的词的词频，使其能够被jieba识别出来
             if len(word)>1:
                 jieba.suggest_freq(word, tune=True)
+    for jlline in open(r"dict/鸡肋词.txt", "r", encoding='utf-8'):
+        ka_jl_words.extend(jlline.strip().split())
+        for i, jlword in enumerate(ka_jl_words):
+            jieba.suggest_freq(jlword, tune=True)
 
 initDict()
 
@@ -84,10 +90,12 @@ def cutWords(string1):
             seg_list2[-1] = "".join(seg_list2[-1])
             continue
         if not start:
-            seg_list2.append(word)
-        else:
+            #print(word, ka_jl_words)
+            if word not in ka_jl_words:#不是鸡肋词
+                seg_list2.append(word)
+        else:#“”《》里面的内容
             seg_list2[-1].append(word)
-    # print(seg_list2)
+    
     return seg_list2
  
 def replaceSynonymWords(words):
