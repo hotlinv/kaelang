@@ -90,17 +90,15 @@ def cutWords(string1):
             seg_list2[-1] = "".join(seg_list2[-1])
             continue
         if not start:
-            #print(word, ka_jl_words)
-            if word not in ka_jl_words:#不是鸡肋词
-                seg_list2.append(word)
+            seg_list2.append(word)
         else:#“”《》里面的内容
             seg_list2[-1].append(word)
-    
     return seg_list2
  
 def replaceSynonymWords(words):
     # 返回同义词替换后的句子
-    return [ka_combine_dict[word] if word in ka_combine_dict else word for word in words]
+    words2 = [ka_combine_dict[word] if word in ka_combine_dict else word for word in words]
+    return [w for w in words2 if w not in ka_jl_words]#去除鸡肋词
 
 @catch2cn
 def registType(typename, foo):
