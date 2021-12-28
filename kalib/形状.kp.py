@@ -14,6 +14,7 @@ _ka_rect_y=re.compile(u"(?:纵向|Y|y)(?:第)?(\d+)(?:行|像素)?")
 
 @catch2cn
 def ka_new_rect(name, value):
+    """新建选区"""
     whm = _ka_rect_wh.findall(value)
     oxy = _ka_rect_oxy.findall(value)
     ox = _ka_rect_x.findall(oxy[0])
