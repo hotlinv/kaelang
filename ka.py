@@ -350,7 +350,7 @@ def fragment(statement, ka_fragments):
             endSubFrag(statement, ka_fragments, "", statement)
 
 _ka_m_then = re.compile(u"^然后|最后")
-@catch2cn
+# @catch2cn
 def main():
     """主运行函数"""
     with open(sys.argv[1], "r", encoding='UTF-8') as kf:

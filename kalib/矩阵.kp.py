@@ -43,6 +43,7 @@ registType("全1矩阵", ka_new_ones)
 def ka_numpy_loadtxt(path, name):
     """加载矩阵文本文件"""
     ka_vals[name] = np.loadtxt(path)
+    ka_vals[f"{name}_type"]="矩阵"
 
 @catch2cn
 def ka_numpy_savetxt(mn, path):

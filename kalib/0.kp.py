@@ -5,8 +5,8 @@ ka_pmap=lambda:{
     u"^“(.+)”$":'"{0}"',
 	u"(?:在|于|用|使用)?(控制台|语音)?(?:打印|输出|说|说出)[：:]\s*(.+)":"ka_out('{0}', *1*)",
     u"(?:把|将)?(.+)，并打印":"ka_out(<0>)",
-	KA_DEF+u"一个"+KA_AS+"(“.+”)的(.+)，(?:值|初始化)为(.+)":"ka_new({0}, '{1}', '{2}')",
-    KA_DEF+u"一个(.[^名]+)"+KA_AS+"(“.+”)，(?:值|初始化)为(.+)":"ka_new({1}, '{0}', '{2}')",
+	KA_DEF+u"一个"+KA_AS+"(“.+”)的(.+)，(?:值为|初始化为)?(.+)":"ka_new({0}, '{1}', '{2}')",
+    KA_DEF+u"一个(.[^名]+)"+KA_AS+"(“.+”)，(?:值为|初始化为)?(.+)":"ka_new({1}, '{0}', '{2}')",
     KA_DEF+u"一个(.+)的(.[^名]+)"+KA_AS+"(“.+”)":"ka_new({2}, '{1}', '{0}')",
     KA_DEF+u"一个"+KA_AS+"(“.+”)的(.+)":"ka_new({1}, '{0}', None)",
     KA_DEF+u"一个(.[^名]+)"+KA_AS+"(“.+”)":"ka_new({1}, '{0}', None)",
@@ -15,8 +15,10 @@ ka_pmap=lambda:{
     u"(?:如果)(.+?)，(?:则)(.+?)，":"[<0>, <1>]",
     u"(?:把|将|对)(.+)?《(.+?)》进行(.+)":"ka_call('{0}', '{1}', '{2}', None)",
     u"(?:把|将|对)(.+)?《(.+?)》(.+)进行(.+)":"ka_call('{0}', '{1}', '{3}', '{2}')",
+    u"(?:从)(.+)?《(.+?)》(?:中|里|里面)(.+)":"ka_from_do('{0}', '{1}', '{2}')",
     #u"(?:把|将|对)(.+)?《(.+?)》(.+)":"ka_call('{0}', '{1}', '{2}', None)",
     u"(?:把|将)(?:其|它|他|她)(?:定义|重定义)为(.+)":"ka_rename('{0}')",
+    u"(?:把|将)(?:其|它|他|她)(.+)":"ka_next_do('{0}')",
     u"(.+)比(.+)大":"ka_gt({0}, {1})",
     u"(.+)大于(.+)":"ka_gt({0}, {1})",
     u"(.+)比(.+)小":"ka_lt({0}, {1})",
@@ -92,6 +94,7 @@ def ka_get(key):
 
 @catch2cn
 def ka_call(_type, objname, nextop, usesth):
+    """执行动作"""
     if _type is None or _type=="":
         _type = ka_vals[f"{objname}_type"]
     nextops = re.split(r"，", nextop)
@@ -112,15 +115,63 @@ def ka_call(_type, objname, nextop, usesth):
             print2kc(f"# call({_type} {objname} {nextop} {usesth}) => "+pycallable, "ka")
             exec(pycallable)
             return pycallable
-    
+
+@catch2cn
+def ka_from_do(_type, objname, nextop):
+    """执行从XX做XX的动作"""
+    if _type is None or _type=="":
+        _type = ka_vals[f"{objname}_type"]
+    nextops = re.split(r"，", nextop)
+    runmatch = _type +nextops[0]
+    # print("from_do =>", _type, objname, nextop, runmatch)
+    for k, v in ka_callable_foos.items():
+        m = re.match(k, runmatch)
+        if m:
+            g = m.groups()
+            g = [gi if gi else "" for gi in g]
+            if len(nextops)>1:#执行后面的语句
+                for i in range(1, len(nextops)):
+                    #print(nextops[i])
+                    g.append(parse(nextops[i]))
+            pycallable = v.format(objname, *g)
+            #print("call ===>>>", pycallable)
+            print2kc(f"# from_do({_type} {objname} {nextop} ) => "+pycallable, "ka")
+            exec(pycallable)
+            return pycallable
 
 @catch2cn
 def ka_rename(newname):
+    """重命名"""
     if ka_lastit in ka_vals:
         # print(ka_lastit, newname)
         ka_vals[newname] = ka_vals[ka_lastit]
-        ka_vals[f"{newname}_type"] = ka_vals[ka_lastit]
+        ka_vals[f"{newname}_type"] = ka_vals[f"{ka_lastit}_type"]
         # print(ka_vals)
+
+@catch2cn
+def ka_next_do(nextop):
+    """执行下一步动作"""
+    if ka_lastit in ka_vals:
+        # print(ka_lastit, newname)
+        objname = ka_lastit
+        _type = ka_vals[f"{ka_lastit}_type"]
+    nextops = re.split(r"，", nextop)
+    runmatch = _type+nextops[0]
+    # print("nextdo =>", nextop, runmatch)
+    for k, v in ka_callable_foos.items():
+        m = re.match(k, runmatch)
+        if m:
+            g = m.groups()
+            g = [gi if gi else "" for gi in g]
+            if len(nextops)>1:#执行后面的语句
+                for i in range(1, len(nextops)):
+                    #print(nextops[i])
+                    g.append(parse(nextops[i]))
+            pycallable = v.format(objname, *g)
+            #print("call ===>>>", pycallable)
+            print2kc(f"# nextdo({_type} {objname} {nextop} ) => "+pycallable, "ka")
+            exec(pycallable)
+            return pycallable
 
 def ka_new_str(name, value):
     value=value.replace("“","\"").replace("”","\"")
