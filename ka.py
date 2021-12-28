@@ -282,8 +282,8 @@ def parse(statement):
 # 字符串="字符串"
 # 循环子="循环子"
 
-def print2kb(codes):
-    kb = open("kae.kb", 'w+', encoding='utf-8')
+def print2kc(codes, fname, newfile=False):
+    kb = open(f"{fname}.kc", 'w+' if newfile else "a", encoding='utf-8')
     print(codes, file=kb)
     kb.close()
 
@@ -393,15 +393,13 @@ def main():
         #pprint(ka_fragments)
         
         # print2kb("\n".join(codes))
-        kac = open("kae.kc", 'w+', encoding='utf-8')
-        print("".join(ka_fragments["foo"]), file=kac)
-        # exec(compile("\n".join(ka_fragments["codes"]), kf.name, "exec"))
-        # for c in codes:
-        #     print(eval(c), file=kac)
-        #     
-        kac.close()
+        pycallable = "".join(ka_fragments["foo"])
+        print2kc(pycallable, "ka", True)
+        # kac = open("kae.kc", 'w+', encoding='utf-8')
+        # print("".join(ka_fragments["foo"]), file=kac)    
+        # kac.close()
         
-        exec(compile("".join(ka_fragments["foo"]), kf.name, "exec"), globals())
+        exec(compile(pycallable, kf.name, "exec"), globals())
 
 if __name__=="__main__":
     main()

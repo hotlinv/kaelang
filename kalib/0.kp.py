@@ -107,17 +107,20 @@ def ka_call(_type, objname, nextop, usesth):
                 for i in range(1, len(nextops)):
                     #print(nextops[i])
                     g.append(parse(nextops[i]))
-            #print("call ===>>>", v.format(objname, *g))
-            exec(v.format(objname, *g))
-            return v.format(objname, *g)
+            pycallable = v.format(objname, *g)
+            #print("call ===>>>", pycallable)
+            print2kc(f"# call({_type} {objname} {nextop} {usesth}) => "+pycallable, "ka")
+            exec(pycallable)
+            return pycallable
     
 
 @catch2cn
 def ka_rename(newname):
-    # print(ka_lastit, newname)
     if ka_lastit in ka_vals:
+        # print(ka_lastit, newname)
         ka_vals[newname] = ka_vals[ka_lastit]
         ka_vals[f"{newname}_type"] = ka_vals[ka_lastit]
+        # print(ka_vals)
 
 def ka_new_str(name, value):
     value=value.replace("“","\"").replace("”","\"")
