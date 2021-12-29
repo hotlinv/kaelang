@@ -21,6 +21,7 @@ ka_pmap=lambda:{
     u"(?:把|将|对)(.+)?《(.+?)》(.+)进行(.+)":"ka_call('{0}', '{1}', '{3}', '{2}')",
     u"(?:从)(.+)?《(.+?)》(?:中|里|里面)(.+)":"ka_from_do('{0}', '{1}', '{2}')",
     #u"(?:把|将|对)(.+)?《(.+?)》(.+)":"ka_call('{0}', '{1}', '{2}', None)",
+    u"(.+)结果即为(.+)":"ka_fun_return('{0}', '{1}')",
     u"(?:把|将)(?:其|它|他|她)(?:定义|重定义)为(.+)":"ka_rename('{0}', None)",
     u"(?:把|将)(.+)(?:定义|重定义)为(.+)":"ka_rename('{1}','{0}')",
     u"(?:把|将)(?:其|它|他|她)(.+)":"ka_next_do('{0}')",
@@ -256,6 +257,29 @@ def ka_new_itor(name, value):
     exec(f"ka_vals[\"{name}\"]=parse('{value}')")
     exec(f"ka_vals[\"{name}_type\"]='循环子'")
     return name
+
+@catch2cn
+@lastit
+def ka_fun_return(foo, keyname):
+    key = None
+    fooname = None
+    attrname = None
+    KA_FOO = r"(ka_\w+)\(\"(\w+)\"\s*,?\s*(?:\"(\w+)\")?\)"
+    if re.match(KA_OBJ_VAL, keyname):
+        key = re.findall(KA_OBJ_VAL, keyname)[0]
+        fooname = ka_sys[KA_OBJ_VAL]
+    elif re.match(KA_OBJ_ATTR, keyname):
+        key = re.findall(KA_OBJ_ATTR, keyname)[0]
+        fooname = ka_sys[KA_OBJ_ATTR]
+    elif re.match(KA_FOO, keyname):
+        fooname,key,attrname = re.findall(KA_FOO, keyname)[0]
+        fooname = f"{fooname}(\"{key}\",\"{attrname}\")" if attrname else f"ka_vals[\"{key}\"]"
+    newname = fooname+"结果"
+    ka_vals[newname] = eval(fooname)
+    ka_vals[f"{newname}_type"] = ka_vals[f"{key}_type"]
+    if key+"_map" in ka_vals:
+        ka_vals[f"{newname}_map"] = ka_vals[f"{key}_map"]
+    return newname
 
 registType("字符串", ka_new_str)
 registType("整数", ka_new_num)
