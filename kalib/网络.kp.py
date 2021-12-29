@@ -33,7 +33,7 @@ def ka_url_mimetype(path):
 def ka_url_method(path):
     '''网络数据请求方法解析'''
     # print(path)
-    METHODS = {"查询":"GET", "更新":"UPDATE", "新建":"POST", "删除":"DELETE"}
+    METHODS = {"查询":"GET", "更新":"PUT", "新建":"POST", "删除":"DELETE"}
     mf = [p for p in _ka_path_m.findall(path)[0]]
     return METHODS[mf[-2]]
 
