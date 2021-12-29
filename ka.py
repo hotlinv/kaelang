@@ -46,6 +46,8 @@ ka_mount = {} #放数据目录
 ka_outputs = {} #存放输出设备
 ka_lastit = "" #它/他/她的指代
 ka_callable_foos = {} #“把XXX执行XX”这样的句子自动对应的操作
+
+ka_imp_fun_name = None
  
 # 1读取同义词表，并生成一个字典。
 ka_combine_dict = {}
@@ -123,6 +125,12 @@ def scan_callable():
 ma_import = re.compile(u"^#\s*【引用】(.+)")
 ma_code = re.compile(u"^#\s*【实现】")
 ma_map = re.compile(u"^#\s*【映射】")
+ma_next = re.compile(u"((?:如下|以下)(?:动作|操作)：)")
+ma_sub = re.compile(u"^((?:\d|\.)+)）(.+)")
+_ka_m_then = re.compile(u"^然后|最后")
+
+_ka_m_deffoo = re.compile(u"怎么\s*(.+)\s*呢")
+_ka_m_impfoo = re.compile(u"让(《.[^》]+》)来解释吧?")
 
 @catch2cn
 def parsePk(kpf):
@@ -287,9 +295,6 @@ def print2kc(codes, fname, newfile=False):
     print(codes, file=kb)
     kb.close()
 
-ma_next = re.compile(u"((?:如下|以下)(?:动作|操作)：)")
-ma_sub = re.compile(u"^((?:\d|\.)+)）(.+)")
-
 def prepare(argmap):
     for k,v in argmap.items():
         # cmd = f"{k}={v}"
@@ -349,11 +354,27 @@ def fragment(statement, ka_fragments):
         else:
             endSubFrag(statement, ka_fragments, "", statement)
 
-_ka_m_then = re.compile(u"^然后|最后")
 @catch2cn
-def main():
+def ka_def_fun(foo):
+    # print("XXX", foo)
+    global ka_imp_fun_name
+    ka_imp_fun_name = foo
+
+@catch2cn
+def ka_imp_fun(foo):
+    # print("III", foo)
+    if foo.startswith("《") and foo.endswith("》"):
+        foo = foo[1:-1]
+    if ka_imp_fun_name:
+        karun(foo, f"功能单元/{foo}.ae")
+        # ka_sys[foo]=f"abc()"
+        res.insert(0, [re.compile(f"^{foo}$"), f"{foo}()"])
+        # print(res)
+
+# @catch2cn
+def karun(foo, file):
     """主运行函数"""
-    with open(sys.argv[1], "r", encoding='UTF-8') as kf:
+    with open(file, "r", encoding='UTF-8') as kf:
         lines = [l.strip() for l in kf.readlines()]
         # codes = []
         #codes存放代码段
@@ -361,7 +382,7 @@ def main():
         for line in lines:
             if u"【注】" in line:
                 line = line.split(u"【注】")[0]
-            for statement in re.split(r"。|！|？", line):
+            for statement in re.split(r"。|！|；|？|\?|!|;", line):
                 statement = statement.strip()
                 #print(statement)
                 if statement is None or statement=="" or statement.startswith("开个玩笑哈~") or statement.endswith("……"):
@@ -370,7 +391,7 @@ def main():
                     statement = "".join(replaceSynonymWords(cutWords(statement)))
                 except:
                     print("分词失败!", statement)
-                stat = re.split("，", statement) #判断并|且|接着|然后这些开头的，将其换成句子
+                stat = re.split("，|,", statement) #判断并|且|接着|然后这些开头的，将其换成句子
                 ss = []
                 for si in stat:
                     if _ka_m_then.match(si):
@@ -383,18 +404,25 @@ def main():
                     if ma_next.search(s) or ka_fragments["step"]!=0:#下面要开启新的子篇章了或已经在序号里面了
                         fragment(s, ka_fragments)
                         continue
+                    if _ka_m_deffoo.search(s):
+                        ka_def_fun(_ka_m_deffoo.match(s).groups()[0])
+                        continue
+                    if _ka_m_impfoo.search(s):
+                        ka_imp_fun(_ka_m_impfoo.match(s).groups()[0])
+                        continue
                     ka_fragments["codes"]["main"].append(s)
 
         mainlines = ["    {0}".format(parse(ml)) for ml in ka_fragments["codes"]["main"]]
-        kc = DEF_TMP.format("main", "\n".join(mainlines)[4:])
+        kc = DEF_TMP.format(foo, "\n".join(mainlines)[4:])
         ka_fragments["foo"].append(kc)
                 # codes.append(kc)
-        ka_fragments["foo"].append("main(vals={})")
+        if foo=="main":
+            ka_fragments["foo"].append("main(vals={})")
         #pprint(ka_fragments)
         
         # print2kb("\n".join(codes))
         pycallable = "".join(ka_fragments["foo"])
-        print2kc(pycallable, "ka", True)
+        print2kc(pycallable, f"{foo}", True)
         # kac = open("kae.kc", 'w+', encoding='utf-8')
         # print("".join(ka_fragments["foo"]), file=kac)    
         # kac.close()
@@ -402,4 +430,4 @@ def main():
         exec(compile(pycallable, kf.name, "exec"), globals())
 
 if __name__=="__main__":
-    main()
+    karun("main", sys.argv[1])
