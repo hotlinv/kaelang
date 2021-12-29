@@ -1,6 +1,9 @@
 # 【映射】
 KA_DEF = u"(?:新建|有)?"
 KA_AS = u"(?:称为)"
+KA_OBJ_VAL = u"^《(\w+)》的值$"
+KA_OBJ_ATTR = u"^《(\w+)》的(\w+)$"
+KA_ITER_NOW = u"^《(\w+)》当前值$"
 ka_pmap=lambda:{
     u"^“(.+)”$":'"{0}"',
 	u"(?:在|于|用|使用)?(控制台|语音)?(?:打印|输出|说|说出)[：:]\s*(.+)":"ka_out('{0}', *1*)",
@@ -20,9 +23,15 @@ ka_pmap=lambda:{
     u"(?:把|将|对)(.+)?《(.+?)》(.+)进行(.+)":"ka_call('{0}', '{1}', '{3}', '{2}')",
     u"(?:从)(.+)?《(.+?)》(?:中|里|里面)(.+)":"ka_from_do('{0}', '{1}', '{2}')",
     #u"(?:把|将|对)(.+)?《(.+?)》(.+)":"ka_call('{0}', '{1}', '{2}', None)",
-    u"(?:把|将)(?:其|它|他|她)(?:定义|重定义)为(.+)":"ka_rename('{0}')",
+    u"(?:把|将)(?:其|它|他|她)(?:定义|重定义)为(.+)":"ka_rename('{0}', None)",
+    u"(?:把|将)(.+)(?:定义|重定义)为(.+)":"ka_rename('{1}','{0}')",
     u"(?:把|将)(?:其|它|他|她)(.+)":"ka_next_do('{0}')",
     u"以《(.[^》]+)》来描述《(.[^》]+)》":"ka_map4obj('{0}', '{1}')",
+    u"依照《(.[^》]+)》构建(.+)":"ka_class2obj('{0}', '{1}')",
+    u"设置《(.[^》]+)》的(.+)为(.+)":"ka_set_obj_attr('{0}', '{1}', '{2}')",
+    u"^(.+)和(.+)(?:前半段|开头)相同$":"ka_str_startswith('{0}', '{1}')",
+    u"^(.+)和(.+)(?:后半段|结尾)相同$":"ka_str_endswith('{0}', '{1}')",
+    u"^(.+)和(.+)有包含关系$":"ka_str_in('{0}', '{1}')",
     u"(.+)比(.+)大":"ka_gt({0}, {1})",
     u"(.+)大于(.+)":"ka_gt({0}, {1})",
     u"(.+)比(.+)小":"ka_lt({0}, {1})",
@@ -49,9 +58,9 @@ ka_pmap=lambda:{
     u"^感叹号$":"r'！'",
     u"^(\d+)$":"{0}",
     u"^!(\w+)$":"!{0}",
-    u"^《(\w+)》当前值$":'ka_get("{0}")',
-    u"^《(\w+)》的值$":'ka_vals["{0}"]',
-    u"^《(\w+)》的(\w+)$":'ka_get_obj_attr("{0}", "{1}")',
+    KA_ITER_NOW:'ka_get("{0}")',
+    KA_OBJ_VAL:'ka_vals["{0}"]',
+    KA_OBJ_ATTR:'ka_get_obj_attr("{0}", "{1}")',
 }
 
 # 【实现】
@@ -78,6 +87,7 @@ def ka_out(out, *arg):
 
 @catch2cn
 def ka_cn2int(nu, defnu):
+    """把中文数字变为数字"""
     # print(nu)
     if nu is None or nu == "":
         return defnu
@@ -103,12 +113,31 @@ def ka_map4obj(clsname, dataname):
     ka_vals[dataname+"_map"] = ka_vals[clsname]
 
 @catch2cn
+def ka_class2obj(clsname, obj):
+    """按照类描述新建对象"""
+    # print("cls2obj", clsname, obj)
+    ka_vals[obj] = {}
+    ka_vals[obj+"_map"] = ka_vals[clsname]
+
+@catch2cn
+def ka_set_obj_attr(objname, attrname, obj):
+    """设置对象属性"""
+    if objname+"_map" in ka_vals:
+        attrname = ka_vals[objname+"_map"][attrname]
+    # print("set_attr", objname, ".", attrname, "=>", obj)
+    ka_vals[objname][attrname] = eval(obj)
+
+@catch2cn
 def ka_get_obj_attr(objname, attrname):
     """获取变量的属性"""
+    # print("get_attr", objname, ".", attrname)
     obj = ka_vals[objname]
     if objname+"_map" in ka_vals:
         omap = ka_vals[objname+"_map"]
-        return obj[omap[attrname]]
+        key = omap[attrname]
+        #递归获取到对应的属性
+        fval = lambda k, obj: obj[k] if type(k)==str else fval(k[list(k.keys())[0]], obj[list(k.keys())[0]])
+        return fval(key, obj)
     else:
         return obj[attrname]
 
@@ -160,12 +189,33 @@ def ka_from_do(_type, objname, nextop):
             return pycallable
 
 @catch2cn
-def ka_rename(newname):
+def ka_rename(newname, keyname):
     """重命名"""
-    if ka_lastit in ka_vals:
+    if keyname and keyname!="":
+        key = None
+        fooname = None
+        attrname = None
+        KA_FOO = r"(ka_\w+)\(\"(\w+)\"\s*,?\s*(?:\"(\w+)\")?\)"
+        if re.match(KA_OBJ_VAL, keyname):
+            key = re.findall(KA_OBJ_VAL, keyname)[0]
+            fooname = ka_sys[KA_OBJ_VAL]
+        elif re.match(KA_OBJ_ATTR, keyname):
+            key = re.findall(KA_OBJ_ATTR, keyname)[0]
+            fooname = ka_sys[KA_OBJ_ATTR]
+        elif re.match(KA_FOO, keyname):
+            fooname,key,attrname = re.findall(KA_FOO, keyname)[0]
+            fooname = f"{fooname}(\"{key}\",\"{attrname}\")" if attrname else f"ka_vals[\"{key}\"]"
+        # print("rename=>", key, fooname, attrname)
+        ka_vals[newname] = eval(fooname)
+        ka_vals[f"{newname}_type"] = ka_vals[f"{key}_type"]
+        if key+"_map" in ka_vals:
+            ka_vals[f"{newname}_map"] = ka_vals[f"{key}_map"]
+    elif ka_lastit in ka_vals:
         # print(ka_lastit, newname)
         ka_vals[newname] = ka_vals[ka_lastit]
         ka_vals[f"{newname}_type"] = ka_vals[f"{ka_lastit}_type"]
+        if ka_lastit+"_map" in ka_vals:
+            ka_vals[f"{newname}_map"] = ka_vals[f"{ka_lastit}_map"]
         # print(ka_vals)
 
 @catch2cn
@@ -257,6 +307,29 @@ def ka_mi(v1, v2):
 def ka_mu(v1, v2):
     """算乘法"""
     return eval(f"{v1}*{v2}")
+
+@catch2cn
+def ka_str_startswith(str1, str2):
+    """判断两个字符串是不是相同开头"""
+    if len(str1)<len(str2):
+        return str2.startswith(str1)
+    else:
+        return str1.startswith(str2)
+@catch2cn
+def ka_str_endswith(str1, str2):
+    """判断两个字符串是不是相同结尾"""
+    if len(str1)<len(str2):
+        return str2.endswith(str1)
+    else:
+        return str1.endswith(str2)
+
+@catch2cn
+def ka_str_in(str1, str2):
+    """判断两个字符串是不是有包含关系"""
+    if len(str1)<len(str2):
+        return str1 in str2
+    else:
+        return str2 in str1
 
 @catch2cn
 def ka_sel(iflist, elsefoo):

@@ -2,6 +2,7 @@
 ka_pmap=lambda:{
 	u"列表：(\w+)到(\w+)":"ka_range({0}, {1})",
     u"在《(.+)》中插入：(.+)":"ka_append('{0}', *1*)",
+    u"查找《(.[^》]+)》中“(.[^”]+)”和《(.[^》]+)》的“(.[^”]+)”(.+)的(首条|所有)?记录":"ka_list_find('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')",
     # u"把列表《(.+)》(?:用“(.*)”)?(?:来)?(?:进行)?拼接":"ka_join('{0}', '{1}')",
     #u"把列表《(.+)》(?:正向|从小到大)?(?:进行)?排序":"ka_sort('{0}')",
     #u"把列表《(.+)》(?:反向|从大到小)?(?:进行)?排序":"ka_rsort('{0}')",
@@ -52,3 +53,35 @@ def ka_rsort(lstn):
     [k]列表(?:反向|从大到小)?(?:进行)?排序·'{0}'
     """
     ka_vals[lstn].sort(reverse=True)
+
+@catch2cn
+@lastit
+def ka_list_find(lstname, rattname, cname, cattname, conp, all):
+    """查找列表中满足条件的记录
+    """
+    ret = []
+    lst = ka_vals[lstname]
+    if lstname+"_map" in ka_vals:
+        lstmap = ka_vals[lstname+"_map"]
+        rattname = lstmap[rattname]
+    cmpo = ka_vals[cname]
+    if cname+"_map" in ka_vals:
+        cmap = ka_vals[cname+"_map"]
+        cname = cmap[cattname]
+    cmpval = cmpo[cname]
+    for i,item in enumerate(lst):
+        rval = item[rattname]
+        m = parse(f"{rval}和{cmpval}"+conp)
+        #print("find", conp,"==>", m)
+        if m and m!=conp and eval(m.format(rval, cmpval)):
+            ret.append(item)
+    if all=="首条":
+        ka_vals[lstname+"查找结果"] = ret[0]
+        ka_vals[lstname+"查找结果_type"] = "对象"
+    else:
+        ka_vals[lstname+"查找结果"] = ret
+        ka_vals[lstname+"查找结果_type"] = "列表"
+    if lstname+"_map" in ka_vals:
+        ka_vals[lstname+"查找结果_map"] = ka_vals[lstname+"_map"]
+    # print(ka_vals)
+    return lstname+"查找结果"

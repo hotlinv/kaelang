@@ -1,0 +1,4 @@
+气温: 
+ data:
+  real:
+   weather: temperature
