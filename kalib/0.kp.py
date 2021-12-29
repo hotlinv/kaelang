@@ -11,6 +11,9 @@ ka_pmap=lambda:{
     KA_DEF+u"一个"+KA_AS+"(“.+”)的(.+)":"ka_new({1}, '{0}', None)",
     KA_DEF+u"一个(.[^名]+)"+KA_AS+"(“.+”)":"ka_new({1}, '{0}', None)",
     u"判断：((?:如果).+，(?:则).+，)+(?:否则)(.+)":"ka_sel([0], <1>)",
+    u"(.+)吗？(.+)":"ka_sel(<0>, <1>)",
+    u"怎样\s*判断(.+)呢":"ka_def_fun(<0>)",
+    u"怎么\s*(.+)呢":"ka_def_fun(<0>)",
     u"(?:启动)循环《(.+)》，(?:进行|运行|执行)(.+)":"ka_for('{0}', <1>, aa)",
     u"(?:如果)(.+?)，(?:则)(.+?)，":"[<0>, <1>]",
     u"(?:把|将|对)(.+)?《(.+?)》进行(.+)":"ka_call('{0}', '{1}', '{2}', None)",
@@ -181,7 +184,7 @@ def ka_new_str(name, value):
 
 def ka_new_num(name, value):
     exec(f"ka_vals[\"{name}\"]={value}")
-    exec(f"ka_vals[\"{name}_type\"]='数字'")
+    exec(f"ka_vals[\"{name}_type\"]='数'")
     return name
 
 def ka_new_itor(name, value):
@@ -192,6 +195,7 @@ def ka_new_itor(name, value):
 registType("字符串", ka_new_str)
 registType("整数", ka_new_num)
 registType("浮点数", ka_new_num)
+registType("数字", ka_new_num)
 registType("循环子", ka_new_itor)
 
 @catch2cn
@@ -267,3 +271,7 @@ def ka_for(it, foo, aa):
     #return ft
     #print(ft)
     exec(compile(ft, "core_for", "exec"))
+
+@catch2cn
+def ka_def_fun(foo):
+    print(":::", foo)
