@@ -22,6 +22,7 @@ ka_pmap=lambda:{
     #u"(?:把|将|对)(.+)?《(.+?)》(.+)":"ka_call('{0}', '{1}', '{2}', None)",
     u"(?:把|将)(?:其|它|他|她)(?:定义|重定义)为(.+)":"ka_rename('{0}')",
     u"(?:把|将)(?:其|它|他|她)(.+)":"ka_next_do('{0}')",
+    u"以《(.[^》]+)》来描述《(.[^》]+)》":"ka_map4obj('{0}', '{1}')",
     u"(.+)比(.+)大":"ka_gt({0}, {1})",
     u"(.+)大于(.+)":"ka_gt({0}, {1})",
     u"(.+)比(.+)小":"ka_lt({0}, {1})",
@@ -50,6 +51,7 @@ ka_pmap=lambda:{
     u"^!(\w+)$":"!{0}",
     u"^《(\w+)》当前值$":'ka_get("{0}")',
     u"^《(\w+)》的值$":'ka_vals["{0}"]',
+    u"^《(\w+)》的(\w+)$":'ka_get_obj_attr("{0}", "{1}")',
 }
 
 # 【实现】
@@ -94,6 +96,21 @@ def ka_cn2int(nu, defnu):
 def ka_get(key):
     """获取变量"""
     return ka_vals["《"+key+"》当前值"]
+
+@catch2cn
+def ka_map4obj(clsname, dataname):
+    """把变量的属性名进行对应（英转中）"""
+    ka_vals[dataname+"_map"] = ka_vals[clsname]
+
+@catch2cn
+def ka_get_obj_attr(objname, attrname):
+    """获取变量的属性"""
+    obj = ka_vals[objname]
+    if objname+"_map" in ka_vals:
+        omap = ka_vals[objname+"_map"]
+        return obj[omap[attrname]]
+    else:
+        return obj[attrname]
 
 @catch2cn
 def ka_call(_type, objname, nextop, usesth):
