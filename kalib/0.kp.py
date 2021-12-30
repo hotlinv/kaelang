@@ -125,7 +125,12 @@ def ka_set_obj_attr(objname, attrname, obj):
     if objname+"_map" in ka_vals:
         attrname = ka_vals[objname+"_map"][attrname]
     # print("set_attr", objname, ".", attrname, "=>", obj)
-    ka_vals[objname][attrname] = eval(obj)
+    if re.match(r"^ka_\w+(.+)$", obj):
+        ka_vals[objname][attrname] = eval(obj)
+    elif re.match(r"^\d+", obj):
+        ka_vals[objname][attrname] = re.findall(r"\d+",obj)[0]
+    else:
+        ka_vals[objname][attrname] = obj
 
 @catch2cn
 def ka_get_obj_attr(objname, attrname):
