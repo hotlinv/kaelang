@@ -22,6 +22,7 @@ ka_pmap=lambda:{
     u"(?:从)(.+)?《(.+?)》(?:中|里|里面)(.+)":"ka_from_do('{0}', '{1}', '{2}')",
     #u"(?:把|将|对)(.+)?《(.+?)》(.+)":"ka_call('{0}', '{1}', '{2}', None)",
     u"(.+)结果即为(.+)":"ka_fun_return('{0}', '{1}')",
+    u"监听对象(.+)":"ka_fun_param(aa, *0*)",
     u"(?:把|将)(?:其|它|他|她)(?:定义|重定义)为(.+)":"ka_rename('{0}', None)",
     u"(?:把|将)(.+)(?:定义|重定义)为(.+)":"ka_rename('{1}','{0}')",
     u"(?:把|将)(?:其|它|他|她)(.+)":"ka_next_do('{0}')",
@@ -84,6 +85,17 @@ def ka_out(out, *arg):
     foo=foo.replace("*", ",".join(['"""{}"""' for i in range(len(arg))]))
     #print(">>>", foo.format(*arg))
     exec(foo.format(*arg))
+
+@catch2cn
+def ka_fun_param(aa, *arg):
+    '''函数设置参数'''
+    foo=",".join(["{}" for i in range(len(arg))])
+    # print(">>>", aa, foo.format(*arg))
+    ka_vals[foo.format(*arg)] = ka_vals[aa["obj"]]
+    if aa["obj"]+"_map" in ka_vals:
+        ka_vals[foo.format(*arg)+"_map"] = ka_vals[aa["obj"]+"_map"]
+    # print(ka_vals)
+    # exec(foo.format(*arg))
 
 @catch2cn
 def ka_cn2int(nu, defnu):

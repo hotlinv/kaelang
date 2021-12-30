@@ -130,7 +130,8 @@ ma_sub = re.compile(u"^((?:\d|\.)+)）(.+)")
 _ka_m_then = re.compile(u"^然后|最后")
 
 _ka_m_deffoo = re.compile(u"怎么\s*(.+)\s*呢")
-_ka_m_impfoo = re.compile(u"让(《.[^》]+》)来解释吧?")
+_ka_m_impfoo = re.compile(u"(?:由|让)(《.[^》]+》)来解释吧?")
+_ka_m_runfoo = re.compile(u"用《(.[^》]+)》把《(.[^》]+)》的([^\s]+)设置为(.+)")
 
 @catch2cn
 def parsePk(kpf):
@@ -246,12 +247,12 @@ def parse(statement):
         farg = m[0][m[0].index("(")+1:-1]
         fargts = list(m[1])
         if "*" in farg:
-            aa = fargts[1].split("、")
+            sm = re.findall(r"\*(\d)\*", farg)
+            begi = int(sm[0])
+            aa = fargts[begi].split("、")
             fargts.pop()
             fargts.extend(aa)
-            foo=re.sub(r"\*\d+\*", ",".join(["{"+f"{i+1}"+"}" for i in range(len(aa))]), foo)
-            #print (foo)
-            
+            foo=re.sub(r"\*\d+\*", ",".join(["{"+f"{i+begi}"+"}" for i in range(len(aa))]), foo)    
         
         fargs = [fo.strip() for fo in farg.split(",")]
         fis = [int(fo[1:-1]) for fo in fargs if fo.startswith("<") and fo.endswith(">")]
@@ -368,8 +369,23 @@ def ka_imp_fun(foo):
     if ka_imp_fun_name:
         karun(foo, f"功能单元/{foo}.ae")
         # ka_sys[foo]=f"abc()"
-        res.insert(0, [re.compile(f"^{foo}$"), f"{foo}()"])
+        res.insert(0, [re.compile(f"{ka_imp_fun_name}，把《(.[^》]+)》的([^\s]+)设置为(.+)"), 
+                r"ka_run_fun('"+foo+"', '{0}', '{1}', '{2}')"])
         # print(res)
+
+@catch2cn
+def ka_run_fun(foo, obj, attr, value):
+    # print("RRR", foo, obj, attr, value)
+    ka_set_obj_attr(obj, attr, value)
+    pycallable=f"{foo}(obj='{obj}')"
+    # print(pycallable)
+    exec(compile(pycallable, foo, "exec"), globals())
+    # if foo.startswith("《") and foo.endswith("》"):
+    #     foo = foo[1:-1]
+    # if ka_imp_fun_name:
+    #     karun(foo, f"功能单元/{foo}.ae")
+    #     res.insert(0, [re.compile(f"^{ka_imp_fun_name}$"), f"{ka_imp_fun_name}()"])
+    #     print(res)
 
 # @catch2cn
 def karun(foo, file):
@@ -409,6 +425,9 @@ def karun(foo, file):
                         continue
                     if _ka_m_impfoo.search(s):
                         ka_imp_fun(_ka_m_impfoo.match(s).groups()[0])
+                        continue
+                    if _ka_m_runfoo.search(s):
+                        ka_run_fun(*_ka_m_runfoo.match(s).groups())
                         continue
                     ka_fragments["codes"]["main"].append(s)
 
