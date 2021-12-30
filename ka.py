@@ -371,14 +371,19 @@ def ka_imp_fun(foo):
         # ka_sys[foo]=f"abc()"
         res.insert(0, [re.compile(f"{ka_imp_fun_name}，把《(.[^》]+)》的([^\s]+)设置为(.+)"), 
                 r"ka_run_fun('"+foo+"', '{0}', '{1}', '{2}')"])
+        res.insert(1, [re.compile(f"{ka_imp_fun_name}"), 
+                r"ka_run_fun('"+foo+"', None, None, None)"])
         # print(res)
 
 @catch2cn
 def ka_run_fun(foo, obj, attr, value):
     # print("RRR", foo, obj, attr, value)
-    ka_set_obj_attr(obj, attr, value)
-    pycallable=f"{foo}(obj='{obj}')"
-    # print(pycallable)
+    if obj is not None:
+        ka_set_obj_attr(obj, attr, value)
+        pycallable=f"{foo}(obj='{obj}')"
+        # print(pycallable)
+    else:
+        pycallable=f"{foo}()"
     exec(compile(pycallable, foo, "exec"), globals())
     # if foo.startswith("《") and foo.endswith("》"):
     #     foo = foo[1:-1]
