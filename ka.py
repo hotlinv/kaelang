@@ -48,6 +48,8 @@ ka_lastit = "" #它/他/她的指代
 ka_callable_foos = {} #“把XXX执行XX”这样的句子自动对应的操作
 
 ka_imp_fun_name = None
+
+ka_custom_foos = []
  
 # 1读取同义词表，并生成一个字典。
 ka_combine_dict = {}
@@ -242,6 +244,8 @@ def parse(statement):
     """解析表达式"""
     if statement.endswith("，"):
         statement = statement[0:-1]
+    if f"判断{statement}" in ka_custom_foos: #如果是个判断，自动加上“判断”这个词
+        statement = f"判断{statement}"
     m = match(statement)
     if m:
         if "(" not in m[0]:#简单的值
@@ -383,6 +387,7 @@ def ka_imp_fun(foo):
                 r"ka_run_fun('"+foo+"', '{0}', '{1}', '{2}')"])
         res.insert(1, [re.compile(f"{funname}"), 
                 r"ka_run_fun('"+foo+"', None, None, None)"])
+        ka_custom_foos.append(funname)
         # print(res)
 
 @catch2cn
