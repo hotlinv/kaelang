@@ -505,8 +505,17 @@ yml数据一旦读入，就是对象了（JSON对象也如此）。本质就是P
 
 然后就可以去读写“空调1”这个东西的属性了。
 
+#### 功能库
 
+1. [图片操作](https://gitee.com/linux_23/kaelang/wikis/%E5%8A%9F%E8%83%BD%E5%BA%93%E8%AF%B4%E6%98%8E/%E5%9B%BE%E7%89%87%E6%93%8D%E4%BD%9C)
 
+2. [图像处理](https://gitee.com/linux_23/kaelang/wikis/%E5%8A%9F%E8%83%BD%E5%BA%93%E8%AF%B4%E6%98%8E/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86)
+
+3. [绘制图表](https://gitee.com/linux_23/kaelang/wikis/%E5%8A%9F%E8%83%BD%E5%BA%93%E8%AF%B4%E6%98%8E/%E7%BB%98%E5%88%B6%E5%9B%BE%E8%A1%A8)
+
+4. [表格操作](https://gitee.com/linux_23/kaelang/wikis/%E5%8A%9F%E8%83%BD%E5%BA%93%E8%AF%B4%E6%98%8E/%E8%A1%A8%E6%A0%BC%E6%93%8D%E4%BD%9C)
+
+5. [网络请求](https://gitee.com/linux_23/kaelang/wikis/%E5%8A%9F%E8%83%BD%E5%BA%93%E8%AF%B4%E6%98%8E/%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82)
 
 
 更多的语言细节请看[维基页面](https://gitee.com/linux_23/kaelang/wikis/pages) 。
