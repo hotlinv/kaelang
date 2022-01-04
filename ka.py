@@ -417,11 +417,19 @@ def karun(foo, file):
         # codes = []
         #codes存放代码段
         ka_fragments = {"step":0, "codes":{"main":[]}, "stack":["main"], "foo":[]}
+        nextsth = None
         for line in lines:
             if u"【注】" in line:
                 line = line.split(u"【注】")[0]
             for statement in re.split(r"。|！|；|？|\?|!|;", line):
                 statement = statement.strip()
+                if statement.endswith("吗"):
+                    nextsth = "判断：要是"+statement[0:-1]
+                    continue
+                if nextsth is not None:
+                    if statement.startswith(nextsth[5:]):
+                        statement = nextsth+"，"+statement[len(nextsth[5:]):]
+                    nextsth = None
                 #print(statement)
                 if statement is None or statement=="" or statement.startswith("开个玩笑哈~") or statement.endswith("……"):
                     continue
