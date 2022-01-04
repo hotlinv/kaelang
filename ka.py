@@ -108,6 +108,9 @@ def registType(typename, foo):
     """注册数据类型"""
     ka_types[typename]=foo
 
+def ka_get_all_function_in_model():
+    return ins.getmembers(sys.modules['__main__'], ins.isfunction)#拿到主模块下所有的函数
+
 # 抽取callbable函数
 def scan_callable():
     foos = ins.getmembers(sys.modules['__main__'], ins.isfunction)#拿到主模块下所有的函数
@@ -206,6 +209,7 @@ def matchSub(code):
     for r in res:
         m = r[0].match(code)
         if m:
+            # print("sub>>", r, m)
             gup = re.findall(r[0], code)
             return r[1], gup
 @catch2cn
@@ -236,6 +240,8 @@ def typeconv(val, foo):
 @catch2cn
 def parse(statement):
     """解析表达式"""
+    if statement.endswith("，"):
+        statement = statement[0:-1]
     m = match(statement)
     if m:
         if "(" not in m[0]:#简单的值
@@ -268,10 +274,10 @@ def parse(statement):
                 mres = subm[1]
                 sublst = []
                 for r in mres:
+                    # print("###", r)
                     subks = ["'"+parse(ri).replace("'", r"\'")+"'" for ri in r]
                     sublst.append(fmt.replace("<", "{").replace(">", "}").format(*subks))
                 arg.append("["+",".join(sublst)+"]")
-                # print("###", arg)
             else:
                 v = typeconv(a, foo)
                 if type(v)==list:
@@ -367,16 +373,21 @@ def ka_imp_fun(foo):
     if foo.startswith("《") and foo.endswith("》"):
         foo = foo[1:-1]
     if ka_imp_fun_name:
+        funname = ka_imp_fun_name
+        # print(foo, foo in ka_get_all_function_in_model())
+        if foo in ka_get_all_function_in_model(): #如果已经解析过了，就不解析
+            return
         karun(foo, f"功能单元/{foo}.ae")
         # ka_sys[foo]=f"abc()"
-        res.insert(0, [re.compile(f"{ka_imp_fun_name}，把《(.[^》]+)》的([^\s]+)设置为(.+)"), 
+        res.insert(0, [re.compile(f"{funname}，把《(.[^》]+)》的([^\s]+)设置为(.+)"), 
                 r"ka_run_fun('"+foo+"', '{0}', '{1}', '{2}')"])
-        res.insert(1, [re.compile(f"{ka_imp_fun_name}"), 
+        res.insert(1, [re.compile(f"{funname}"), 
                 r"ka_run_fun('"+foo+"', None, None, None)"])
         # print(res)
 
 @catch2cn
 def ka_run_fun(foo, obj, attr, value):
+    """运行功能单元"""
     # print("RRR", foo, obj, attr, value)
     if obj is not None:
         ka_set_obj_attr(obj, attr, value)
@@ -385,6 +396,7 @@ def ka_run_fun(foo, obj, attr, value):
     else:
         pycallable=f"{foo}()"
     exec(compile(pycallable, foo, "exec"), globals())
+    return None if f"{foo}结果" not in ka_vals else ka_vals[f"{foo}结果"]
     # if foo.startswith("《") and foo.endswith("》"):
     #     foo = foo[1:-1]
     # if ka_imp_fun_name:

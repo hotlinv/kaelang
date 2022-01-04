@@ -13,18 +13,18 @@ ka_pmap=lambda:{
     KA_DEF+u"一个(.+)的(.[^名]+)"+KA_AS+"(“.+”)":"ka_new({2}, '{1}', '{0}')",
     KA_DEF+u"一个"+KA_AS+"(“.+”)的(.+)":"ka_new({1}, '{0}', None)",
     KA_DEF+u"一个(.[^名]+)"+KA_AS+"(“.+”)":"ka_new({1}, '{0}', None)",
-    u"判断：((?:如果).+，(?:则).+，)+(?:否则)(.+)":"ka_sel([0], <1>)",
+    u"判断：((?:如果).+，(?:则).+)+，+(?:(?:否则)(.+))?":"ka_sel([0], <1>)",
     u"(.+)吗？(.+)":"ka_sel(<0>, <1>)",
     u"(?:启动)循环《(.+)》，(?:进行|运行|执行)(.+)":"ka_for('{0}', <1>, aa)",
-    u"(?:如果)(.+?)，(?:则)(.+?)，":"[<0>, <1>]",
+    u"(?:如果)(.+?)，(?:则)([^如否]+)，?":"[<0>, <1>]",
     u"(?:把|将|对)(.+)?《(.+?)》进行(.+)":"ka_call('{0}', '{1}', '{2}', None)",
     u"(?:把|将|对)(.+)?《(.+?)》(.+)进行(.+)":"ka_call('{0}', '{1}', '{3}', '{2}')",
     u"(?:从)(.+)?《(.+?)》(?:中|里|里面)(.+)":"ka_from_do('{0}', '{1}', '{2}')",
     #u"(?:把|将|对)(.+)?《(.+?)》(.+)":"ka_call('{0}', '{1}', '{2}', None)",
-    u"(.+)结果即为(.+)":"ka_fun_return('{0}', '{1}')",
+    u"^([^，]+)结果即为([^，]+)$":"ka_fun_return('{0}', '{1}')",
     u"监听对象(.+)":"ka_fun_param(aa, *0*)",
-    u"(?:把|将)(?:其|它|他|她)(?:定义|重定义)为(.+)":"ka_rename('{0}', None)",
-    u"(?:把|将)(.+)(?:定义|重定义)为(.+)":"ka_rename('{1}','{0}')",
+    u"(?:把|将)(?:其|它|他|她)(?:重定义|定义)为(.+)":"ka_rename('{0}', None)",
+    u"(?:把|将)(.+)(?:重定义|定义)为(.+)":"ka_rename('{1}','{0}')",
     u"(?:把|将)(?:其|它|他|她)(.+)":"ka_next_do('{0}')",
     u"以《(.[^》]+)》来描述《(.[^》]+)》":"ka_map4obj('{0}', '{1}')",
     u"依照《(.[^》]+)》构建(.+)":"ka_class2obj('{0}', '{1}')",
@@ -62,6 +62,8 @@ ka_pmap=lambda:{
     KA_ITER_NOW:'ka_get("{0}")',
     KA_OBJ_VAL:'ka_vals["{0}"]',
     KA_OBJ_ATTR:'ka_get_obj_attr("{0}", "{1}")',
+    u"^是$":"True",
+    u"^否$":"False",
 }
 
 # 【实现】
@@ -208,6 +210,7 @@ def ka_from_do(_type, objname, nextop):
 @catch2cn
 def ka_rename(newname, keyname):
     """重命名"""
+    # print(">>>", newname, keyname)
     if keyname and keyname!="":
         key = None
         fooname = None
@@ -224,13 +227,15 @@ def ka_rename(newname, keyname):
             fooname = f"{fooname}(\"{key}\",\"{attrname}\")" if attrname else f"ka_vals[\"{key}\"]"
         # print("rename=>", key, fooname, attrname)
         ka_vals[newname] = eval(fooname)
-        ka_vals[f"{newname}_type"] = ka_vals[f"{key}_type"]
+        if ka_lastit+"_type" in ka_vals:
+            ka_vals[f"{newname}_type"] = ka_vals[f"{key}_type"]
         if key+"_map" in ka_vals:
             ka_vals[f"{newname}_map"] = ka_vals[f"{key}_map"]
     elif ka_lastit in ka_vals:
         # print(ka_lastit, newname)
         ka_vals[newname] = ka_vals[ka_lastit]
-        ka_vals[f"{newname}_type"] = ka_vals[f"{ka_lastit}_type"]
+        if ka_lastit+"_type" in ka_vals:
+            ka_vals[f"{newname}_type"] = ka_vals[f"{ka_lastit}_type"]
         if ka_lastit+"_map" in ka_vals:
             ka_vals[f"{newname}_map"] = ka_vals[f"{ka_lastit}_map"]
         # print(ka_vals)
@@ -279,10 +284,11 @@ def ka_new_itor(name, value):
 @catch2cn
 @lastit
 def ka_fun_return(foo, keyname):
+    # print("==>", foo, keyname)
     key = None
     fooname = None
     attrname = None
-    KA_FOO = r"(ka_\w+)\(\"(\w+)\"\s*,?\s*(?:\"(\w+)\")?\)"
+    KA_FOO = r"(ka_\w+)\(\"([^\"]+)\"\s*,?\s*(?:\"([^\"]+)\")?\)"
     if re.match(KA_OBJ_VAL, keyname):
         key = re.findall(KA_OBJ_VAL, keyname)[0]
         fooname = ka_sys[KA_OBJ_VAL]
@@ -292,9 +298,13 @@ def ka_fun_return(foo, keyname):
     elif re.match(KA_FOO, keyname):
         fooname,key,attrname = re.findall(KA_FOO, keyname)[0]
         fooname = f"{fooname}(\"{key}\",\"{attrname}\")" if attrname else f"ka_vals[\"{key}\"]"
-    newname = fooname+"结果"
+    else:
+        key = foo
+        fooname = keyname
+    newname = foo+"结果"
     ka_vals[newname] = eval(fooname)
-    ka_vals[f"{newname}_type"] = ka_vals[f"{key}_type"]
+    if key+"_type" in ka_vals:
+        ka_vals[f"{newname}_type"] = ka_vals[f"{key}_type"]
     if key+"_map" in ka_vals:
         ka_vals[f"{newname}_map"] = ka_vals[f"{key}_map"]
     return newname
@@ -374,6 +384,7 @@ def ka_str_in(str1, str2):
 @catch2cn
 def ka_sel(iflist, elsefoo):
     """条件选择"""
+    # print(iflist, elsefoo)
     text = "elif {0}:\n    {1}"
     elsetxt = "else:\n    {0}"
     textline = []
@@ -381,6 +392,7 @@ def ka_sel(iflist, elsefoo):
         textline.append(text.format(con, foo))
     textline.append(elsetxt.format(elsefoo))
     ft = "\n".join(textline)[2:]
+    # print(ft)
     exec(compile(ft, "core_if", "exec"))
     
 @catch2cn
