@@ -423,13 +423,6 @@ def karun(foo, file):
                 line = line.split(u"【注】")[0]
             for statement in re.split(r"。|！|；|？|\?|!|;", line):
                 statement = statement.strip()
-                if statement.endswith("吗"):
-                    nextsth = "判断：要是"+statement[0:-1]
-                    continue
-                if nextsth is not None:
-                    if statement.startswith(nextsth[5:]):
-                        statement = nextsth+"，"+statement[len(nextsth[5:]):]
-                    nextsth = None
                 #print(statement)
                 if statement is None or statement=="" or statement.startswith("开个玩笑哈~") or statement.endswith("……"):
                     continue
@@ -437,6 +430,16 @@ def karun(foo, file):
                     statement = "".join(replaceSynonymWords(cutWords(statement)))
                 except:
                     print("分词失败!", statement)
+                #句式转换
+                if statement.endswith("吗"):
+                    nextsth = "判断：如果"+statement[0:-1]
+                    continue
+                if nextsth is not None:
+                    if statement.startswith("如果"):
+                        statement = statement[2:]
+                    if statement.startswith(nextsth[5:]):
+                        statement = nextsth+"，"+statement[len(nextsth[5:]):]
+                    nextsth = None
                 stat = re.split("，|,", statement) #判断并|且|接着|然后这些开头的，将其换成句子
                 ss = []
                 for si in stat:
