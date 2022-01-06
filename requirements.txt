@@ -2,3 +2,4 @@ pyyaml
 jieba
 pypinyin
 flexx
+pyside2
