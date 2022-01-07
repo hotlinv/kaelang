@@ -16,11 +16,11 @@ class Relay(flx.Component):
 # Create global relay
 relay = Relay()
 
-class MessageItem(flx.VBox):
+class MessageItem(flx.Widget):
 
     CSS = """
     .flx-MessageItem {
-        overflow-y:hidden;
+        overflow:hidden;
         background: #e8e8e8;
         border: 1px solid #444;
         margin: 3px;
@@ -29,28 +29,27 @@ class MessageItem(flx.VBox):
 
     def init(self):
         super().init()
-        global window
         #self._se = window.document.createElement('div')
-        with flx.HBox(flex=0):
-            self.lab = flx.Label(flex=0, text="[ ]")
-            self.msg_edit = flx.LineEdit(flex=1, placeholder_text=u'输入指令')
-            self.ok = flx.Button(text='运行')
-        self.output = flx.Label(flex=1, text="结果：")
+        with flx.VBox(flex=0):
+            with flx.HBox(flex=1):
+                self.lab = flx.Label(flex=0, text="[ ]")
+                self.msg_edit = flx.LineEdit(flex=1, placeholder_text=u'输入指令')
+                self.ok = flx.Button(text='运行')
+            self.output = flx.Label(flex=1, text="结果：")
 
     # @flx.reaction('box.children*.pointer_click')
     # def a_button_was_pressed(self, *events):
     #     ev = events[-1]  # only care about last event
     #     self.label.set_text(ev.source.id + ' was pressed')
 
-class MessageBox(flx.VBox):
+class MessageList(flx.Widget):
 
     CSS = """
-    .flx-MessageBox {
+    .flx-MessageList {
         overflow:auto;
         background: #e8ffe8;
         border: 1px solid #444;
         margin: 3px;
-        max-height:300px;
     }
     """
 
@@ -58,11 +57,13 @@ class MessageBox(flx.VBox):
         super().init()
         global window
         #self._se = window.document.createElement('div')
-        with flx.VBox(flex=0, style="overflow-y:auto") as self.msglst:
-            MessageItem(flex=0)
-            #self.output = flx.Label(flex=1, text="结果：")
-        
-        flx.Widget(flex=1)
+        with flx.VBox(flex=0):
+            with flx.VBox(flex=0) as self.msglst:
+                # self.msglst.minsize_from_children = False
+                MessageItem(flex=0)
+                #self.output = flx.Label(flex=1, text="结果：")
+            
+            flx.Widget(flex=1)
 
     def sanitize(self, text):
         self._se.textContent = text
@@ -75,32 +76,87 @@ class MessageBox(flx.VBox):
         # line = '<i>' + self.sanitize(name) + '</i>: ' + self.sanitize(msg)
         # self.set_html(self.html + line + '<br />')
         MessageItem(parent=self.msglst)
+
+
+# Associate CodeMirror's assets with this module so that Flexx will load
+# them when (things from) this module is used.
+base_url = 'http://cdnjs.cloudflare.com/ajax/libs/codemirror/'
+flx.assets.associate_asset(__name__, base_url + '5.21.0/codemirror.min.css')
+flx.assets.associate_asset(__name__, base_url + '5.21.0/codemirror.min.js')
+flx.assets.associate_asset(__name__, base_url + '5.21.0/mode/python/python.js')
+flx.assets.associate_asset(__name__, base_url + '5.21.0/theme/solarized.css')
+flx.assets.associate_asset(__name__, base_url + '5.21.0/addon/selection/active-line.js')
+flx.assets.associate_asset(__name__, base_url + '5.21.0/addon/edit/matchbrackets.js')
+
+
+class CodeEditor(flx.Widget):
+    """ A CodeEditor widget based on CodeMirror.
+    """
+
+    CSS = """
+    .flx-CodeEditor > .CodeMirror {
+        width: 100%;
+        height: 100%;
+    }
+    """
+
+    def init(self):
+        global window
+        # https://codemirror.net/doc/manual.html
+        options = dict(value='import os\n\ndirs = os.walk',
+                        mode='python',
+                        theme='solarized dark',
+                        autofocus=True,
+                        styleActiveLine=True,
+                        matchBrackets=True,
+                        indentUnit=4,
+                        smartIndent=True,
+                        lineWrapping=True,
+                        lineNumbers=True,
+                        firstLineNumber=1,
+                        readOnly=False,
+                        )
+        self.cm = window.CodeMirror(self.node, options)
+
+    @flx.reaction('size')
+    def __on_size(self, *events):
+        self.cm.refresh()
         
 
 class Kae(flx.PyWidget):
     """ This represents one connection to the chat room.
     """
-
+    # CSS = """
+    # .flx-main-widget {
+    #     background: #e8ffff;
+    # }
+    # """
     def init(self):
-        with flx.HSplit(title=u'kæ语言编辑器', style="overflow-y:hidden"):
-            # flx.Widget(flex=1)
-            with flx.VBox(flex=1, minsize=150 , style="overflow-y:hidden"):
-                #self.name_edit = flx.LineEdit(placeholder_text='your name')
-                #self.people_label = flx.Label(flex=1, minsize=250)
-                with flx.TreeWidget(flex=1, max_selected=1) as self.tree:
-                    for t in ['foo', 'bar']:
-                        with flx.TreeItem(text=t, checked=None):
-                            for i in range(4):
-                                item2 = flx.TreeItem(text=t + ' %i' % i, checked=False)
-            with flx.VBox(flex=2, style="overflow-y:hidden"):
-                with flx.HBox(flex=0, style="float:left"):
-                    # self.msg_edit = flx.LineEdit(flex=1,  placeholder_text=u'输入指令')
-                    self.ok = flx.Button(flex=0,text='添加')
-                    self.run = flx.Button(flex=0,text='运行')
-                    flx.Widget(flex=1)
-                self.messages = MessageBox(flex=1, style="float:left")
+        with flx.VBox(flex=1, minsize_from_children=False, minsize=350 , style="overflow-y:hidden"):
+            with flx.HSplit(flex=1, title=u'kæ语言编辑器', style="overflow-y:hidden"):
                 # flx.Widget(flex=1)
-            # flx.Widget(flex=1)
+                with flx.VBox(flex=1, minsize_from_children=False, minsize=150 , style="overflow-y:hidden"):
+                    #self.name_edit = flx.LineEdit(placeholder_text='your name')
+                    #self.people_label = flx.Label(flex=1, minsize=250)
+                    with flx.TreeWidget(flex=1, max_selected=1) as self.tree:
+                        for t in ['foo', 'bar']:
+                            with flx.TreeItem(text=t, checked=None):
+                                for i in range(4):
+                                    flx.TreeItem(text=t + ' %i' % i, checked=False)
+                with flx.TabLayout(flex=2, minsize_from_children=False):
+                    with flx.VBox(flex=1, minsize_from_children=False, title="控制台", style="overflow-y:hidden"):
+                        with flx.HBox(flex=0) as self.toolbar:
+                            # self.msg_edit = flx.LineEdit(flex=1,  placeholder_text=u'输入指令')
+                            self.ok = flx.Button(flex=0,text='添加')
+                            self.run = flx.Button(flex=0,text='运行')
+                            flx.Widget(flex=1)
+                        self.messages = MessageList(flex=1, minsize_from_children=False)
+                        with flx.HBox(flex=0) as self.inputbar:
+                            flx.Label(flex=0,text='输入法')
+                    with flx.VBox(flex=1, title="文本"):
+                        CodeEditor(flex=1)
+                    # flx.Widget(flex=1)
+                # flx.Widget(flex=1)
 
         self._update_participants()
 
@@ -135,8 +191,15 @@ class Kae(flx.PyWidget):
             # text = '<br />%i persons in this chat:<br /><br />' % len(names)
             # text += '<br />'.join([name or 'anonymous' for name in sorted(names)])
             # self.people_label.set_html(text)
-
-app = flx.App(Kae, title=u"kae语言交互终端", size=(1000, 800))
+import os,base64
+fname = 'favicon64.ico'
+with open(fname, 'rb') as f1:
+    base64_str = base64.b64encode(f1.read())  # base64类型
+    icos = base64_str.decode()
+kae_png = f'data:image/ico;base64,{icos}'
+# kae_png = 'favicon32.ico'
+# ico = flx.assets.add_shared_data('icon.ico', open(fname, 'rb').read())
+app = flx.App(Kae, title=u"kae语言交互终端", icon=kae_png, size=(1000, 800))
 app.launch('app')  # to run as a desktop app
 # app.launch('browser')  # to open in the browser
 flx.run()  # mainloop will exit when the app is closed    
