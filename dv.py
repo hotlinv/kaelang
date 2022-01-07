@@ -16,31 +16,101 @@ class Relay(flx.Component):
 # Create global relay
 relay = Relay()
 
+class MultiLineEdit(flx.Widget):
+    """ An input widget to edit multiple lines of text.
+
+    The ``node`` of this widget is a
+    `<textarea> <https://developer.mozilla.org/docs/Web/HTML/Element/textarea>`_.
+    """
+
+    DEFAULT_MIN_SIZE = 100, 50
+
+    CSS = """
+        .flx-MultiLineEdit {
+            overflow-y: hidden;
+            color: #333;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            border: 1px solid #aaa;
+            margin: 2px;
+        }
+        .flx-MultiLineEdit:focus  {
+            outline: none;
+            box-shadow: 0px 0px 3px 1px rgba(0, 100, 200, 0.7);
+        }
+    """
+
+    text = flx.StringProp(settable=True, doc="""
+        The current text of the multi-line edit. Settable. If this is an empty
+        string, the placeholder_text is displayed instead.
+        """)
+
+    def _create_dom(self):
+        global window
+        node = window.document.createElement('textarea')
+        f1 = lambda: self.user_text(self.node.value)
+        self._addEventListener(node, 'input', f1, False)
+        self._addEventListener(node, 'blur', self.user_done, False)
+        return node
+
+    @flx.reaction
+    def __text_changed(self):
+        self.node.value = self.text
+        print(self.node.scrollHeight)
+        self.node.style["height"] = f"{self.node.scrollHeight}px"
+        #self.node.rows = self.node.scrollHeight//24
+
+    @flx.emitter
+    def user_text(self, text):
+        """ Event emitted when the user edits the text. Has ``old_value``
+        and ``new_value`` attributes.
+        """
+        d = {'old_value': self.text, 'new_value': text}
+        self.set_text(text)
+        return d
+
+    @flx.emitter
+    def user_done(self):
+        """ Event emitted when the user is done editing the text by
+        moving the focus elsewhere. Has ``old_value`` and ``new_value``
+        attributes (which are the same).
+        """
+        d = {'old_value': self.text, 'new_value': self.text}
+        return d
+
 class MessageItem(flx.Widget):
 
     CSS = """
     .flx-MessageItem {
-        overflow:hidden;
         background: #e8e8e8;
         border: 1px solid #444;
         margin: 3px;
+        flex-grow: 2;
+        flex-shrink: 0;
+        position:relative;
     }
     """
 
     def init(self):
         super().init()
         #self._se = window.document.createElement('div')
-        with flx.VBox(flex=0):
-            with flx.HBox(flex=1):
-                self.lab = flx.Label(flex=0, text="[ ]")
-                self.msg_edit = flx.LineEdit(flex=1, placeholder_text=u'输入指令')
-                self.ok = flx.Button(text='运行')
-            self.output = flx.Label(flex=1, text="结果：")
+        # with flx.VBox(flex=1, minsize_from_children=True, style="position:relative"):
+        with flx.HBox(flex=0, minsize_from_children=True):
+            self.lab = flx.Label(flex=0, text="我：")
+            self.msg_edit = MultiLineEdit(flex=1, minsize_from_children=True)
+            self.ok = flx.Button(text='！')
+        with flx.HBox(flex=0, minsize_from_children=True):
+            flx.Label(flex=0, text="æ：")
+            with flx.VBox(flex=1,  minsize_from_children=True):
+                self.output = flx.Label(flex=0,  minsize_from_children=True)
 
-    # @flx.reaction('box.children*.pointer_click')
-    # def a_button_was_pressed(self, *events):
-    #     ev = events[-1]  # only care about last event
-    #     self.label.set_text(ev.source.id + ' was pressed')
+    @flx.reaction('ok.pointer_click')
+    def a_button_was_pressed(self, *events):
+        ev = events[-1]  # only care about last event
+        self.output.set_html("<br/>".join(self.msg_edit.text.split()))
+    # @flx.reaction('msg_edit.pointer_click')
+    # def a_edit_was_selected(self, *events):
+    #     self.style["background-color"] = "#"
 
 class MessageList(flx.Widget):
 
@@ -50,6 +120,7 @@ class MessageList(flx.Widget):
         background: #e8ffe8;
         border: 1px solid #444;
         margin: 3px;
+        align-content: flex-start;
     }
     """
 
@@ -57,13 +128,13 @@ class MessageList(flx.Widget):
         super().init()
         global window
         #self._se = window.document.createElement('div')
-        with flx.VBox(flex=0):
-            with flx.VBox(flex=0) as self.msglst:
+        # with flx.VBox(flex=0, style="overflow:auto"):
+        #     with flx.VBox(flex=0, minsize_from_children=True) as self.msglst:
                 # self.msglst.minsize_from_children = False
-                MessageItem(flex=0)
+        MessageItem()
                 #self.output = flx.Label(flex=1, text="结果：")
             
-            flx.Widget(flex=1)
+            # flx.Widget(flex=1)
 
     def sanitize(self, text):
         self._se.textContent = text
@@ -75,7 +146,7 @@ class MessageList(flx.Widget):
     def add_message(self, name, msg):
         # line = '<i>' + self.sanitize(name) + '</i>: ' + self.sanitize(msg)
         # self.set_html(self.html + line + '<br />')
-        MessageItem(parent=self.msglst)
+        MessageItem(parent=self)
 
 
 # Associate CodeMirror's assets with this module so that Flexx will load
@@ -199,7 +270,7 @@ with open(fname, 'rb') as f1:
 kae_png = f'data:image/ico;base64,{icos}'
 # kae_png = 'favicon32.ico'
 # ico = flx.assets.add_shared_data('icon.ico', open(fname, 'rb').read())
-app = flx.App(Kae, title=u"kae语言交互终端", icon=kae_png, size=(1000, 800))
+app = flx.App(Kae, title=u"kæ语言交互终端", icon=kae_png, size=(1000, 800))
 app.launch('app')  # to run as a desktop app
 # app.launch('browser')  # to open in the browser
 flx.run()  # mainloop will exit when the app is closed    
