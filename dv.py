@@ -23,7 +23,7 @@ class MultiLineEdit(flx.Widget):
     `<textarea> <https://developer.mozilla.org/docs/Web/HTML/Element/textarea>`_.
     """
 
-    DEFAULT_MIN_SIZE = 100, 50
+    DEFAULT_MIN_SIZE = 100, 30
 
     CSS = """
         .flx-MultiLineEdit {
@@ -33,6 +33,7 @@ class MultiLineEdit(flx.Widget):
             border-radius: 3px;
             border: 1px solid #aaa;
             margin: 2px;
+            height:30px;
         }
         .flx-MultiLineEdit:focus  {
             outline: none;
@@ -56,7 +57,7 @@ class MultiLineEdit(flx.Widget):
     @flx.reaction
     def __text_changed(self):
         self.node.value = self.text
-        print(self.node.scrollHeight)
+        # print(self.node.scrollHeight)
         self.node.style["height"] = f"{self.node.scrollHeight}px"
         #self.node.rows = self.node.scrollHeight//24
 
@@ -94,23 +95,26 @@ class MessageItem(flx.Widget):
     def init(self):
         super().init()
         #self._se = window.document.createElement('div')
-        # with flx.VBox(flex=1, minsize_from_children=True, style="position:relative"):
-        with flx.HBox(flex=0, minsize_from_children=True):
-            self.lab = flx.Label(flex=0, text="我：")
-            self.msg_edit = MultiLineEdit(flex=1, minsize_from_children=True)
-            self.ok = flx.Button(text='！')
-        with flx.HBox(flex=0, minsize_from_children=True):
-            flx.Label(flex=0, text="æ：")
-            with flx.VBox(flex=1,  minsize_from_children=True):
-                self.output = flx.Label(flex=0,  minsize_from_children=True)
+        with flx.VBox(flex=1, minsize_from_children=True, style="position:relative") as self.outer:
+            with flx.HBox(flex=0, minsize_from_children=True):
+                self.lab = flx.Label(flex=0, text="我：")
+                self.msg_edit = MultiLineEdit(flex=1, minsize_from_children=True)
+                self.ok = flx.Button(text='！')
+            with flx.HBox(flex=0, minsize_from_children=True):
+                flx.Label(flex=0, text="æ：")
+                with flx.VBox(flex=1,  minsize_from_children=True):
+                    self.output = flx.Label(flex=0,  minsize_from_children=True)
 
     @flx.reaction('ok.pointer_click')
     def a_button_was_pressed(self, *events):
         ev = events[-1]  # only care about last event
         self.output.set_html("<br/>".join(self.msg_edit.text.split()))
-    # @flx.reaction('msg_edit.pointer_click')
-    # def a_edit_was_selected(self, *events):
-    #     self.style["background-color"] = "#"
+    @flx.reaction('msg_edit.pointer_click')
+    def a_edit_was_selected(self, *events):
+        parent = self.parent
+        for c in parent.children:
+            c.apply_style("background-color:#e8e8e8")
+        self.apply_style("background-color:#fafafa")
 
 class MessageList(flx.Widget):
 
