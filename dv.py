@@ -239,7 +239,7 @@ class CodeEditor(flx.Widget):
 
     @flx.action
     def set_text(self, text):
-        self.cm.options.value=text
+        self.cm.setValue(text)
         self.cm.refresh()
         
 class FileTree(flx.TreeWidget):
