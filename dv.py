@@ -13,8 +13,48 @@ class Relay(flx.Component):
     def new_name(self):
         return {}
 
+    @flx.emitter
+    def click_file(self, name):
+        return dict(name=name)
+
+    @flx.action
+    def file_clicked(self, name):
+        self.emit("click_file", name)
+    
+
+# class Files(flx.JsComponent):  # Lives in Js
+#     name = flx.StringProp(settable=True)
+
+    
+
+    # @flx.emitter
+    # def increase_age(self):
+    #     self._mutate_age(self.age + 1)
+
 # Create global relay
 relay = Relay()
+
+# class Person(flx.JsComponent):  # Lives in Js
+#     name = flx.StringProp(settable=True)
+#     age = flx.IntProp(settable=True)
+
+#     @flx.action
+#     def increase_age(self):
+#         self._mutate_age(self.age + 1)
+
+# class PersonDatabase(flx.PyComponent):  # Lives in Python
+#     persons = flx.ListProp()
+
+#     @flx.action
+#     def add_person(self, name, age):
+#         with self:  # new components need a session
+#             p = Person(name=name, age=age)
+#         self._mutate_persons([p], 'insert', 99999)
+
+#     @flx.action
+#     def new_year(self):
+#         for p in self.persons:
+#             p.increase_age()
 
 class MultiLineEdit(flx.Widget):
     """ An input widget to edit multiple lines of text.
@@ -196,7 +236,40 @@ class CodeEditor(flx.Widget):
     @flx.reaction('size')
     def __on_size(self, *events):
         self.cm.refresh()
+
+    @flx.action
+    def set_text(self, text):
+        self.cm.options.value=text
+        self.cm.refresh()
         
+class FileTree(flx.TreeWidget):
+
+    selected = flx.StringProp("", settable=True, doc='can have any value')
+
+    def init(self):
+        # self.relay = relay
+        super().init()
+        # self.relay = Files()
+
+    @flx.reaction('children**.pointer_double_click')
+    def on_event(self, *events):
+        for ev in events:
+            # if ev.new_value:
+            text = ev.source.text + ' was ' + ev.type
+            self.set_selected(text)
+            # print(text)
+            self.emit("select_item", {})
+            #relay.file_clicked(text)
+            # relay.create_message(name, "新语句")
+            # self.relay.click_file(text)
+            # self.text = text
+
+    # @flx.reaction('select_item')
+    # def __select_changed(self, *events):
+        
+    @flx.emitter
+    def select_item(self):
+        return {"name":self.text}
 
 class Kae(flx.PyWidget):
     """ This represents one connection to the chat room.
@@ -207,17 +280,24 @@ class Kae(flx.PyWidget):
     # }
     # """
     def init(self):
+        self.kk = urlmapconf
+        # pdb = PersonDatabase()
+        # with self:
+        #     self.jsr = Files()
         with flx.VBox(flex=1, minsize_from_children=False, minsize=350 , style="overflow-y:hidden"):
             with flx.HSplit(flex=1, title=u'kæ语言编辑器', style="overflow-y:hidden"):
                 # flx.Widget(flex=1)
                 with flx.VBox(flex=1, minsize_from_children=False, minsize=150 , style="overflow-y:hidden"):
                     #self.name_edit = flx.LineEdit(placeholder_text='your name')
                     #self.people_label = flx.Label(flex=1, minsize=250)
-                    with flx.TreeWidget(flex=1, max_selected=1) as self.tree:
-                        for t in ['foo', 'bar']:
-                            with flx.TreeItem(text=t, checked=None):
-                                for i in range(4):
-                                    flx.TreeItem(text=t + ' %i' % i, checked=False)
+                    self.tree = FileTree(flex=1, max_selected=1)
+                    for k,v in self.kk.items():
+                        guo = flx.TreeItem(text=k, checked=None, parent=self.tree)
+                        if v is not None:
+                            for k2, v2 in v.items():
+                                sheng = flx.TreeItem(text=k2, checked=None, parent=guo)
+                                if k=="磁颐国" and v2 is not None:
+                                    self.makepathtreeitem(sheng, v2)
                 with flx.TabLayout(flex=2, minsize_from_children=False):
                     with flx.VBox(flex=1, minsize_from_children=False, title="控制台", style="overflow-y:hidden"):
                         with flx.HBox(flex=0) as self.toolbar:
@@ -229,11 +309,23 @@ class Kae(flx.PyWidget):
                         with flx.HBox(flex=0) as self.inputbar:
                             flx.Label(flex=0,text='输入法')
                     with flx.VBox(flex=1, title="文本"):
-                        CodeEditor(flex=1)
+                        self.cm = CodeEditor(flex=1)
                     # flx.Widget(flex=1)
                 # flx.Widget(flex=1)
 
-        self._update_participants()
+        # self._update_participants()
+    @flx.action
+    def makepathtreeitem(self, node, vals):
+        if isinstance (vals , list):
+            for f in vals:
+                if isinstance(f, str):
+                    flx.TreeItem(text=f, checked=None, parent=node)
+                else:
+                    self.makepathtreeitem(node, f)
+        else:
+            for k in vals:
+                now = flx.TreeItem(text=k, checked=None, parent=node)
+                self.makepathtreeitem(now, vals[k])
 
     @flx.reaction('ok.pointer_down')
     def _send_message(self, *events):
@@ -248,6 +340,13 @@ class Kae(flx.PyWidget):
         for ev in events:
             self.messages.add_message(ev.name, ev.message)
 
+    @flx.reaction('tree.select_item')  # note that we connect to relay
+    def _on_click_file(self, *events):
+        for ev in events:
+            print("reaction>", ev.source.selected)
+            self.cm.set_text(ev.source.selected)
+            
+    
     # @flx.reaction('name_edit.user_done')  # tell everyone we changed our name
     # def _push_name(self, *events):
     #     relay.new_name()
@@ -256,17 +355,47 @@ class Kae(flx.PyWidget):
     # def _new_name(self, *events):
     #     self._update_participants(self, [])
 
-    @flx.manager.reaction('connections_changed')
-    def _update_participants(self, *event):
-        if self.session.status:
-            # Query the app manager to see who's in the room
-            sessions = flx.manager.get_connections(self.session.app_name)
-            # names = [s.app.name_edit.text for s in sessions]
-            del sessions
+    # @flx.manager.reaction('connections_changed')
+    # def _update_participants(self, *event):
+    #     if self.session.status:
+    #         # Query the app manager to see who's in the room
+    #         sessions = flx.manager.get_connections(self.session.app_name)
+    #         # names = [s.app.name_edit.text for s in sessions]
+    #         del sessions
             # text = '<br />%i persons in this chat:<br /><br />' % len(names)
             # text += '<br />'.join([name or 'anonymous' for name in sorted(names)])
             # self.people_label.set_html(text)
 import os,base64
+
+def loadUrlmaps():
+    def makepathtree(node, keyname):
+        path = node[keyname]
+        fs = os.listdir(path)
+        node[keyname] = []
+        for f in fs:
+            if f.startswith(".") or f=="__pycache__":
+                continue
+            jp = os.path.join(path, f)
+            # print(jp)
+            if os.path.isfile(jp):
+                node[keyname].append(f) 
+            elif os.path.isdir(jp):
+                newnode = {f:jp}
+                node[keyname].append(newnode)
+                makepathtree(newnode, f)
+    import yaml
+    with open("urlmap.yml", 'r',encoding='utf-8') as yf:
+        y = yaml.load(yf, Loader=yaml.SafeLoader)
+        for k,v in y.items():
+            if v is not None:
+                for k2, v2 in v.items():
+                    if k=="磁颐国" and v2 is not None:
+                        makepathtree(y[k], k2)
+        return y  
+urlmapconf = loadUrlmaps()
+# print(urlmapconf)
+
+
 fname = 'favicon64.ico'
 with open(fname, 'rb') as f1:
     base64_str = base64.b64encode(f1.read())  # base64类型
