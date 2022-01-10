@@ -1,4 +1,7 @@
 # 【映射】
+from sys import stderr
+
+
 KA_DEF = u"(?:新建|有)?"
 KA_AS = u"(?:称为)"
 KA_OBJ_VAL = u"^《(\w+)》的值$"
@@ -168,8 +171,8 @@ def ka_call(_type, objname, nextop, usesth):
     nextops = re.split(r"，", nextop)
     txtemp = lambda x: x if x else ""
     runmatch = _type+ txtemp(usesth) +nextops[0]
+    # print("call =>", _type, objname, nextop, runmatch, usesth, ka_callable_foos, file=stderr)
     for k, v in ka_callable_foos.items():
-        #print("call =>", _type, objname, nextop, runmatch, k, usesth)
         m = re.match(k, runmatch)
         if m:
             g = m.groups()

@@ -23,7 +23,7 @@ class Relay(flx.Component):
 
     @flx.emitter
     def exec_output(self, msg):
-        print(msg)
+        # print(msg)
         return dict(msg=msg)
     
 
@@ -110,7 +110,7 @@ class MultiLineEdit(flx.Widget):
     def _refresh(self):
         self.node.value = self.text
         self.node.style["height"] = f"{self.node.scrollHeight}px"
-        print(self.text, self.node.scrollHeight)
+        # print(self.text, self.node.scrollHeight)
 
     @flx.emitter
     def user_text(self, text):
@@ -176,7 +176,7 @@ class MessageItem(flx.Widget):
 
     @flx.action
     def print_output(self, msg):
-        self.output.set_html("<br/>".join(msg.split()))#self.msg_edit.text
+        self.output.set_html("<br/>".join(msg.split(r"\n")))#self.msg_edit.text
 
     @flx.emitter
     def run_text(self, statement):
@@ -318,7 +318,7 @@ class FileTree(flx.TreeWidget):
         for ev in events:
             # if ev.new_value:
             # text = ev.source.text + ' was ' + ev.type
-            print(ev.type, "---", ev.source.path)
+            # print(ev.type, "---", ev.source.path)
             self.set_selected(ev.source.path)
             # 
             # self.emit("select_item", {})
@@ -353,17 +353,28 @@ class CliThread (threading.Thread):   #继承父类threading.Thread
         threading.Thread.__init__(self)
         self.parent = parent
         self.queue = queue.Queue(maxsize=1)
-        exec("from ka import *", globals())
+        with open("ka.py", "r", encoding='UTF-8') as kf:
+            lines = [l for l in kf.readlines()]
+            exec("\n".join(lines), globals())
         
     def run(self):                   #把要执行的代码写到run函数里面 线程在创建后会直接运行run函数 
         while True:
             s = self.queue.get(block=True)
-            # print(">>>", s)
+            stat = "".join(s)
+            print(">>>", stat)
             old_stdout = sys.stdout
+            old_stderr = sys.stderr
             redirected_output = sys.stdout = StringIO()
-            exec(f"karuncli('{s[0]}')", globals())
+            redirected_error = sys.stderr = StringIO()
+            exec(f"karuncli('{stat}')", globals())
             sys.stdout = old_stdout
-            self.parent.output(redirected_output.getvalue())
+            sys.stderr = old_stderr
+            stdo = redirected_output.getvalue()
+            stde = redirected_error.getvalue()
+            if stdo is not None and stdo!="":
+                self.parent.output(stdo)
+            elif stde:
+                self.parent.output(stde)
 
 #语言运行核心
 class KaeCore(flx.PyComponent): 

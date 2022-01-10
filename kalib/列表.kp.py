@@ -24,9 +24,9 @@ def ka_range(b, e):
 @catch2cn
 def ka_join(lst, op):
     """把列表数据连成一行字符串
-    [k]列表(?:用“(.*)”)?(?:拼接|拼接起来)·'{0}','{1}'
+    [k]列表(?:用“(.*)”)?(?:进行)?(?:拼接|拼接起来)·'{0}','{1}'
     """
-    #print(lst, op)
+    # print("call join", lst, op)
     ft = f"ka_vals['{lst}拼接后']='{op}'.join([str(i) for i in ka_vals['{lst}']])"
     exec(compile(ft, "list_join", "exec"))
     

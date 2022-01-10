@@ -486,6 +486,7 @@ def karun(foo, file):
         
         exec(compile(pycallable, kf.name, "exec"), globals())
 
+@catch2cn
 def karuncli(linestxt):
     """交互式主运行函数"""
     lines = [l.strip() for l in linestxt.split()]
@@ -500,9 +501,13 @@ def karuncli(linestxt):
             # codes.append(kc)
     # if foo=="main":
     # ka_fragments["foo"].append("main(vals={})")
-    pycallable = "".join(mainlines)
+    pycallable = "\n".join(mainlines)
+    
+    print2kc(pycallable, "cli", newfile=True)
     
     exec(compile(pycallable, "cli", "exec"), globals())
+    print2kc(ka_vals, "mem", True)
 
 if __name__=="__main__":
-    karun("main", sys.argv[1])
+    if len(sys.argv)>1:
+        karun("main", sys.argv[1])
