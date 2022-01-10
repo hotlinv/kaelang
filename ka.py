@@ -409,7 +409,56 @@ def ka_run_fun(foo, obj, attr, value):
     #     res.insert(0, [re.compile(f"^{ka_imp_fun_name}$"), f"{ka_imp_fun_name}()"])
     #     print(res)
 
-# @catch2cn
+def ka_parse_a_line(ka_fragments, line):
+    global nextsth
+    if u"【注】" in line:
+        line = line.split(u"【注】")[0]
+    for statement in re.split(r"。|！|；|？|\?|!|;", line):
+        statement = statement.strip()
+        #print(statement)
+        if statement is None or statement=="" or statement.startswith("开个玩笑哈~") or statement.endswith("……"):
+            continue
+        try:
+            statement = "".join(replaceSynonymWords(cutWords(statement)))
+        except:
+            print("分词失败!", statement)
+        #句式转换
+        if statement.endswith("吗"):
+            nextsth = "判断：如果"+statement[0:-1]
+            continue
+        if nextsth is not None:
+            if statement.startswith("如果"):
+                statement = statement[2:]
+            if statement.startswith(nextsth[5:]):
+                statement = nextsth+"，"+statement[len(nextsth[5:]):]
+            nextsth = None
+        stat = re.split("，|,", statement) #判断并|且|接着|然后这些开头的，将其换成句子
+        ss = []
+        for si in stat:
+            if _ka_m_then.match(si):
+                ss.append(si[2:])#去掉 然后|最后
+            elif len(ss)==0:
+                ss.append(si)
+            else:
+                ss[-1]=ss[-1]+"，"+si
+        for s in ss:
+            if ma_next.search(s) or ka_fragments["step"]!=0:#下面要开启新的子篇章了或已经在序号里面了
+                fragment(s, ka_fragments)
+                continue
+            if _ka_m_deffoo.search(s):
+                ka_def_fun(_ka_m_deffoo.match(s).groups()[0])
+                continue
+            if _ka_m_impfoo.search(s):
+                ka_imp_fun(_ka_m_impfoo.match(s).groups()[0])
+                continue
+            if _ka_m_runfoo.search(s):
+                ka_run_fun(*_ka_m_runfoo.match(s).groups())
+                continue
+            ka_fragments["codes"]["main"].append(s)
+
+
+nextsth = None
+@catch2cn
 def karun(foo, file):
     """主运行函数"""
     with open(file, "r", encoding='UTF-8') as kf:
@@ -417,52 +466,8 @@ def karun(foo, file):
         # codes = []
         #codes存放代码段
         ka_fragments = {"step":0, "codes":{"main":[]}, "stack":["main"], "foo":[]}
-        nextsth = None
         for line in lines:
-            if u"【注】" in line:
-                line = line.split(u"【注】")[0]
-            for statement in re.split(r"。|！|；|？|\?|!|;", line):
-                statement = statement.strip()
-                #print(statement)
-                if statement is None or statement=="" or statement.startswith("开个玩笑哈~") or statement.endswith("……"):
-                    continue
-                try:
-                    statement = "".join(replaceSynonymWords(cutWords(statement)))
-                except:
-                    print("分词失败!", statement)
-                #句式转换
-                if statement.endswith("吗"):
-                    nextsth = "判断：如果"+statement[0:-1]
-                    continue
-                if nextsth is not None:
-                    if statement.startswith("如果"):
-                        statement = statement[2:]
-                    if statement.startswith(nextsth[5:]):
-                        statement = nextsth+"，"+statement[len(nextsth[5:]):]
-                    nextsth = None
-                stat = re.split("，|,", statement) #判断并|且|接着|然后这些开头的，将其换成句子
-                ss = []
-                for si in stat:
-                    if _ka_m_then.match(si):
-                        ss.append(si[2:])#去掉 然后|最后
-                    elif len(ss)==0:
-                        ss.append(si)
-                    else:
-                        ss[-1]=ss[-1]+"，"+si
-                for s in ss:
-                    if ma_next.search(s) or ka_fragments["step"]!=0:#下面要开启新的子篇章了或已经在序号里面了
-                        fragment(s, ka_fragments)
-                        continue
-                    if _ka_m_deffoo.search(s):
-                        ka_def_fun(_ka_m_deffoo.match(s).groups()[0])
-                        continue
-                    if _ka_m_impfoo.search(s):
-                        ka_imp_fun(_ka_m_impfoo.match(s).groups()[0])
-                        continue
-                    if _ka_m_runfoo.search(s):
-                        ka_run_fun(*_ka_m_runfoo.match(s).groups())
-                        continue
-                    ka_fragments["codes"]["main"].append(s)
+            ka_parse_a_line(ka_fragments, line)
 
         mainlines = ["    {0}".format(parse(ml)) for ml in ka_fragments["codes"]["main"]]
         kc = DEF_TMP.format(foo, "\n".join(mainlines)[4:])
@@ -480,6 +485,24 @@ def karun(foo, file):
         # kac.close()
         
         exec(compile(pycallable, kf.name, "exec"), globals())
+
+def karuncli(linestxt):
+    """交互式主运行函数"""
+    lines = [l.strip() for l in linestxt.split()]
+    #codes存放代码段
+    ka_fragments = {"step":0, "codes":{"main":[]}, "stack":["main"], "foo":[]}
+    for line in lines:
+        ka_parse_a_line(ka_fragments, line)
+
+    mainlines = ["{0}".format(parse(ml)) for ml in ka_fragments["codes"]["main"]]
+    # kc = DEF_TMP.format(foo, "\n".join(mainlines)[4:])
+    # ka_fragments["foo"].append(kc)
+            # codes.append(kc)
+    # if foo=="main":
+    # ka_fragments["foo"].append("main(vals={})")
+    pycallable = "".join(mainlines)
+    
+    exec(compile(pycallable, "cli", "exec"), globals())
 
 if __name__=="__main__":
     karun("main", sys.argv[1])

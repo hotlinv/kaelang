@@ -6,8 +6,8 @@ class Relay(flx.Component):
     """
 
     @flx.emitter
-    def create_message(self, name, message):
-        return dict(name=name, message=message)
+    def create_message(self, message):
+        return dict( message=message)
 
     @flx.emitter
     def new_name(self):
@@ -20,6 +20,11 @@ class Relay(flx.Component):
     @flx.action
     def file_clicked(self, name):
         self.emit("click_file", name)
+
+    @flx.emitter
+    def exec_output(self, msg):
+        print(msg)
+        return dict(msg=msg)
     
 
 # class Files(flx.JsComponent):  # Lives in Js
@@ -101,6 +106,12 @@ class MultiLineEdit(flx.Widget):
         self.node.style["height"] = f"{self.node.scrollHeight}px"
         #self.node.rows = self.node.scrollHeight//24
 
+    @flx.action
+    def _refresh(self):
+        self.node.value = self.text
+        self.node.style["height"] = f"{self.node.scrollHeight}px"
+        print(self.text, self.node.scrollHeight)
+
     @flx.emitter
     def user_text(self, text):
         """ Event emitted when the user edits the text. Has ``old_value``
@@ -132,29 +143,44 @@ class MessageItem(flx.Widget):
     }
     """
 
-    def init(self):
+    text = flx.StringProp(settable=True, doc="""Message text""")
+
+    def init(self, text=""):
         super().init()
+        self.set_text(text)
         #self._se = window.document.createElement('div')
         with flx.VBox(flex=1, minsize_from_children=True, style="position:relative") as self.outer:
             with flx.HBox(flex=0, minsize_from_children=True):
                 self.lab = flx.Label(flex=0, text="我：")
-                self.msg_edit = MultiLineEdit(flex=1, minsize_from_children=True)
-                self.ok = flx.Button(text='！')
+                self.msg_edit = MultiLineEdit(flex=1, text=text, minsize_from_children=True)
+                self.run = flx.Button(text='！')
             with flx.HBox(flex=0, minsize_from_children=True):
                 flx.Label(flex=0, text="æ：")
                 with flx.VBox(flex=1,  minsize_from_children=True):
                     self.output = flx.Label(flex=0,  minsize_from_children=True)
 
-    @flx.reaction('ok.pointer_click')
+    @flx.reaction('run.pointer_click')
     def a_button_was_pressed(self, *events):
         ev = events[-1]  # only care about last event
-        self.output.set_html("<br/>".join(self.msg_edit.text.split()))
+        self.run_text(self.msg_edit.text.split())
+        # 
     @flx.reaction('msg_edit.pointer_click')
     def a_edit_was_selected(self, *events):
         parent = self.parent
         for c in parent.children:
             c.apply_style("background-color:#e8e8e8")
         self.apply_style("background-color:#fafafa")
+    @flx.action
+    def _reupdate(self):
+        self.msg_edit._refresh()
+
+    @flx.action
+    def print_output(self, msg):
+        self.output.set_html("<br/>".join(msg.split()))#self.msg_edit.text
+
+    @flx.emitter
+    def run_text(self, statement):
+        return dict(statement=statement, source=self)
 
 class MessageList(flx.Widget):
 
@@ -167,6 +193,9 @@ class MessageList(flx.Widget):
         align-content: flex-start;
     }
     """
+    activeitem = flx.AnyProp(settable=True, doc="""Active Item""")
+
+    # msgs = flx.ListProp()
 
     def init(self):
         super().init()
@@ -175,7 +204,11 @@ class MessageList(flx.Widget):
         # with flx.VBox(flex=0, style="overflow:auto"):
         #     with flx.VBox(flex=0, minsize_from_children=True) as self.msglst:
                 # self.msglst.minsize_from_children = False
-        MessageItem()
+        # self.msgs = [MessageItem()]
+        MessageItem("", parent=self)
+        for c in self.children:
+            c._reupdate()
+        # self._mutate_msgs([m], 'insert', 99999)
                 #self.output = flx.Label(flex=1, text="结果：")
             
             # flx.Widget(flex=1)
@@ -187,10 +220,39 @@ class MessageList(flx.Widget):
         return text
 
     @flx.action
-    def add_message(self, name, msg):
+    def add_message(self, msg):
+        # print(msg)
         # line = '<i>' + self.sanitize(name) + '</i>: ' + self.sanitize(msg)
         # self.set_html(self.html + line + '<br />')
-        MessageItem(parent=self)
+        # self.msgs.append(MessageItem(parent=self, text=msg))
+        MessageItem(msg, parent=self)
+        for c in self.children:
+            c._reupdate()
+        # self._mutate_msgs([m], 'insert', 99999)
+    
+    @flx.action
+    def clear(self):
+        # line = '<i>' + self.sanitize(name) + '</i>: ' + self.sanitize(msg)
+        # self.set_html(self.html + line + '<br />')
+        for c in self.children:
+            c.set_parent(None)
+        # for msg in self.msgs:
+        #     msg.set_parent(None)
+        # self.msgs = []
+
+    
+    @flx.reaction('!children**.run_text')
+    def on_run(self, *events):
+        for ev in events:
+            self.run_statement(ev.statement)
+            self.set_activeitem(ev.source)
+    @flx.emitter
+    def run_statement(self, statement):
+        return dict(statement=statement)     
+    
+    @flx.action
+    def output_message(self, msg):
+        self.activeitem.print_output(msg)
 
 
 # Associate CodeMirror's assets with this module so that Flexx will load
@@ -259,7 +321,8 @@ class FileTree(flx.TreeWidget):
             print(ev.type, "---", ev.source.path)
             self.set_selected(ev.source.path)
             # 
-            self.emit("select_item", {})
+            # self.emit("select_item", {})
+            self.select_item()
             #relay.file_clicked(text)
             # relay.create_message(name, "新语句")
             # self.relay.click_file(text)
@@ -281,6 +344,45 @@ class FileTreeItem(flx.TreeItem):
         super().init()
         # self.relay = Files()
 
+import threading, sys
+import queue
+from io import StringIO
+
+class CliThread (threading.Thread):   #继承父类threading.Thread
+    def __init__(self, parent):
+        threading.Thread.__init__(self)
+        self.parent = parent
+        self.queue = queue.Queue(maxsize=1)
+        exec("from ka import *", globals())
+        
+    def run(self):                   #把要执行的代码写到run函数里面 线程在创建后会直接运行run函数 
+        while True:
+            s = self.queue.get(block=True)
+            # print(">>>", s)
+            old_stdout = sys.stdout
+            redirected_output = sys.stdout = StringIO()
+            exec(f"karuncli('{s[0]}')", globals())
+            sys.stdout = old_stdout
+            self.parent.output(redirected_output.getvalue())
+
+#语言运行核心
+class KaeCore(flx.PyComponent): 
+    def init(self, _parent):
+        super().init()
+        self._parent = _parent
+        self.t1 = CliThread(self)
+        self.t1.setDaemon(True)
+        self.t1.start()
+
+    @flx.action
+    def new_statement(self, statement):
+        # print(">>", statement)
+        self.t1.queue.put_nowait(statement)
+
+    def output(self, msg):
+        # self._parent._on_output(msg)
+        flx.loop.call_soon(root._on_output, msg)
+
 class Kae(flx.PyWidget):
     """ This represents one connection to the chat room.
     """
@@ -291,6 +393,7 @@ class Kae(flx.PyWidget):
     # """
     def init(self):
         self.kk = urlmapconf
+        self.kaecore = KaeCore(self)
         # pdb = PersonDatabase()
         # with self:
         #     self.jsr = Files()
@@ -312,7 +415,7 @@ class Kae(flx.PyWidget):
                     with flx.VBox(flex=1, minsize_from_children=False, title="控制台", style="overflow-y:hidden"):
                         with flx.HBox(flex=0) as self.toolbar:
                             # self.msg_edit = flx.LineEdit(flex=1,  placeholder_text=u'输入指令')
-                            self.ok = flx.Button(flex=0,text='添加')
+                            self.newline = flx.Button(flex=0,text='添加')
                             self.run = flx.Button(flex=0,text='运行')
                             flx.Widget(flex=1)
                         self.messages = MessageList(flex=1, minsize_from_children=False)
@@ -342,18 +445,22 @@ class Kae(flx.PyWidget):
                 now = FileTreeItem(path=k, title=names[-1], checked=None, parent=node)
                 self.makepathtreeitem(now, vals[k])
 
-    @flx.reaction('ok.pointer_down')
+    @flx.reaction('newline.pointer_down')
     def _send_message(self, *events):
         # text = self.msg_edit.text
         # if text:
-        name = 'anonymous' #self.name_edit.text or 'anonymous'
-        relay.create_message(name, "新语句")
+        # name = 'anonymous' #self.name_edit.text or 'anonymous'
+        relay.create_message("")
         # self.msg_edit.set_text('')
 
     @relay.reaction('create_message')  # note that we connect to relay
     def _push_info(self, *events):
         for ev in events:
-            self.messages.add_message(ev.name, ev.message)
+            self.messages.add_message(ev.message)
+
+    @flx.action  # note that we connect to relay
+    def _on_output(self, msg):
+        self.messages.output_message(msg)
 
     @flx.reaction('tree.select_item')  # note that we connect to relay
     def _on_click_file(self, *events):
@@ -361,13 +468,19 @@ class Kae(flx.PyWidget):
             print("reaction>", ev.source.selected)
             if ev.source.selected.endswith(".ae"):
                 self.tabctrl.set_current(0)
+                with open(ev.source.selected, "r",encoding='utf-8') as file:
+                    self.messages.clear()
+                    self.messages.add_message(file.read())
             else:
                 self.tabctrl.set_current(1)
                 with open(ev.source.selected, "r",encoding='utf-8') as file:
                     self.cm.set_text(file.read())
-
-
             
+    @flx.reaction('messages.run_statement')
+    def _run_kae_statement(self, *events):
+        for ev in events:
+            text = ev.statement
+            self.kaecore.new_statement(text)
     
     # @flx.reaction('name_edit.user_done')  # tell everyone we changed our name
     # def _push_name(self, *events):
@@ -428,6 +541,6 @@ kae_png = f'data:image/ico;base64,{icos}'
 # kae_png = 'favicon32.ico'
 # ico = flx.assets.add_shared_data('icon.ico', open(fname, 'rb').read())
 app = flx.App(Kae, title=u"kæ语言交互终端", icon=kae_png, size=(1000, 800))
-app.launch('app')  # to run as a desktop app
+root = app.launch('app')  # to run as a desktop app
 # app.launch('browser')  # to open in the browser
-flx.run()  # mainloop will exit when the app is closed    
+flx.run()  # mainloop will exit when the app is closed 
