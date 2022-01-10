@@ -619,6 +619,8 @@ kæ有两种注释，一种是单行注释，一种是单句注释。单行注�
 
 更多的语言细节请看[维基页面](https://gitee.com/linux_23/kaelang/wikis/pages) 。
 
+
+
 #### 安装教程
 
 1. 安装python3
@@ -628,6 +630,21 @@ kæ有两种注释，一种是单行注释，一种是单句注释。单行注�
 #### 使用说明
 
 1. python ka.py 测试.ae
+
+#### 交互式控制台
+
+现在有一个交互式控制台来使用了。
+
+运行
+
+
+```
+python dv.py
+```
+
+<img src=https://images.gitee.com/uploads/images/2022/0110/182537_58b0df9f_4988273.png width=80%>
+
+这个控制台的界面风格参考了Jupyter Notebook，可以进行交互式输入输出了。
 
 #### 参与贡献
 
