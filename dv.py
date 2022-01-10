@@ -255,9 +255,10 @@ class FileTree(flx.TreeWidget):
     def on_event(self, *events):
         for ev in events:
             # if ev.new_value:
-            text = ev.source.text + ' was ' + ev.type
-            self.set_selected(text)
-            # print(text)
+            # text = ev.source.text + ' was ' + ev.type
+            print(ev.type, "---", ev.source.path)
+            self.set_selected(ev.source.path)
+            # 
             self.emit("select_item", {})
             #relay.file_clicked(text)
             # relay.create_message(name, "新语句")
@@ -269,7 +270,16 @@ class FileTree(flx.TreeWidget):
         
     @flx.emitter
     def select_item(self):
-        return {"name":self.text}
+        return {"name":self.selected}
+
+class FileTreeItem(flx.TreeItem):
+    
+    path = flx.StringProp("", settable=True, doc='file `s path')
+
+    def init(self):
+        # self.relay = relay
+        super().init()
+        # self.relay = Files()
 
 class Kae(flx.PyWidget):
     """ This represents one connection to the chat room.
@@ -292,13 +302,13 @@ class Kae(flx.PyWidget):
                     #self.people_label = flx.Label(flex=1, minsize=250)
                     self.tree = FileTree(flex=1, max_selected=1)
                     for k,v in self.kk.items():
-                        guo = flx.TreeItem(text=k, checked=None, parent=self.tree)
+                        guo = FileTreeItem(title=k, checked=None, parent=self.tree)
                         if v is not None:
                             for k2, v2 in v.items():
-                                sheng = flx.TreeItem(text=k2, checked=None, parent=guo)
+                                sheng = FileTreeItem(title=k2, checked=None, parent=guo)
                                 if k=="磁颐国" and v2 is not None:
                                     self.makepathtreeitem(sheng, v2)
-                with flx.TabLayout(flex=2, minsize_from_children=False):
+                with flx.TabLayout(flex=2, minsize_from_children=False) as self.tabctrl:
                     with flx.VBox(flex=1, minsize_from_children=False, title="控制台", style="overflow-y:hidden"):
                         with flx.HBox(flex=0) as self.toolbar:
                             # self.msg_edit = flx.LineEdit(flex=1,  placeholder_text=u'输入指令')
@@ -309,6 +319,9 @@ class Kae(flx.PyWidget):
                         with flx.HBox(flex=0) as self.inputbar:
                             flx.Label(flex=0,text='输入法')
                     with flx.VBox(flex=1, title="文本"):
+                        with flx.HBox(flex=0) as self.txttoolbar:
+                            self.save = flx.Button(flex=0,text='保存')
+                            flx.Widget(flex=1)
                         self.cm = CodeEditor(flex=1)
                     # flx.Widget(flex=1)
                 # flx.Widget(flex=1)
@@ -319,12 +332,14 @@ class Kae(flx.PyWidget):
         if isinstance (vals , list):
             for f in vals:
                 if isinstance(f, str):
-                    flx.TreeItem(text=f, checked=None, parent=node)
+                    names = os.path.split(f)
+                    FileTreeItem(path=f, title=names[-1], checked=None, parent=node)
                 else:
                     self.makepathtreeitem(node, f)
         else:
             for k in vals:
-                now = flx.TreeItem(text=k, checked=None, parent=node)
+                names = os.path.split(k)
+                now = FileTreeItem(path=k, title=names[-1], checked=None, parent=node)
                 self.makepathtreeitem(now, vals[k])
 
     @flx.reaction('ok.pointer_down')
@@ -344,7 +359,14 @@ class Kae(flx.PyWidget):
     def _on_click_file(self, *events):
         for ev in events:
             print("reaction>", ev.source.selected)
-            self.cm.set_text(ev.source.selected)
+            if ev.source.selected.endswith(".ae"):
+                self.tabctrl.set_current(0)
+            else:
+                self.tabctrl.set_current(1)
+                with open(ev.source.selected, "r",encoding='utf-8') as file:
+                    self.cm.set_text(file.read())
+
+
             
     
     # @flx.reaction('name_edit.user_done')  # tell everyone we changed our name
@@ -378,19 +400,21 @@ def loadUrlmaps():
             jp = os.path.join(path, f)
             # print(jp)
             if os.path.isfile(jp):
-                node[keyname].append(f) 
+                node[keyname].append(jp) 
             elif os.path.isdir(jp):
-                newnode = {f:jp}
+                newnode = {jp:jp}
                 node[keyname].append(newnode)
-                makepathtree(newnode, f)
+                makepathtree(newnode, jp)
     import yaml
+    # from pprint import pprint
     with open("urlmap.yml", 'r',encoding='utf-8') as yf:
-        y = yaml.load(yf, Loader=yaml.SafeLoader)
+        y = yaml.load(yf, Loader=yaml.FullLoader)
         for k,v in y.items():
             if v is not None:
                 for k2, v2 in v.items():
                     if k=="磁颐国" and v2 is not None:
                         makepathtree(y[k], k2)
+        # pprint(y)
         return y  
 urlmapconf = loadUrlmaps()
 # print(urlmapconf)
