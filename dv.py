@@ -257,13 +257,18 @@ class MessageList(flx.Widget):
 
 # Associate CodeMirror's assets with this module so that Flexx will load
 # them when (things from) this module is used.
-base_url = 'http://cdnjs.cloudflare.com/ajax/libs/codemirror/'
-flx.assets.associate_asset(__name__, base_url + '5.21.0/codemirror.min.css')
-flx.assets.associate_asset(__name__, base_url + '5.21.0/codemirror.min.js')
-flx.assets.associate_asset(__name__, base_url + '5.21.0/mode/python/python.js')
-flx.assets.associate_asset(__name__, base_url + '5.21.0/theme/solarized.css')
-flx.assets.associate_asset(__name__, base_url + '5.21.0/addon/selection/active-line.js')
-flx.assets.associate_asset(__name__, base_url + '5.21.0/addon/edit/matchbrackets.js')
+import os
+base_url = '.asserts'
+def loadassert(afile):
+    with open(os.path.join(base_url, afile), 'r', encoding="UTF-8") as f:
+        fsr = f.read()
+        flx.assets.associate_asset(__name__, afile, fsr)
+loadassert('codemirror.min.css')
+loadassert('codemirror.min.js')
+loadassert('mode/python/python.js')
+loadassert('theme/solarized.css')
+loadassert('addon/selection/active-line.js')
+loadassert('addon/edit/matchbrackets.js')
 
 
 class CodeEditor(flx.Widget):
@@ -544,7 +549,7 @@ urlmapconf = loadUrlmaps()
 # print(urlmapconf)
 
 
-fname = 'favicon64.ico'
+fname = '.asserts/favicon64.ico'
 with open(fname, 'rb') as f1:
     base64_str = base64.b64encode(f1.read())  # base64类型
     icos = base64_str.decode()
