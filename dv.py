@@ -350,6 +350,33 @@ class FileTreeItem(flx.TreeItem):
         super().init()
         # self.relay = Files()
 
+from pscript import RawJS
+flx.assets.associate_asset(__name__, "https://code.jquery.com/jquery-3.5.1.js")
+# flx.assets.associate_asset(__name__,"https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css")
+# flx.assets.associate_asset(__name__,"https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js")
+loadassert('jquery.dataTables.min.css')
+# loadassert('jquery.js')
+loadassert('jquery.dataTables.min.js')
+
+class DataTable(flx.Widget):
+
+    def _create_dom(self):
+        global window
+        node = window.document.createElement('table')
+        RawJS('$')(node).DataTable( {
+            "data": [
+                [ "Tiger Nixon", "System Architect", "$3,120", "Edinburgh"],
+                ["Garrett Winters", "Director", "$5,300", "Edinburgh"]
+            ],
+            "columns": [
+                { "title": 'name'},
+                { "title": 'salary'},
+                { "title": 'office'},
+                { "title": 'position'}
+            ]
+        } )
+        return node
+
 import threading, sys
 import queue
 from io import StringIO
@@ -442,7 +469,11 @@ class Kae(flx.PyWidget):
                             self.save = flx.Button(flex=0,text='保存')
                             flx.Widget(flex=1)
                         self.cm = CodeEditor(flex=1)
-                    # with flx.VBox(flex=1, title="表格"):
+                    with flx.VBox(flex=1, title="表格"):
+                        DataTable(title='Start date')
+                        # flx.PlotWidget(xdata=[0,1,2,3,4], ydata=[1,3,4,2,5],
+                        #         line_width=4, line_color='red', marker_color='',
+                        #         minsize=200)
                     #     data = [{'type': 'bar',
                     #             'x': ['giraffes', 'orangutans', 'monkeys'],
                     #             'y': [20, 14, 23]}]
@@ -562,6 +593,6 @@ kae_png = f'data:image/ico;base64,{icos}'
 # kae_png = 'favicon32.ico'
 # ico = flx.assets.add_shared_data('icon.ico', open(fname, 'rb').read())
 app = flx.App(Kae, title=u"kæ语言交互终端", icon=kae_png, size=(1000, 800))
-root = app.launch('app')  # to run as a desktop app
+root = app.launch('firefox')  # to run as a desktop app
 # app.launch('browser')  # to open in the browser
 flx.run()  # mainloop will exit when the app is closed 
