@@ -176,7 +176,8 @@ class MessageItem(flx.Widget):
 
     @flx.action
     def print_output(self, msg):
-        self.output.set_html("<br/>".join(msg.split(r"\n")))#self.msg_edit.text
+        # print(msg.split("\n"))
+        self.output.set_html("<br/>".join(msg.split("\n")))#self.msg_edit.text
 
     @flx.emitter
     def run_text(self, statement):
@@ -365,13 +366,12 @@ class CliThread (threading.Thread):   #继承父类threading.Thread
     def run(self):                   #把要执行的代码写到run函数里面 线程在创建后会直接运行run函数 
         while True:
             s = self.queue.get(block=True)
-            stat = "".join(s)
-            print(">>>", stat)
+            # print(">>>", s)
             old_stdout = sys.stdout
             old_stderr = sys.stderr
             redirected_output = sys.stdout = StringIO()
             redirected_error = sys.stderr = StringIO()
-            exec(f"karuncli('{stat}')", globals())
+            exec(f"karuncli({str(s)})", globals())
             sys.stdout = old_stdout
             sys.stderr = old_stderr
             stdo = redirected_output.getvalue()

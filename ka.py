@@ -302,7 +302,7 @@ def parse(statement):
 # 循环子="循环子"
 
 def print2kc(codes, fname, newfile=False):
-    kb = open(f"{fname}.kc", 'w+' if newfile else "a", encoding='utf-8')
+    kb = open(f".tmp/{fname}.kc", 'w+' if newfile else "a", encoding='utf-8')
     print(codes, file=kb)
     kb.close()
 
@@ -487,9 +487,9 @@ def karun(foo, file):
         exec(compile(pycallable, kf.name, "exec"), globals())
 
 @catch2cn
-def karuncli(linestxt):
+def karuncli(slines):
     """交互式主运行函数"""
-    lines = [l.strip() for l in linestxt.split()]
+    lines = [l.strip() for l in slines]
     #codes存放代码段
     ka_fragments = {"step":0, "codes":{"main":[]}, "stack":["main"], "foo":[]}
     for line in lines:
@@ -501,7 +501,9 @@ def karuncli(linestxt):
             # codes.append(kc)
     # if foo=="main":
     # ka_fragments["foo"].append("main(vals={})")
-    pycallable = "\n".join(mainlines)
+    ka_fragments["foo"].append(r"aa={}")
+    ka_fragments["foo"].extend(mainlines)
+    pycallable = "\n".join(ka_fragments["foo"])
     
     print2kc(pycallable, "cli", newfile=True)
     
