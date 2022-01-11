@@ -442,6 +442,11 @@ class Kae(flx.PyWidget):
                             self.save = flx.Button(flex=0,text='保存')
                             flx.Widget(flex=1)
                         self.cm = CodeEditor(flex=1)
+                    # with flx.VBox(flex=1, title="表格"):
+                    #     data = [{'type': 'bar',
+                    #             'x': ['giraffes', 'orangutans', 'monkeys'],
+                    #             'y': [20, 14, 23]}]
+                    #     flx.PlotlyWidget(data=data)
                     # flx.Widget(flex=1)
                 # flx.Widget(flex=1)
 
