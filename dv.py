@@ -162,7 +162,7 @@ class MessageItem(flx.Widget):
     @flx.reaction('run.pointer_click')
     def a_button_was_pressed(self, *events):
         ev = events[-1]  # only care about last event
-        self.run_text(self.msg_edit.text.split())
+        self.run_text(self.msg_edit.text.split("\n"))
         # 
     @flx.reaction('msg_edit.pointer_click')
     def a_edit_was_selected(self, *events):

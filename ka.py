@@ -493,6 +493,7 @@ def karuncli(slines):
     #codes存放代码段
     ka_fragments = {"step":0, "codes":{"main":[]}, "stack":["main"], "foo":[]}
     for line in lines:
+        print2kc(line, "clines", False)
         ka_parse_a_line(ka_fragments, line)
 
     mainlines = ["{0}".format(parse(ml)) for ml in ka_fragments["codes"]["main"]]
