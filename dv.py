@@ -380,32 +380,76 @@ class LocalPlotWidget(flx.Widget):
         global Plotly
         Plotly.newPlot(self.node, self.data, self.layout, self.config)                               
 
-# from pscript import RawJS
+from pscript import RawJS
 # flx.assets.associate_asset(__name__, "https://code.jquery.com/jquery-3.5.1.js")
-# # flx.assets.associate_asset(__name__,"https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css")
-# # flx.assets.associate_asset(__name__,"https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js")
-# loadassert('jquery.dataTables.min.css')
-# # loadassert('jquery.js')
-# loadassert('jquery.dataTables.min.js')
+# flx.assets.associate_asset(__name__,"https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css")
+# flx.assets.associate_asset(__name__,"https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js")
 
-# class DataTable(flx.Widget):
+loadassert('jquery.js')
+loadassert('jquery.dataTables.min.js')
+loadassert('jquery.dataTables.min.css')
 
-#     def _create_dom(self):
-#         global window
-#         node = window.document.createElement('table')
-#         RawJS('$')(node).DataTable( {
-#             "data": [
-#                 [ "Tiger Nixon", "System Architect", "$3,120", "Edinburgh"],
-#                 ["Garrett Winters", "Director", "$5,300", "Edinburgh"]
-#             ],
-#             "columns": [
-#                 { "title": 'name'},
-#                 { "title": 'salary'},
-#                 { "title": 'office'},
-#                 { "title": 'position'}
-#             ]
-#         } )
-#         return node
+class DataTable(flx.Widget):
+
+    tid = flx.StringProp("", settable=True, doc='table `s id')
+
+    def _create_dom(self):
+        global window
+        node = self.node = window.document.createElement('table')
+        # print("create---", self.tid)
+        node.id = self.tid
+        node.width="100%"
+        return node
+
+    def init(self):
+        super().init()
+        self.init_tab = False
+        
+        # global window
+        # window.setTimeout(RawJS("$('#tab1').DataTable( {" \
+        #     "data: [" \
+        #     '[ "Tiger Nixon", "System Architect", "$3,120", "Edinburgh"],' \
+        #     '["Garrett Winters", "Director", "$5,300", "Edinburgh"]],' \
+        #     "columns: [" \
+        #     "{ title: 'name'},{ title: 'salary'},{ title: 'office'},{ title: 'position'}" \
+        #     "]} )"), 1000)
+        # RawJS("$(document).one('load', '#tab1', function(){$('#tab1').DataTable( {" \
+        #     "data: [" \
+        #     '[ "Tiger Nixon", "System Architect", "$3,120", "Edinburgh"],' \
+        #     '["Garrett Winters", "Director", "$5,300", "Edinburgh"]],' \
+        #     "columns: [" \
+        #     "{ title: 'name'},{ title: 'salary'},{ title: 'office'},{ title: 'position'}" \
+        #     "]} )})")
+
+    @flx.action
+    def draw(self):
+        # shell = "$('#tab1').DataTable( {" \
+        #     "data: [" \
+        #     '    [ "Tiger Nixon", "System Architect", "$3,120", "Edinburgh"],' \
+        #     '    ["Garrett Winters", "Director", "$5,300", "Edinburgh"]],' \
+        #     "columns: [ " \
+        #     "    { title: 'name'},{ title: 'salary'},{ title: 'office'},{ title: 'position'}" \
+        #     "]} )"
+        # print("draw---", shell)
+        if not self.init_tab:
+            tid = "#"+self.tid
+            # print("draw---", tid)
+            RawJS("$(tid).DataTable( {" \
+                "data: [" \
+                '[ "Tiger Nixon", "System Architect", "$3,120", "Edinburgh"],' \
+                '["Garrett Winters", "Director", "$5,300", "Edinburgh"]],' \
+                "columns: [" \
+                "{ title: 'name'},{ title: 'salary'},{ title: 'office'},{ title: 'position'}" \
+                "]} )")
+            self.init_tab = True
+        
+        # RawJS("$('#tab1').DataTable( {" \
+        #     "data: [" \
+        #     '[ "Tiger Nixon", "System Architect", "$3,120", "Edinburgh"],' \
+        #     '["Garrett Winters", "Director", "$5,300", "Edinburgh"]],' \
+        #     "columns: [" \
+        #     "{ title: 'name'},{ title: 'salary'},{ title: 'office'},{ title: 'position'}" \
+        #     "]}")
 
 import threading, sys
 import queue
@@ -500,6 +544,10 @@ class Kae(flx.PyWidget):
                             flx.Widget(flex=1)
                         self.cm = CodeEditor(flex=1)
                     with flx.VBox(flex=1, title="表格"):
+                        # self.tabflush = flx.Button(flex=0,text='刷新')
+                        self.table = DataTable(tid="table1")
+                        
+                    with flx.VBox(flex=1, title="图表"):
                         # DataTable(title='Start date')
                         # flx.PlotWidget(xdata=[0,1,2,3,4], ydata=[1,3,4,2,5],
                         #         line_width=4, line_color='red', marker_color='',
@@ -533,7 +581,7 @@ class Kae(flx.PyWidget):
                         LocalPlotWidget(data=data)
                     # flx.Widget(flex=1)
                 # flx.Widget(flex=1)
-
+        # self.table.draw()
         # self._update_participants()
     @flx.action
     def makepathtreeitem(self, node, vals):
@@ -557,6 +605,12 @@ class Kae(flx.PyWidget):
         # name = 'anonymous' #self.name_edit.text or 'anonymous'
         relay.create_message("")
         # self.msg_edit.set_text('')
+    @flx.reaction("tabctrl.user_current")
+    def refresh_tab(self, *events):
+        for ev in events:
+            print(ev.new_value.title)
+            if ev.new_value.title=="表格":
+                self.table.draw()
 
     @relay.reaction('create_message')  # note that we connect to relay
     def _push_info(self, *events):
