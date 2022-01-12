@@ -183,6 +183,15 @@ class MessageItem(flx.Widget):
     def run_text(self, statement):
         return dict(statement=statement, source=self)
 
+    @flx.emitter
+    def text_inputing(self, textlst):
+        return dict(textlst=textlst, source=self)
+
+    @flx.reaction('msg_edit.user_text')
+    def a_edit_was_inputing(self, *events):
+        ev = events[-1]
+        self.text_inputing(ev.new_value.split(" "))
+
 class MessageList(flx.Widget):
 
     CSS = """
@@ -249,7 +258,15 @@ class MessageList(flx.Widget):
             self.set_activeitem(ev.source)
     @flx.emitter
     def run_statement(self, statement):
-        return dict(statement=statement)     
+        return dict(statement=statement)   
+
+    @flx.reaction('!children**.text_inputing')
+    def on_inputing(self, *events):
+        for ev in events:
+            self.inputing(ev.textlst)
+    @flx.emitter
+    def inputing(self, textlst):
+        return dict(pinyinList=textlst)   
     
     @flx.action
     def output_message(self, msg):
@@ -500,6 +517,9 @@ class KaeCore(flx.PyComponent):
         # self._parent._on_output(msg)
         flx.loop.call_soon(root._on_output, msg)
 
+from Pinyin2Hanzi import DefaultDagParams
+from Pinyin2Hanzi import dag
+
 class Kae(flx.PyWidget):
     """ This represents one connection to the chat room.
     """
@@ -537,7 +557,7 @@ class Kae(flx.PyWidget):
                             flx.Widget(flex=1)
                         self.messages = MessageList(flex=1, minsize_from_children=False)
                         with flx.HBox(flex=0) as self.inputbar:
-                            flx.Label(flex=0,text='输入法')
+                            self.cim = flx.Label(flex=0,text='输入法')
                     with flx.VBox(flex=1, title="文本"):
                         with flx.HBox(flex=0) as self.txttoolbar:
                             self.save = flx.Button(flex=0,text='保存')
@@ -640,6 +660,25 @@ class Kae(flx.PyWidget):
         for ev in events:
             text = ev.statement
             self.kaecore.new_statement(text)
+
+    @flx.reaction('messages.inputing')
+    def pinyin_2_hanzi(self, *events):
+        for ev in events:
+            dagParams = DefaultDagParams()
+            # 10个候选值
+            result = dag(dagParams, ev.pinyinList, path_num=10, log=True)
+            resset = []
+            for item in result:
+                socre = item.score # 得分
+                res = item.path # 转换结果
+                resset.append("".join(res))
+                # print(socre, res)
+            tlst = [f"{i+1}.{t}" for i,t in enumerate(set(resset))]
+            self.cim.set_html("&nbsp;".join(tlst))
+
+        # lists = ['wo', 'you', 'yi', 'zhi', 'xiao', 'mao', 'lv']
+        # pinyin_2_hanzi(lists)
+
     
     # @flx.reaction('name_edit.user_done')  # tell everyone we changed our name
     # def _push_name(self, *events):
