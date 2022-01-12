@@ -2,4 +2,4 @@ pyyaml
 jieba
 pypinyin
 flexx
-pyside2
+Pinyin2Hanzi
