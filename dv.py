@@ -350,32 +350,62 @@ class FileTreeItem(flx.TreeItem):
         super().init()
         # self.relay = Files()
 
-from pscript import RawJS
-flx.assets.associate_asset(__name__, "https://code.jquery.com/jquery-3.5.1.js")
-# flx.assets.associate_asset(__name__,"https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css")
-# flx.assets.associate_asset(__name__,"https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js")
-loadassert('jquery.dataTables.min.css')
-# loadassert('jquery.js')
-loadassert('jquery.dataTables.min.js')
+loadassert('plotly.min.js')
 
-class DataTable(flx.Widget):
+class LocalPlotWidget(flx.Widget):
+    data = flx.ListProp(settable=True, doc="""
+        The data (list of dicts) that describes the plot.
+        This can e.g. be the output of the Python plotly API call.
+        """)
 
-    def _create_dom(self):
-        global window
-        node = window.document.createElement('table')
-        RawJS('$')(node).DataTable( {
-            "data": [
-                [ "Tiger Nixon", "System Architect", "$3,120", "Edinburgh"],
-                ["Garrett Winters", "Director", "$5,300", "Edinburgh"]
-            ],
-            "columns": [
-                { "title": 'name'},
-                { "title": 'salary'},
-                { "title": 'office'},
-                { "title": 'position'}
-            ]
-        } )
-        return node
+    layout = flx.DictProp(settable=True, doc="""
+        The layout dict to style the plot.
+        """)
+
+    config = flx.DictProp(settable=True, doc="""
+        The config for the plot.
+        """)
+
+    @flx.reaction
+    def __relayout(self):
+        global Plotly
+        w, h = self.size
+        if len(self.node.children) > 0:
+            Plotly.relayout(self.node, dict(width=w, height=h))
+
+    @flx.reaction
+    def _init_plot(self):
+        # https://plot.ly/javascript/plotlyjs-function-reference/#plotlynewplot
+        # Overwrites an existing plot
+        global Plotly
+        Plotly.newPlot(self.node, self.data, self.layout, self.config)                               
+
+# from pscript import RawJS
+# flx.assets.associate_asset(__name__, "https://code.jquery.com/jquery-3.5.1.js")
+# # flx.assets.associate_asset(__name__,"https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css")
+# # flx.assets.associate_asset(__name__,"https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js")
+# loadassert('jquery.dataTables.min.css')
+# # loadassert('jquery.js')
+# loadassert('jquery.dataTables.min.js')
+
+# class DataTable(flx.Widget):
+
+#     def _create_dom(self):
+#         global window
+#         node = window.document.createElement('table')
+#         RawJS('$')(node).DataTable( {
+#             "data": [
+#                 [ "Tiger Nixon", "System Architect", "$3,120", "Edinburgh"],
+#                 ["Garrett Winters", "Director", "$5,300", "Edinburgh"]
+#             ],
+#             "columns": [
+#                 { "title": 'name'},
+#                 { "title": 'salary'},
+#                 { "title": 'office'},
+#                 { "title": 'position'}
+#             ]
+#         } )
+#         return node
 
 import threading, sys
 import queue
@@ -470,14 +500,37 @@ class Kae(flx.PyWidget):
                             flx.Widget(flex=1)
                         self.cm = CodeEditor(flex=1)
                     with flx.VBox(flex=1, title="表格"):
-                        DataTable(title='Start date')
+                        # DataTable(title='Start date')
                         # flx.PlotWidget(xdata=[0,1,2,3,4], ydata=[1,3,4,2,5],
                         #         line_width=4, line_color='red', marker_color='',
                         #         minsize=200)
-                    #     data = [{'type': 'bar',
-                    #             'x': ['giraffes', 'orangutans', 'monkeys'],
-                    #             'y': [20, 14, 23]}]
-                    #     flx.PlotlyWidget(data=data)
+                        # data = [{'type': 'bar',
+                        #         'x': ['giraffes', 'orangutans', 'monkeys'],
+                        #         'y': [20, 14, 23]}]
+                        values = [
+                            ['Salaries', 'Office', 'Merchandise', 'Legal', '<b>TOTAL</b>'],
+                            [1200000, 20000, 80000, 2000, 12120000],
+                            [1300000, 20000, 70000, 2000, 130902000],
+                            [1300000, 20000, 120000, 2000, 131222000],
+                            [1400000, 20000, 90000, 2000, 14102000]]
+
+                        data = [{
+                            "type": 'table',
+                            "header": {
+                                "values": [[u"<b>得分</b>"], ["<b>Q1</b>"],
+                                            ["<b>Q2</b>"], ["<b>Q3</b>"], ["<b>Q4</b>"]],
+                                "align": "center",
+                                "line": {"width": 1, "color": 'black'},
+                                "fill": {"color": "grey"},
+                                "font": {"family": "Arial", "size": 12, "color": "white"}
+                            },
+                            "cells": {
+                                "values": values,
+                                "line": {"color": "black", "width": 1},
+                                "font": {"family": "Arial", "size": 11, "color": ["black"]}
+                            }
+                        }]
+                        LocalPlotWidget(data=data)
                     # flx.Widget(flex=1)
                 # flx.Widget(flex=1)
 
