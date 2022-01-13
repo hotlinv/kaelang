@@ -738,7 +738,8 @@ with open(fname, 'rb') as f1:
 kae_png = f'data:image/ico;base64,{icos}'
 # kae_png = 'favicon32.ico'
 # ico = flx.assets.add_shared_data('icon.ico', open(fname, 'rb').read())
-app = flx.App(Kae, title=u"kæ语言交互终端", icon=kae_png, size=(1000, 800))
-root = app.launch('app')  # to run as a desktop app
+# , windowmode="maximized",
+app = flx.App(Kae, title=u"kæ语言交互终端", icon=kae_png)
+root = app.launch('app', size=(1300, 700), windowmode="maximized")  # to run as a desktop app
 # app.launch('browser')  # to open in the browser
 flx.run()  # mainloop will exit when the app is closed 
