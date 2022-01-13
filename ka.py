@@ -1,7 +1,7 @@
 import glob
 import inspect as ins
 from pprint import pprint
-import sys, re
+import sys, os, re
 import logging
 import jieba
 import functools
@@ -111,11 +111,13 @@ def registType(typename, foo):
     ka_types[typename]=foo
 
 def ka_get_all_function_in_model():
-    return ins.getmembers(sys.modules['__main__'], ins.isfunction)#拿到主模块下所有的函数
+    return ins.getmembers(sys.modules[ __name__ #'__main__'
+        ], ins.isfunction)#拿到主模块下所有的函数
 
 # 抽取callbable函数
 def scan_callable():
-    foos = ins.getmembers(sys.modules['__main__'], ins.isfunction)#拿到主模块下所有的函数
+    foos = ins.getmembers(sys.modules[__name__#'__main__'
+        ], ins.isfunction)#拿到主模块下所有的函数
     #print(foos)
     for fn in [f for f in foos if f[0].startswith("ka")]:
         fndoc = ins.getdoc(fn[1])
@@ -302,6 +304,10 @@ def parse(statement):
 # 循环子="循环子"
 
 def print2kc(codes, fname, newfile=False):
+    try:
+        os.makedirs(".tmp")
+    except:
+        pass
     kb = open(f".tmp/{fname}.kc", 'w+' if newfile else "a", encoding='utf-8')
     print(codes, file=kb)
     kb.close()
