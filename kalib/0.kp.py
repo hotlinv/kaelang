@@ -34,9 +34,6 @@ ka_pmap=KaeLevMap(lev0={
     u"把《(.[^》]+)》的(.+)设置为(.+)":"ka_set_obj_attr('{0}', '{1}', '{2}')",
 }, lev1={
     u"^([^，]+)结果即为([^，]+)$":"ka_fun_return('{0}', '{1}')",
-    u"^(.+)和(.+)(?:前半段|开头)相同$":"ka_str_startswith('{0}', '{1}')",
-    u"^(.+)和(.+)(?:后半段|结尾)相同$":"ka_str_endswith('{0}', '{1}')",
-    u"^(.+)和(.+)有包含关系$":"ka_str_in('{0}', '{1}')",
     u"(.+)比(.+)大":"ka_gt({0}, {1})",
     u"(.+)大于(.+)":"ka_gt({0}, {1})",
     u"(.+)比(.+)小":"ka_lt({0}, {1})",
@@ -47,18 +44,6 @@ ka_pmap=KaeLevMap(lev0={
     u"(.+)和(.+)相等":"ka_eq({0}, {1})",
     u"(.+)不等于(.+)":"ka_neq({0}, {1})",
     u"(.+)和(.+)不相等":"ka_neq({0}, {1})",
-    u"^(\d+)\s乘以\s(\d+)$":"ka_mu({0}, {1})",
-    u"^(.[^“”]+)\s乘以\s(.[^“”]+)$":"ka_mu(<0>, <1>)",
-    u"^(\d+)与(\d+)求积$":"ka_mu({0}, {1})",
-    u"^(.+)与(.+)求积$":"ka_mu(<0>, <1>)",
-    u"^(\d+)加(\d+)$":"ka_add({0}, {1})",
-    u"^(.[^“”]+)\s加\s(.[^“”]+)$":"ka_add(<0>, <1>)",
-    u"^(\d+)与(\d+)求和$":"ka_add({0}, {1})",
-    u"^(\w+)与(\w+)求和$":"ka_add(<0>, <1>)",
-    u"^(\d+)减(\d+)$":"ka_mi({0}, {1})",
-    u"^(.[^“”]+)\s减\s(.[^“”]+)$":"ka_mi(<0>, <1>)",
-    u"^(\d+)与(\d+)求差$":"ka_mi({0}, {1})",
-    u"^(\w+)与(\w+)求差$":"ka_mi(<0>, <1>)",
     u"^!(\w+)$":"!{0}",
     KA_ITER_NOW:'ka_get("{0}")',
     KA_OBJ_VAL:'ka_vals["{0}"]',
@@ -270,12 +255,6 @@ def ka_next_do(nextop):
             exec(pycallable)
             return pycallable
 
-def ka_new_str(name, value):
-    value=value.replace("“","\"").replace("”","\"")
-    exec(f"ka_vals[\"{name}\"]={value}")
-    exec(f"ka_vals[\"{name}_type\"]='字符串'")
-    return name
-
 def ka_new_num(name, value):
     exec(f"ka_vals[\"{name}\"]={value}")
     exec(f"ka_vals[\"{name}_type\"]='数'")
@@ -314,7 +293,7 @@ def ka_fun_return(foo, keyname):
         ka_vals[f"{newname}_map"] = ka_vals[f"{key}_map"]
     return newname
 
-registType("字符串", ka_new_str)
+
 registType("整数", ka_new_num)
 registType("浮点数", ka_new_num)
 registType("数字", ka_new_num)
@@ -350,41 +329,6 @@ def ka_eq(v1, v2):
 def ka_neq(v1, v2):
     """比较不等于"""
     return eval(f"{v1}!={v2}")
-@catch2cn
-def ka_add(v1, v2):
-    """算加法"""
-    return eval(f"{v1}+{v2}")
-@catch2cn
-def ka_mi(v1, v2):
-    """算减法"""
-    return eval(f"{v1}-{v2}")
-@catch2cn
-def ka_mu(v1, v2):
-    """算乘法"""
-    return eval(f"{v1}*{v2}")
-
-@catch2cn
-def ka_str_startswith(str1, str2):
-    """判断两个字符串是不是相同开头"""
-    if len(str1)<len(str2):
-        return str2.startswith(str1)
-    else:
-        return str1.startswith(str2)
-@catch2cn
-def ka_str_endswith(str1, str2):
-    """判断两个字符串是不是相同结尾"""
-    if len(str1)<len(str2):
-        return str2.endswith(str1)
-    else:
-        return str1.endswith(str2)
-
-@catch2cn
-def ka_str_in(str1, str2):
-    """判断两个字符串是不是有包含关系"""
-    if len(str1)<len(str2):
-        return str1 in str2
-    else:
-        return str2 in str1
 
 @catch2cn
 def ka_sel(iflist, elsefoo):
