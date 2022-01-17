@@ -212,9 +212,9 @@ def loadkps():
 loadkps()
 
 def ka_make_re_list():
-    ka_res.lmap[0] = []
-    ka_res.lmap[1] = []
-    ka_res.lmap[2] = []
+    ka_res.lmap[0] = []#句法
+    ka_res.lmap[1] = []#短语
+    ka_res.lmap[2] = []#表达式(值)
     for kri in range(3):
         for k,v in eval("ka_sys").list(kri):
             ka_res.lmap[kri].append([re.compile(k), v])
