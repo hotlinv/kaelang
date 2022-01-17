@@ -52,7 +52,7 @@ def loadkts():
     # print(ka_callable_foos)
 loadkts()
 
-print(KaeLevMap(lev0={}))
+# print(KaeLevMap(lev0={}))
 
 ka_vals = {} #放变量
 ka_sys = KaeLevMap() #放语言语法映射
@@ -219,7 +219,7 @@ ka_load_urlmaps()
 # 
 
 @catch2cn
-def match(code):
+def ka_match(code):
     """匹配表达式"""
     for r in ka_res:
         m = r[0].match(code)
@@ -237,9 +237,9 @@ def matchSub(code):
             gup = re.findall(r[0], code)
             return r[1], gup
 @catch2cn
-def typeconv(val, foo):
+def ka_typeconv(val, foo):
     """类型转换"""
-    m = match(val)
+    m = ka_match(val)
     #print(">>>", val, m)
     if m: #内部还有表达式
         #print(">>>", val, m)
@@ -268,7 +268,7 @@ def parse(statement):
         statement = statement[0:-1]
     if f"判断{statement}" in ka_custom_foos: #如果是个判断，自动加上“判断”这个词
         statement = f"判断{statement}"
-    m = match(statement)
+    m = ka_match(statement)
     if m:
         if "(" not in m[0]:#简单的值
             if "{" in m[0]:#依然要带入
@@ -305,7 +305,7 @@ def parse(statement):
                     sublst.append(fmt.replace("<", "{").replace(">", "}").format(*subks))
                 arg.append("["+",".join(sublst)+"]")
             else:
-                v = typeconv(a, foo)
+                v = ka_typeconv(a, foo)
                 if type(v)==list:
                     arg.extend(v)
                 else:
@@ -332,12 +332,12 @@ def print2kc(codes, fname, newfile=False):
     print(codes, file=kb)
     kb.close()
 
-def prepare(argmap):
-    for k,v in argmap.items():
-        # cmd = f"{k}={v}"
-        # print("::", cmd)
-        # exec(cmd)
-        print("::", k,"=", v)
+# def prepare(argmap):
+#     for k,v in argmap.items():
+#         # cmd = f"{k}={v}"
+#         # print("::", cmd)
+#         # exec(cmd)
+#         print("::", k,"=", v)
 
 DEF_TMP = """
 def {0}(**aa):
@@ -435,7 +435,9 @@ def ka_run_fun(foo, obj, attr, value):
     #     res.insert(0, [re.compile(f"^{ka_imp_fun_name}$"), f"{ka_imp_fun_name}()"])
     #     print(res)
 
-def ka_parse_a_line(ka_fragments, line):
+@catch2cn
+def ka_prepare_a_line(ka_fragments, line):
+    """预处理一行，该加的加，该去的去，该改的改"""
     global nextsth
     if u"【注】" in line:
         line = line.split(u"【注】")[0]
@@ -493,7 +495,7 @@ def karun(foo, file):
         #codes存放代码段
         ka_fragments = {"step":0, "codes":{"main":[]}, "stack":["main"], "foo":[]}
         for line in lines:
-            ka_parse_a_line(ka_fragments, line)
+            ka_prepare_a_line(ka_fragments, line)
 
         mainlines = ["    {0}".format(parse(ml)) for ml in ka_fragments["codes"]["main"]]
         kc = DEF_TMP.format(foo, "\n".join(mainlines)[4:])
@@ -520,7 +522,7 @@ def karuncli(slines):
     ka_fragments = {"step":0, "codes":{"main":[]}, "stack":["main"], "foo":[]}
     for line in lines:
         print2kc(line, "clines", False)
-        ka_parse_a_line(ka_fragments, line)
+        ka_prepare_a_line(ka_fragments, line)
 
     mainlines = ["{0}".format(parse(ml)) for ml in ka_fragments["codes"]["main"]]
     # kc = DEF_TMP.format(foo, "\n".join(mainlines)[4:])
