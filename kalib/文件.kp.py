@@ -1,10 +1,12 @@
 # 【映射】
 ka_pmap=KaeLevMap(lev0={
-	u"^当前目录$":"ka_workspace()",
     u"从(.+)(?:读取|加载)(?:本地)?(json|yaml)?数据(?:，)?(?:并)?(?:将其命名为)?“(.+)”":"ka_loadfile('{1}', ka_path('{0}'), '{2}')",
     u"访问(.+)，(?:读取|加载)?数据(?:，)?(?:并)?(?:将其命名)?为“(.+)”":"ka_loadfile(None, ka_path('{0}'), '{1}')",
     u"(?:读取|加载)?(数据描述)“(.+)”":"ka_loadfile(None, os.path.join(ka_workspace(), '{0}', '{1}.yml'), '{1}')",
-})
+},lev2={
+    u"^当前目录$":"ka_workspace()",
+}
+)
 
 # 【实现】
 import os, json, yaml

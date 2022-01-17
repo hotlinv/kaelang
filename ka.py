@@ -56,7 +56,7 @@ loadkts()
 
 ka_vals = {} #放变量
 ka_sys = KaeLevMap() #放语言语法映射
-ka_res = [] #存放各种正则表达式
+ka_res = KaeLevMap() #存放各种正则表达式
 ka_types = {} #放数据类型
 ka_mount = {} #放数据目录
 ka_outputs = {} #存放输出设备
@@ -131,7 +131,7 @@ def ka_get_all_function_in_model():
         ], ins.isfunction)#拿到主模块下所有的函数
 
 # 抽取callbable函数
-def scan_callable():
+def ka_scan_callable():
     foos = ins.getmembers(sys.modules[__name__#'__main__'
         ], ins.isfunction)#拿到主模块下所有的函数
     #print(foos)
@@ -160,7 +160,7 @@ _ka_m_runfoo = re.compile(u"用《(.[^》]+)》把《(.[^》]+)》的([^\s]+)设
 
 
 @catch2cn
-def parsePk(kpf):
+def ka_parsePk(kpf):
     """分析库文件"""
     lines = kpf.readlines()
     codes = []
@@ -206,13 +206,21 @@ def loadkps():
     for kp in kps:
         #print(kp)
         with open(kp, "r", encoding='UTF-8') as kpf:
-            parsePk(kpf)
-    scan_callable()
+            ka_parsePk(kpf)
+    ka_scan_callable()
     # print(ka_callable_foos)
 loadkps()
 
-for k,v in eval("ka_sys").list(0):
-    ka_res.append([re.compile(k), v])
+def ka_make_re_list():
+    ka_res.lmap[0] = []
+    ka_res.lmap[1] = []
+    ka_res.lmap[2] = []
+    for kri in range(3):
+        for k,v in eval("ka_sys").list(kri):
+            ka_res.lmap[kri].append([re.compile(k), v])
+ka_make_re_list()
+
+# print(ka_res.lmap)
 
 ka_load_urlmaps()
 # print(ka_mount)
@@ -221,7 +229,7 @@ ka_load_urlmaps()
 @catch2cn
 def ka_match(code):
     """匹配表达式"""
-    for r in ka_res:
+    for r in ka_res.geList(0):
         m = r[0].match(code)
         if m:
             gup = re.findall(r[0], code)
@@ -230,7 +238,7 @@ def ka_match(code):
 @catch2cn
 def matchSub(code):
     """匹配子章节"""
-    for r in ka_res:
+    for r in ka_res.geList(0):
         m = r[0].match(code)
         if m:
             # print("sub>>", r, m)
@@ -409,9 +417,9 @@ def ka_imp_fun(foo):
             return
         karun(foo, f"功能单元/{foo}.ae")
         # ka_sys[foo]=f"abc()"
-        ka_res.insert(0, [re.compile(f"{funname}，把《(.[^》]+)》的([^\s]+)设置为(.+)"), 
+        ka_res.lmap[0].insert(0, [re.compile(f"{funname}，把《(.[^》]+)》的([^\s]+)设置为(.+)"), 
                 r"ka_run_fun('"+foo+"', '{0}', '{1}', '{2}')"])
-        ka_res.insert(1, [re.compile(f"{funname}"), 
+        ka_res.lmap[0].insert(1, [re.compile(f"{funname}"), 
                 r"ka_run_fun('"+foo+"', None, None, None)"])
         ka_custom_foos.append(funname)
         # print(res)

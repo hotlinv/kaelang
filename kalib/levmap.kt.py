@@ -14,6 +14,8 @@ class KaeLevMap:
                 self.lmap[k] = deepcopy(v)
     def list(self, i):
         ret = []
+        if i not in self.lmap:
+            return ret
         if type(self.lmap[i])==list:
             for it in self.lmap[i]:
                 ret.append(it)
