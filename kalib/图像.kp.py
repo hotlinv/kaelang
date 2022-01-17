@@ -1,7 +1,7 @@
 # 【引用】PIL、numpy
 
 # 【映射】
-ka_pmap=lambda:{
+ka_pmap=KaeLevMap(lev0={
 	u"访问(?:在|位于)(.+)的图像文件“(.+)”":"ka_pil_open(ka_path('{0}'), '{1}')",
     u"(?:把|改变)图像《(.+)》大小变为横：?(\d+)(?:，)?\s*竖：?(\d+)":"ka_pil_resize('{0}', {1}, {2})",
     u"(?:把|改变)图像《(.+)》变为(\w+)模式":"ka_pil_convert('{0}', '{1}')",
@@ -15,7 +15,7 @@ ka_pmap=lambda:{
     u"把图像《(.+)》向(?:左|右)旋转180度":"ka_pil_im_rotate('{0}', 180)",
     #u"把图像《(.+)》上下翻转":"ka_pil_im_flip('{0}', 1)",
     #u"把图像《(.+)》左右翻转":"ka_pil_im_flip('{0}', 0)",
-}
+})
 
 # 【实现】
 from PIL import Image

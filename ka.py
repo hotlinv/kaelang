@@ -38,9 +38,25 @@ def lastit(fn):#内部有产生新数据，会返回新数据名字。
         return newname
     return inner
 
+@catch2cn
+def loadkts():
+    """加载库目录下所有工具包文件(包括.kt和.kt.py)"""
+    kts = glob.glob(r"./kalib/*.kt")
+    kts.extend(glob.glob(r"./kalib/*.kt.py"))
+    for kt in kts:
+        with open(kt, "r", encoding='UTF-8') as ktf:
+            lines = ktf.readlines()
+            codes = "\n".join(lines)
+            m = compile(codes, ktf.name, "exec")
+            exec(m, globals())
+    # print(ka_callable_foos)
+loadkts()
+
+print(KaeLevMap(lev0={}))
+
 ka_vals = {} #放变量
-ka_sys = {} #放语言语法映射
-res = []
+ka_sys = KaeLevMap() #放语言语法映射
+ka_res = [] #存放各种正则表达式
 ka_types = {} #放数据类型
 ka_mount = {} #放数据目录
 ka_outputs = {} #存放输出设备
@@ -135,10 +151,13 @@ ma_map = re.compile(u"^#\s*【映射】")
 ma_next = re.compile(u"((?:如下|以下)(?:动作|操作)：)")
 ma_sub = re.compile(u"^((?:\d|\.)+)）(.+)")
 _ka_m_then = re.compile(u"^然后|最后")
+# clause 子句 lexical词法 sentence 句子 syntactic 句法
 
 _ka_m_deffoo = re.compile(u"怎么\s*(.+)\s*呢")
 _ka_m_impfoo = re.compile(u"(?:由|让)(《.[^》]+》)来解释吧?")
 _ka_m_runfoo = re.compile(u"用《(.[^》]+)》把《(.[^》]+)》的([^\s]+)设置为(.+)")
+
+
 
 @catch2cn
 def parsePk(kpf):
@@ -172,7 +191,7 @@ def parsePk(kpf):
     mapcode = "\n".join(mapcodes)
     m = compile(mapcode, kpf.name, "exec")
     exec(m, globals())
-    mup = compile("ka_sys.update(ka_pmap())", "kae", "exec")
+    mup = compile("ka_sys.update(ka_pmap)", "kae", "exec")
     exec(mup, globals())
 
     code = "\n".join(codes)
@@ -191,8 +210,9 @@ def loadkps():
     scan_callable()
     # print(ka_callable_foos)
 loadkps()
-for k,v in eval("ka_sys").items():
-    res.append([re.compile(k), v])
+
+for k,v in eval("ka_sys").list(0):
+    ka_res.append([re.compile(k), v])
 
 ka_load_urlmaps()
 # print(ka_mount)
@@ -201,7 +221,7 @@ ka_load_urlmaps()
 @catch2cn
 def match(code):
     """匹配表达式"""
-    for r in res:
+    for r in ka_res:
         m = r[0].match(code)
         if m:
             gup = re.findall(r[0], code)
@@ -210,7 +230,7 @@ def match(code):
 @catch2cn
 def matchSub(code):
     """匹配子章节"""
-    for r in res:
+    for r in ka_res:
         m = r[0].match(code)
         if m:
             # print("sub>>", r, m)
@@ -389,9 +409,9 @@ def ka_imp_fun(foo):
             return
         karun(foo, f"功能单元/{foo}.ae")
         # ka_sys[foo]=f"abc()"
-        res.insert(0, [re.compile(f"{funname}，把《(.[^》]+)》的([^\s]+)设置为(.+)"), 
+        ka_res.insert(0, [re.compile(f"{funname}，把《(.[^》]+)》的([^\s]+)设置为(.+)"), 
                 r"ka_run_fun('"+foo+"', '{0}', '{1}', '{2}')"])
-        res.insert(1, [re.compile(f"{funname}"), 
+        ka_res.insert(1, [re.compile(f"{funname}"), 
                 r"ka_run_fun('"+foo+"', None, None, None)"])
         ka_custom_foos.append(funname)
         # print(res)

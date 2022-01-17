@@ -7,7 +7,7 @@ KA_AS = u"(?:称为)"
 KA_OBJ_VAL = u"^《(\w+)》的值$"
 KA_OBJ_ATTR = u"^《(\w+)》的(\w+)$"
 KA_ITER_NOW = u"^《(\w+)》当前值$"
-ka_pmap=lambda:{
+ka_pmap=KaeLevMap(lev0={
     u"^“(.+)”$":'"{0}"',
 	u"(?:在|于|用|使用)?(控制台|语音)?(?:打印|输出|说|说出)[：:]\s*(.+)":"ka_out('{0}', *1*)",
     u"(?:把|将)?(.+)，并打印":"ka_out(<0>)",
@@ -67,7 +67,7 @@ ka_pmap=lambda:{
     KA_OBJ_ATTR:'ka_get_obj_attr("{0}", "{1}")',
     u"^是$":"True",
     u"^否$":"False",
-}
+})
 
 # 【实现】
 

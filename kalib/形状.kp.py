@@ -1,9 +1,9 @@
 # 【引用】
 
 # 【映射】
-ka_pmap=lambda:{
+ka_pmap=KaeLevMap(lev0={
     
-}
+})
 
 # 【实现】
 

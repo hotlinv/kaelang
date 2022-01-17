@@ -1,11 +1,11 @@
 # 【引用】
 
 # 【映射】
-ka_pmap=lambda:{
+ka_pmap=KaeLevMap(lev0={
     u"访问(?:在|位于)(.+)的数据“(.+)”":"ka_url_get(ka_url_path('{0}'), '{1}', ka_url_method('{0}'), ka_url_mimetype('{0}'), None)",
     u"带着《(.[^》]+)》访问(?:在|位于)(.+)的数据“(.+)”":"ka_url_get(ka_url_path('{1}'), '{2}', ka_url_method('{1}'), ka_url_mimetype('{1}'), '{0}')",
     u"解析(?:文本)?《(.+)》中的对象“(.+)”":"ka_txt2obj('{0}', '{1}')",
-}
+})
 
 # 【实现】
 import urllib.request as urlreq

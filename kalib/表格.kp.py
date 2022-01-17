@@ -1,10 +1,10 @@
 # 【引用】pandas、xlrd、openpyxl
 
 # 【映射】
-ka_pmap=lambda:{
+ka_pmap=KaeLevMap(lev0={
 	u"访问在(.+)的表格文件(?:中的)?(.+)?(?:表)?，定义为“(.+)”":"ka_pd_open(ka_path('{0}'), '{1}', '{2}')",
     u"把《(.+)》的值输出表格(.+)":"ka_pd_save(ka_path('{1}'), '{0}')",
-}
+})
 
 # 【实现】
 import pandas as pd

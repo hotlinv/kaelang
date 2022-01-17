@@ -1,10 +1,10 @@
 # 【引用】PIL、numpy、scipy
 
 # 【映射】
-ka_pmap=lambda:{
+ka_pmap=KaeLevMap(lev0={
 	#u"把图像《(.+)》切割成多个矩形“(.+)”":"ka_imga_splitrect('{0}', '{1}')",
     #u"对图像《(.+)》运行最小值滤波操作，(.+)":"ka_imga_minimum_filter('{0}', '{1}')"
-}
+})
 
 # 【实现】
 from PIL import Image

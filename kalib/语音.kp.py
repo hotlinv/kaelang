@@ -1,9 +1,9 @@
 # 【引用】pyttsx3
 
 # 【映射】
-ka_pmap=lambda:{
+ka_pmap=KaeLevMap(lev0={
     #u"语音说：(.+)":"ka_speak(*)",
-}
+})
 
 # 【实现】
 import pyttsx3 as tts

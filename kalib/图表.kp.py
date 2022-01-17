@@ -1,10 +1,10 @@
 # 【引用】matplotlib
 
 # 【映射】
-ka_pmap=lambda:{
+ka_pmap=KaeLevMap(lev0={
     u"在图板上(?:按照一行([\d一二两三四五六七八九十])张)?并排(?:展示|绘制)图像(.+)":"ka_plot_show_imgs('{1}', ka_cn2int('{0}', 4))",
     u"在图板上(?:展示|绘制)图像《(.+)》":"ka_plot_show_img('{0}')",
-}
+})
 
 # 【实现】
 import matplotlib.pyplot as plt

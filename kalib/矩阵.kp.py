@@ -1,10 +1,10 @@
 # 【引用】numpy
 
 # 【映射】
-ka_pmap=lambda:{
+ka_pmap=KaeLevMap(lev0={
     u"从“(.+)”(?:读取|加载)(?:本地)?矩阵文件(?:，)?(?:并)?(?:将其命名为)?“(.+)”":"ka_numpy_loadtxt(ka_path('{0}'), '{1}')",
     u"把矩阵《(.+)》输出：(.+)":"ka_numpy_savetxt('{0}', ka_path('{1}'))",
-}
+})
 
 # 【实现】
 import numpy as np
