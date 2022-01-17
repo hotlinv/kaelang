@@ -248,7 +248,7 @@ def ka_typeconv(val, foo):
             # farg = m[0][m[0].index("(")+1:-1]
             arg = []
             for i, a in enumerate(m[1]):
-                arg.append(parse(a))
+                arg.append(ka_parse(a))
             foo=foo.replace("<", "{").replace(">", "}").replace("[", "{").replace("]", "}")
             pa = f"{foo}".format(*arg)
             #print(">>>>>>", pa)
@@ -262,7 +262,7 @@ def ka_typeconv(val, foo):
     else:
         return str(val)
 @catch2cn
-def parse(statement):
+def ka_parse(statement):
     """解析表达式"""
     if statement.endswith("，"):
         statement = statement[0:-1]
@@ -291,7 +291,7 @@ def parse(statement):
         lis = [int(fo[1:-1]) for fo in fargs if fo.startswith("[") and fo.endswith("]")]
         for i, a in enumerate(fargts):
             if i in fis:
-                kcsub = parse(a)
+                kcsub = ka_parse(a)
                 #print(">>", kcsub)
                 arg.append("'"+kcsub.replace("'", r"\'")+"'")
             elif i in lis:
@@ -301,7 +301,7 @@ def parse(statement):
                 sublst = []
                 for r in mres:
                     # print("###", r)
-                    subks = ["'"+parse(ri).replace("'", r"\'")+"'" for ri in r]
+                    subks = ["'"+ka_parse(ri).replace("'", r"\'")+"'" for ri in r]
                     sublst.append(fmt.replace("<", "{").replace(">", "}").format(*subks))
                 arg.append("["+",".join(sublst)+"]")
             else:
@@ -347,7 +347,7 @@ def mkdef(ka_fragments, fooname):
     #print("ttt", fooname)
     fraglst = ka_fragments["codes"][fooname]
     #"exec({})".format(f) if f.startswith("parse(") else "exec({})".format(parse(f))
-    fragruns = [parse(f) for f in fraglst]
+    fragruns = [ka_parse(f) for f in fraglst]
     ka_fragments["foo"].append(DEF_TMP.format("sub_{}".format(ka_fragments["step"]), "\n    ".join(fragruns)))
 
 def startSubFrag(statement, ka_fragments, ordi, substat):
@@ -497,7 +497,7 @@ def karun(foo, file):
         for line in lines:
             ka_prepare_a_line(ka_fragments, line)
 
-        mainlines = ["    {0}".format(parse(ml)) for ml in ka_fragments["codes"]["main"]]
+        mainlines = ["    {0}".format(ka_parse(ml)) for ml in ka_fragments["codes"]["main"]]
         kc = DEF_TMP.format(foo, "\n".join(mainlines)[4:])
         ka_fragments["foo"].append(kc)
                 # codes.append(kc)
@@ -524,7 +524,7 @@ def karuncli(slines):
         print2kc(line, "clines", False)
         ka_prepare_a_line(ka_fragments, line)
 
-    mainlines = ["{0}".format(parse(ml)) for ml in ka_fragments["codes"]["main"]]
+    mainlines = ["{0}".format(ka_parse(ml)) for ml in ka_fragments["codes"]["main"]]
     # kc = DEF_TMP.format(foo, "\n".join(mainlines)[4:])
     # ka_fragments["foo"].append(kc)
             # codes.append(kc)

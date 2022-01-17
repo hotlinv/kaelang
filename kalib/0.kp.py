@@ -180,7 +180,7 @@ def ka_call(_type, objname, nextop, usesth):
             if len(nextops)>1:#执行后面的语句
                 for i in range(1, len(nextops)):
                     #print(nextops[i])
-                    g.append(parse(nextops[i]))
+                    g.append(ka_parse(nextops[i]))
             pycallable = v.format(objname, *g)
             #print("call ===>>>", pycallable)
             print2kc(f"# call({_type} {objname} {nextop} {usesth}) => "+pycallable, "ka")
@@ -203,7 +203,7 @@ def ka_from_do(_type, objname, nextop):
             if len(nextops)>1:#执行后面的语句
                 for i in range(1, len(nextops)):
                     #print(nextops[i])
-                    g.append(parse(nextops[i]))
+                    g.append(ka_parse(nextops[i]))
             pycallable = v.format(objname, *g)
             #print("call ===>>>", pycallable)
             print2kc(f"# from_do({_type} {objname} {nextop} ) => "+pycallable, "ka")
@@ -261,7 +261,7 @@ def ka_next_do(nextop):
             if len(nextops)>1:#执行后面的语句
                 for i in range(1, len(nextops)):
                     #print(nextops[i])
-                    g.append(parse(nextops[i]))
+                    g.append(ka_parse(nextops[i]))
             pycallable = v.format(objname, *g)
             #print("call ===>>>", pycallable)
             print2kc(f"# nextdo({_type} {objname} {nextop} ) => "+pycallable, "ka")
@@ -280,7 +280,7 @@ def ka_new_num(name, value):
     return name
 
 def ka_new_itor(name, value):
-    exec(f"ka_vals[\"{name}\"]=parse('{value}')")
+    exec(f"ka_vals[\"{name}\"]=ka_parse('{value}')")
     exec(f"ka_vals[\"{name}_type\"]='循环子'")
     return name
 

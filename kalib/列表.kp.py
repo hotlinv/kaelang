@@ -71,7 +71,7 @@ def ka_list_find(lstname, rattname, cname, cattname, conp, all):
     cmpval = cmpo[cname]
     for i,item in enumerate(lst):
         rval = item[rattname]
-        m = parse(f"{rval}和{cmpval}"+conp)
+        m = ka_parse(f"{rval}和{cmpval}"+conp)
         #print("find", conp,"==>", m)
         if m and m!=conp and eval(m.format(rval, cmpval)):
             ret.append(item)
