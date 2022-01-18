@@ -50,7 +50,7 @@ def ka_sort(lstn):
 @catch2cn
 def ka_rsort(lstn):
     """把列表数据从大到小排序
-    [k]列表(?:反向|从大到小)?(?:进行)?排序·'{0}'
+    [k]列表(?:反向|从大到小)(?:进行)?排序·'{0}'
     """
     ka_vals[lstn].sort(reverse=True)
 
