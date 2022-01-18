@@ -3,6 +3,7 @@ ka_pmap=KaeLevMap(lev0={
 	u"列表：(\w+)到(\w+)":"ka_range({0}, {1})",
     u"在《(.+)》中插入：(.+)":"ka_append('{0}', *1*)",
     u"查找《(.[^》]+)》中“(.[^”]+)”和《(.[^》]+)》的“(.[^”]+)”(.+)的(首条|所有)?记录":"ka_list_find('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')",
+    u"过滤(?:列表)?《(.+)》中(.+)的元素组成(?:“)?(.[^”]+)(?:”)?":'ka_list_filter("{0}","{1}","{2}")',
     # u"把列表《(.+)》(?:用“(.*)”)?(?:来)?(?:进行)?拼接":"ka_join('{0}', '{1}')",
     #u"把列表《(.+)》(?:正向|从小到大)?(?:进行)?排序":"ka_sort('{0}')",
     #u"把列表《(.+)》(?:反向|从大到小)?(?:进行)?排序":"ka_rsort('{0}')",
@@ -41,27 +42,34 @@ def ka_append(name, *ls):
     exec(compile(ft, "list_append", "exec"))
     
 @catch2cn
-def ka_sort(lstn):
+def ka_list_sort(lstn):
     """把列表数据从小到大排序
     [k]列表(?:正向|从小到大)?(?:进行)?排序·'{0}'
     """
     ka_vals[lstn].sort()
 
 @catch2cn
-def ka_rsort(lstn):
+def ka_list_rsort(lstn):
     """把列表数据从大到小排序
     [k]列表(?:反向|从大到小)(?:进行)?排序·'{0}'
     """
     ka_vals[lstn].sort(reverse=True)
 
 @catch2cn
-def ka_seli(lstn, i, name):
+def ka_list_get(lstn, i, name):
     """选择《序列》中第i个元素作为基准数
     [k]列表中第(\d+)个元素作为(.+)·"{0}",{1},"{2}"
     """
     # print(lstn, i, name)
-    ka_vals[f"{lstn}_{name}_i"] = i
-    ka_vals[f"{lstn}_{name}_v"] = ka_vals[lstn][i]
+    ka_vals[f"{name}"] = ka_vals[lstn][i-1]
+    ka_vals[f"{name}_i"] = i-1
+    
+@catch2cn
+def ka_list_filter(lstn, cmp, name):
+    """过滤列表中的元素组成新数组
+    """
+    p = ka_parse("a"+cmp)
+    ka_vals[name] = [a for a in ka_vals[lstn] if eval(p)]
     
 
 @catch2cn
