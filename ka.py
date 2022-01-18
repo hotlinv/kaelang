@@ -52,6 +52,19 @@ def loadkts():
     # print(ka_callable_foos)
 loadkts()
 
+def ka_replaceQuot(s):
+    '''把单引号变为转义字符'''
+    ss = s.split("'")
+    sss = []
+    for idx, si in enumerate(ss):
+        sss.append(si)
+        if idx==0 or idx==len(ss)-2:
+            sss.append("'")
+        elif si.endswith(r"\\"):
+            sss.append("'")
+        else:
+            sss.append(r"\'")
+    return "".join(sss[:-1])
 # print(KaeLevMap(lev0={}))
 
 ka_vals = {} #放变量
@@ -227,9 +240,9 @@ ka_load_urlmaps()
 # 
 
 @catch2cn
-def ka_match(code):
+def ka_match(code, lev=0):
     """匹配表达式"""
-    for r in ka_res.geList(0):
+    for r in ka_res.geList(lev):
         m = r[0].match(code)
         if m:
             gup = re.findall(r[0], code)
@@ -248,7 +261,7 @@ def matchSub(code):
 def ka_typeconv(val, foo):
     """类型转换"""
     m = ka_match(val)
-    #print(">>>", val, m)
+    # print(">>>", val, m)
     if m: #内部还有表达式
         #print(">>>", val, m)
         if "<" in m[0] and ">" in m[0]:
@@ -314,16 +327,19 @@ def ka_parse(statement):
                 arg.append("["+",".join(sublst)+"]")
             else:
                 v = ka_typeconv(a, foo)
+                # print("vvv", v)
                 if type(v)==list:
                     arg.extend(v)
                 else:
+                    # v = v.replace("'", r"\'")
                     arg.append(v)
         foo=foo.replace("<", "{").replace(">", "}").replace("[", "{").replace("]", "}")
         #args = ",".join(arg)
-        #print(foo, arg)
+        # print(foo, arg)
         kc = f"{foo}".format(*arg)
         return kc
     else:#解析不了的语句
+        # logging.warning(f"解析不了的语句：{statement}")
         return statement
 
 # 整数="整数"
@@ -418,18 +434,19 @@ def ka_imp_fun(foo):
         karun(foo, f"功能单元/{foo}.ae")
         # ka_sys[foo]=f"abc()"
         ka_res.lmap[0].insert(0, [re.compile(f"{funname}，把《(.[^》]+)》的([^\s]+)设置为(.+)"), 
-                r"ka_run_fun('"+foo+"', '{0}', '{1}', '{2}')"])
+                "ka_run_fun(\'"+foo+"\', '{0}', '{1}', '{2}')"])
         ka_res.lmap[0].insert(1, [re.compile(f"{funname}"), 
-                r"ka_run_fun('"+foo+"', None, None, None)"])
+                "ka_run_fun(\'"+foo+"\', None, None, None)"])
         ka_custom_foos.append(funname)
-        # print(res)
+        # print(ka_res)
 
 @catch2cn
 def ka_run_fun(foo, obj, attr, value):
     """运行功能单元"""
     # print("RRR", foo, obj, attr, value)
     if obj is not None:
-        ka_set_obj_attr(obj, attr, value)
+        if attr is not None and value is not None:
+            ka_set_obj_attr(obj, attr, value)
         pycallable=f"{foo}(obj='{obj}')"
         # print(pycallable)
     else:

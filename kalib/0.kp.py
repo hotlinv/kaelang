@@ -20,8 +20,9 @@ ka_pmap=KaeLevMap(lev0={
     #u"(.+)吗？(.+)":"ka_sel(<0>, <1>)",
     u"(?:启动)循环《(.+)》，(?:进行|运行|执行)(.+)":"ka_for('{0}', <1>, aa)",
     u"(?:如果)(.+?)，(?:则)([^如否]+)(?:，|。|；)?":"[<0>, <1>]",
-    u"(?:把|将|对)(.+)?《(.+?)》进行(.+)":"ka_call('{0}', '{1}', '{2}', None)",
-    u"(?:把|将|对)(.+)?《(.+?)》(.+)进行(.+)":"ka_call('{0}', '{1}', '{3}', '{2}')",
+    u"(?:把|将|对)(.+)?《(.+?)》(?:进行|执行)(.+)":"ka_call('{0}', '{1}', \"{2}\", None)",
+    u"(?:把|将|对)(.+)?《(.+?)》(.+)(?:进行|执行)(.+)":"ka_call('{0}', '{1}', '{3}', '{2}')",
+    u"选择(.+)?《(.+)》((?:中|里).+(?:作为|定为).+)":'ka_call("{0}", "{1}", "{2}", None)',
     u"(?:从)(.+)?《(.+?)》(?:中|里|里面)(.+)":"ka_from_do('{0}', '{1}', '{2}')",
     #u"(?:把|将|对)(.+)?《(.+?)》(.+)":"ka_call('{0}', '{1}', '{2}', None)",
     u"监听对象(.+)":"ka_fun_param(aa, *0*)",
@@ -86,6 +87,8 @@ def ka_fun_param(aa, *arg):
     ka_vals[foo.format(*arg)] = ka_vals[aa["obj"]]
     if aa["obj"]+"_map" in ka_vals:
         ka_vals[foo.format(*arg)+"_map"] = ka_vals[aa["obj"]+"_map"]
+    if aa["obj"]+"_type" in ka_vals:
+        ka_vals[foo.format(*arg)+"_type"] = ka_vals[aa["obj"]+"_type"]
     # print(ka_vals)
     # exec(foo.format(*arg))
 
@@ -152,13 +155,20 @@ def ka_get_obj_attr(objname, attrname):
 
 @catch2cn
 def ka_call(_type, objname, nextop, usesth):
-    """执行动作"""
+    """执行调用动作"""
+    # print("call =>", _type, objname, nextop, usesth)
     if _type is None or _type=="":
         _type = ka_vals[f"{objname}_type"]
+    if nextop.startswith("ka_run_fun"):
+        #直接运行了
+        nextop = nextop.replace("None", f"\"{objname}\"", 1)
+        # print("call=>!", nextop)
+        exec(nextop)
+        return nextop
     nextops = re.split(r"，", nextop)
     txtemp = lambda x: x if x else ""
     runmatch = _type+ txtemp(usesth) +nextops[0]
-    # print("call =>", _type, objname, nextop, runmatch, usesth, ka_callable_foos, file=stderr)
+    # print("call =>", _type, objname, nextop, usesth, runmatch, ka_callable_foos, file=stderr)
     for k, v in ka_callable_foos.items():
         m = re.match(k, runmatch)
         if m:

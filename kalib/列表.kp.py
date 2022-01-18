@@ -55,6 +55,16 @@ def ka_rsort(lstn):
     ka_vals[lstn].sort(reverse=True)
 
 @catch2cn
+def ka_seli(lstn, i, name):
+    """选择《序列》中第i个元素作为基准数
+    [k]列表中第(\d+)个元素作为(.+)·"{0}",{1},"{2}"
+    """
+    # print(lstn, i, name)
+    ka_vals[f"{lstn}_{name}_i"] = i
+    ka_vals[f"{lstn}_{name}_v"] = ka_vals[lstn][i]
+    
+
+@catch2cn
 @lastit
 def ka_list_find(lstname, rattname, cname, cattname, conp, all):
     """查找列表中满足条件的记录
