@@ -29,6 +29,21 @@ def catch2cn(fn):
             logging.error(err)
     return inner
 
+def ka_foo(fn):
+    '''用于做功能单元的变量初始化和数据回收'''
+    @functools.wraps(fn) #要加这句，不然inspect的get方法认不到函数，只能认到inner
+    def inner(**args):
+        try:
+            vals = {}
+            args["vals"] = vals #初始化本地数据（不污染全局变量）
+            ret = fn(**args)
+            #可以做垃圾回收
+            return ret
+        except Exception as e:
+            err = u"{} 出错了：{}".format(fn.__name__, str(e))
+            logging.error(err)
+    return inner
+
 def lastit(fn):#内部有产生新数据，会返回新数据名字。
     @functools.wraps(fn) #要加这句，不然inspect的get方法认不到函数，只能认到inner
     def inner(*args):
@@ -361,6 +376,7 @@ def print2kc(codes, fname, newfile=False):
 #         print("::", k,"=", v)
 
 DEF_TMP = """
+@ka_foo
 def {0}(**aa):
     {1}
 """

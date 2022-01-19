@@ -84,7 +84,7 @@ def ka_out(out, *arg):
 def ka_fun_param(aa, *arg):
     '''函数设置参数'''
     foo=",".join(["{}" for i in range(len(arg))])
-    # print(">>>", aa, foo.format(*arg))
+    # print(">>>", aa)#, foo.format(*arg))
     ka_vals[foo.format(*arg)] = ka_vals[aa["obj"]]
     if aa["obj"]+"_map" in ka_vals:
         ka_vals[foo.format(*arg)+"_map"] = ka_vals[aa["obj"]+"_map"]
