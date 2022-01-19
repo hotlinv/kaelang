@@ -33,11 +33,47 @@ def ka_foo(fn):
     '''用于做功能单元的变量初始化和数据回收'''
     @functools.wraps(fn) #要加这句，不然inspect的get方法认不到函数，只能认到inner
     def inner(**args):
+        global ka_vals
         try:
             vals = {}
             args["vals"] = vals #初始化本地数据（不污染全局变量）
             args["_id"] = id(vals)
-            ret = fn(**args)
+            param, param_type, param_map = None, None, None
+            if "obj" in args:
+                if args["obj"] in ka_vals:
+                    param = ka_vals[args["obj"]]
+                if args["obj"]+"_type" in ka_vals:
+                    param_type = ka_vals[args["obj"]+"_type"]
+                if args["obj"]+"_map" in ka_vals:
+                    param_map = ka_vals[args["obj"]+"_map"]
+            ps = {}
+            if "params" in args:
+                ps = {k:ka_vals[k] for k in args["params"] }
+            ka_vals_global[args["_id"]] = vals
+            ka_vals = vals
+            if param:
+                ka_vals[args["obj"]] = param
+            if param_type:
+                ka_vals[args["obj"]+"_type"] = param_type
+            if param_map:
+                ka_vals[args["obj"]+"_map"] = param_map
+            ka_vals.update(ps)
+            ka_call_stacks.append(args["_id"])
+            # print("ffff", ka_vals)
+            ret = fn(**args) ##########运行函数
+            #取出返回
+            retmap = {}
+            for k in [key for key in ka_vals.keys() if key.startswith(fn.__name__)]:
+                retmap[k] = ka_vals[k]
+            # print(retmap)
+            #恢复上级环境
+            ka_call_stacks.pop()
+            if len(ka_call_stacks)>0:
+                ka_vals = ka_vals_global[ka_call_stacks[-1]]
+            else:
+                ka_vals = ka_vals_global
+            #保存返回
+            ka_vals.update(retmap)
             #可以做垃圾回收
             return ret
         except Exception as e:
@@ -82,7 +118,9 @@ def ka_replaceQuot(s):
     return "".join(sss[:-1])
 # print(KaeLevMap(lev0={}))
 
-ka_vals = {} #放变量
+ka_vals_global={} #放变量
+ka_vals = ka_vals_global #指向变量，如果进入函数，则指向局部变量
+ka_call_stacks = [] #调用栈
 ka_sys = KaeLevMap() #放语言语法映射
 ka_res = KaeLevMap() #存放各种正则表达式
 ka_types = {} #放数据类型
@@ -551,6 +589,7 @@ def karun(foo, file):
         # kac.close()
         
         exec(compile(pycallable, kf.name, "exec"), globals())
+        print2kc(ka_vals, "mem", True)
 
 @catch2cn
 def karuncli(slines):

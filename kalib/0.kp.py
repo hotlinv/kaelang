@@ -92,7 +92,7 @@ def ka_fun_param(aa, *arg):
         ka_vals[foo.format(*arg)+"_map"] = ka_vals[aa["obj"]+"_map"]
     if aa["obj"]+"_type" in ka_vals:
         ka_vals[foo.format(*arg)+"_type"] = ka_vals[aa["obj"]+"_type"]
-    # print(ka_vals)
+    
     # exec(foo.format(*arg))
 
 @catch2cn
@@ -373,7 +373,8 @@ def ka_for(it, foo, aa):
     # print("$$", aa)
     if foo.startswith("!"):
         up = 'ka_vals.update({'+f"'《{it}》当前索引':idx,'《{it}》当前值':{it}"+"})\n    "
-        foo = up+foo[1:]+"(**aa)"
+        u2 = 'aa["params"]=[k for k in ka_vals.keys()]\n    ' #拷贝所有变量（不递归）
+        foo = up+u2+foo[1:]+"(**aa)"
     else:
         up = 'ka_vals.update({'+f"'《{it}》当前索引':idx,'《{it}》当前值':{it}"+"})\n    "
         # foo = up+foo.replace(f"《{it}》当前值", f"{it}").replace(f"《{it}》当前索引", f"idx")
@@ -382,7 +383,7 @@ def ka_for(it, foo, aa):
     fortext = "for idx, {0} in enumerate(iter({1})):\n    {2}"
     ft = fortext.format(it, eval(f"ka_vals['{it}']"), foo)
     #return ft
-    #print(ft)
+    # print(ft)
     exec(compile(ft, "core_for", "exec"))
 
 @catch2cn
@@ -391,7 +392,7 @@ def ka_while(dosth, cmpst):
     # print("www", dosth, cmpst)
     if not dosth.startswith("ka_") or not cmpst.startswith("ka_"):
         raise "解析语句错误"
-    whilestrs = f"while not {cmpst}:\n    {dosth}\n    #print({cmpst})\n    if {cmpst}:\n        break"
+    whilestrs = f"if not {cmpst}:\n    {dosth}\n    #print({cmpst})\n    if {cmpst}:\n        pass"
     # print(whilestrs)
-    exec(compile(f"print(\"{dosth}\",{cmpst})", "core_while", "exec"))
+    # exec(compile(f"print(\"{dosth}\",{cmpst})", "core_while", "exec"))
     exec(compile(whilestrs, "core_while", "exec"))

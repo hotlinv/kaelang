@@ -628,7 +628,7 @@ class Kae(flx.PyWidget):
     @flx.reaction("tabctrl.user_current")
     def refresh_tab(self, *events):
         for ev in events:
-            print(ev.new_value.title)
+            # print(ev.new_value.title)
             if ev.new_value.title=="表格":
                 self.table.draw()
 
@@ -644,7 +644,7 @@ class Kae(flx.PyWidget):
     @flx.reaction('tree.select_item')  # note that we connect to relay
     def _on_click_file(self, *events):
         for ev in events:
-            print("reaction>", ev.source.selected)
+            # print("reaction>", ev.source.selected)
             if ev.source.selected.endswith(".ae"):
                 self.tabctrl.set_current(0)
                 with open(ev.source.selected, "r",encoding='utf-8') as file:

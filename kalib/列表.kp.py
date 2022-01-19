@@ -41,9 +41,10 @@ def ka_append(name, *ls):
     # ls = lst.split("、")
     #print(ls)
     #lst2 = [eval(eval(f"parse('{co}')")) for co in ls]
-    ft = f"ka_vals['{name}'].extend({ls})"
+    ka_vals[name].extend(ls)
+    # print(name, id(ka_vals[name]))
     #print(lst, ft)
-    exec(compile(ft, "list_append", "exec"))
+    # exec(compile(ft, "list_append", "exec"))
     
 @catch2cn
 def ka_list_sort(lstn):
