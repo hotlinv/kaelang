@@ -36,6 +36,7 @@ def ka_foo(fn):
         try:
             vals = {}
             args["vals"] = vals #初始化本地数据（不污染全局变量）
+            args["_id"] = id(vals)
             ret = fn(**args)
             #可以做垃圾回收
             return ret
