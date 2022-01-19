@@ -49,7 +49,6 @@ def loadkts():
             codes = "\n".join(lines)
             m = compile(codes, ktf.name, "exec")
             exec(m, globals())
-    # print(ka_callable_foos)
 loadkts()
 
 def ka_replaceQuot(s):
@@ -74,7 +73,6 @@ ka_types = {} #放数据类型
 ka_mount = {} #放数据目录
 ka_outputs = {} #存放输出设备
 ka_lastit = "" #它/他/她的指代
-ka_callable_foos = {} #“把XXX执行XX”这样的句子自动对应的操作
 
 ka_imp_fun_name = None
 
@@ -155,7 +153,7 @@ def ka_scan_callable():
             fnds = [d for d in fndoc.split() if "[k]" in d]
             for fnd in fnds:
                 fnl = fnd.split("·")
-                ka_callable_foos[fnl[0][3:]] = f"{fn[0]}({fnl[1]})"
+                ka_sys.lmap[1][fnl[0][3:]] = f"{fn[0]}({fnl[1]})" #“把XXX执行XX”这样的句子自动对应的操作
         #    pass
 
 ma_import = re.compile(u"^#\s*【引用】(.+)")
@@ -221,7 +219,6 @@ def loadkps():
         with open(kp, "r", encoding='UTF-8') as kpf:
             ka_parsePk(kpf)
     ka_scan_callable()
-    # print(ka_callable_foos)
 loadkps()
 
 def ka_make_re_list():

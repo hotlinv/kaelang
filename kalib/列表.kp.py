@@ -4,9 +4,13 @@ ka_pmap=KaeLevMap(lev0={
     u"在《(.+)》中插入：(.+)":"ka_append('{0}', *1*)",
     u"查找《(.[^》]+)》中“(.[^”]+)”和《(.[^》]+)》的“(.[^”]+)”(.+)的(首条|所有)?记录":"ka_list_find('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')",
     u"过滤(?:列表)?《(.+)》中(.+)的元素组成(?:“)?(.[^”]+)(?:”)?":'ka_list_filter("{0}","{1}","{2}")',
+    u"清空(?:列表)?《(.+)》":'ka_list_clear("{0}")',
     # u"把列表《(.+)》(?:用“(.*)”)?(?:来)?(?:进行)?拼接":"ka_join('{0}', '{1}')",
     #u"把列表《(.+)》(?:正向|从小到大)?(?:进行)?排序":"ka_sort('{0}')",
     #u"把列表《(.+)》(?:反向|从大到小)?(?:进行)?排序":"ka_rsort('{0}')",
+},lev1={
+    u"^《(\w+)》的长度$":"ka_list_len('{0}')",
+    u"^《(\w+)》的元素(?:个数|总数)$":"ka_list_len('{0}')",
 })
 
 # 【实现】
@@ -70,7 +74,30 @@ def ka_list_filter(lstn, cmp, name):
     """
     p = ka_parse("a"+cmp)
     ka_vals[name] = [a for a in ka_vals[lstn] if eval(p)]
+    ka_vals[name+"_type"] = "列表"
     
+@catch2cn
+def ka_list_clear(lstn):
+    """清空列表所有元素
+    [k]列表清空·'{0}'
+    """
+    ka_vals[lstn].clear()
+@catch2cn
+@lastit
+def ka_list_flatten(lstn):
+    """任意维数组一维化
+    [k]列表一维化·'{0}'
+    """
+    a = ka_vals[lstn]
+    flatten = lambda x: [y for l in x for y in flatten(l)] if type(x) is list else [x]
+    ka_vals[lstn+"一维化后"] = flatten(a)
+    ka_vals[lstn+"一维化后_type"] = "列表"
+    return lstn+"一维化后"
+
+@catch2cn
+def ka_list_len(lstn):
+    """获取列表长度"""
+    return len(ka_vals[lstn])
 
 @catch2cn
 @lastit

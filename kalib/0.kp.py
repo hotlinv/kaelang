@@ -19,13 +19,14 @@ ka_pmap=KaeLevMap(lev0={
     u"判断：((?:如果).+，(?:则).+)+，?(?:(?:否则)(.+))?":"ka_sel([0], <1>)",
     #u"(.+)吗？(.+)":"ka_sel(<0>, <1>)",
     u"(?:启动)循环《(.+)》，(?:进行|运行|执行)(.+)":"ka_for('{0}', <1>, aa)",
+    u"^(.+)，(?:直到|直至)(.+?)时?(?:为止)?$":"ka_while(<0>, <1>)",
     u"(?:如果)(.+?)，(?:则)([^如否]+)(?:，|。|；)?":"[<0>, <1>]",
     u"(?:把|将|对)(.+)?《(.+?)》(?:进行|执行)(.+)":"ka_call('{0}', '{1}', \"{2}\", None)",
     u"(?:把|将|对)(.+)?《(.+?)》(.+)(?:进行|执行)(.+)":"ka_call('{0}', '{1}', '{3}', '{2}')",
     u"选择(.+)?《(.+)》((?:中|里).+(?:作为|定为).+)":'ka_call("{0}", "{1}", "{2}", None)',
     u"(?:从)(.+)?《(.+?)》(?:中|里|里面)(.+)":"ka_from_do('{0}', '{1}', '{2}')",
     #u"(?:把|将|对)(.+)?《(.+?)》(.+)":"ka_call('{0}', '{1}', '{2}', None)",
-    u"监听对象(.+)":"ka_fun_param(aa, *0*)",
+    u"(?:监听|假设有一个)对象(.+)":"ka_fun_param(aa, *0*)",
     u"(?:把|将)(?:其|它|他|她)(?:重定义|定义)为(.+)":"ka_rename('{0}', None)",
     u"(?:把|将)(.+)(?:重定义|定义)为(.+)":"ka_rename('{1}','{0}')",
     u"(?:把|将)(?:其|它|他|她)(.+)":"ka_next_do('{0}')",
@@ -46,10 +47,10 @@ ka_pmap=KaeLevMap(lev0={
     u"(.+)不等于(.+)":"ka_neq({0}, {1})",
     u"(.+)和(.+)不相等":"ka_neq({0}, {1})",
     u"^!(\w+)$":"!{0}",
+},lev2={
     KA_ITER_NOW:'ka_get("{0}")',
     KA_OBJ_VAL:'ka_vals["{0}"]',
     KA_OBJ_ATTR:'ka_get_obj_attr("{0}", "{1}")',
-},lev2={
     u"^是$":"True",
     u"^否$":"False",
     u"^制表符$":"r'\t'",
@@ -169,7 +170,7 @@ def ka_call(_type, objname, nextop, usesth):
     txtemp = lambda x: x if x else ""
     runmatch = _type+ txtemp(usesth) +nextops[0]
     # print("call =>", _type, objname, nextop, usesth, runmatch, ka_callable_foos, file=stderr)
-    for k, v in ka_callable_foos.items():
+    for k, v in ka_res.geList(1):
         m = re.match(k, runmatch)
         if m:
             g = m.groups()
@@ -179,7 +180,7 @@ def ka_call(_type, objname, nextop, usesth):
                     #print(nextops[i])
                     g.append(ka_parse(nextops[i]))
             pycallable = v.format(objname, *g)
-            #print("call ===>>>", pycallable)
+            print("call ===>>>", pycallable)
             print2kc(f"# call({_type} {objname} {nextop} {usesth}) => "+pycallable, "ka")
             exec(pycallable)
             return pycallable
@@ -192,7 +193,7 @@ def ka_from_do(_type, objname, nextop):
     nextops = re.split(r"，", nextop)
     runmatch = _type +nextops[0]
     # print("from_do =>", _type, objname, nextop, runmatch)
-    for k, v in ka_callable_foos.items():
+    for k, v in ka_res.geList(1):
         m = re.match(k, runmatch)
         if m:
             g = m.groups()
@@ -250,7 +251,7 @@ def ka_next_do(nextop):
     nextops = re.split(r"，", nextop)
     runmatch = _type+nextops[0]
     # print("nextdo =>", nextop, runmatch)
-    for k, v in ka_callable_foos.items():
+    for k, v in ka_res.geList(1):
         m = re.match(k, runmatch)
         if m:
             g = m.groups()
@@ -375,4 +376,12 @@ def ka_for(it, foo, aa):
     #print(ft)
     exec(compile(ft, "core_for", "exec"))
 
-
+@catch2cn
+def ka_while(dosth, cmpst):
+    """条件终止循环"""
+    # print("www", dosth, cmpst)
+    if not dosth.startswith("ka_") or not cmpst.startswith("ka_"):
+        raise "解析语句错误"
+    whilestrs = f"while True:\n    {dosth}\n    #print({cmpst})\n    if {cmpst}:\n        break"
+    print(whilestrs)
+    # exec(compile(whilestrs, "core_while", "exec"))
