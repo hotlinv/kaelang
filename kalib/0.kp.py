@@ -41,7 +41,9 @@ ka_pmap=KaeLevMap(lev0={
     u"(.+)比(.+)小":"ka_lt({0}, {1})",
     u"(.+)小于(.+)":"ka_lt({0}, {1})",
     u"(.+)不大于(.+)":"ka_lte({0}, {1})",
+    u"(.+)小等于(.+)":"ka_lte({0}, {1})",
     u"(.+)不小于(.+)":"ka_gte({0}, {1})",
+    u"(.+)大等于(.+)":"ka_gte({0}, {1})",
     u"(.+)等于(.+)":"ka_eq({0}, {1})",
     u"(.+)和(.+)相等":"ka_eq({0}, {1})",
     u"(.+)不等于(.+)":"ka_neq({0}, {1})",
@@ -166,6 +168,13 @@ def ka_call(_type, objname, nextop, usesth):
         # print("call=>!", nextop)
         exec(nextop)
         return nextop
+    # if nextop=="快速排序法":
+    #     print("call=>!", nextop, [fpair[0] for fpair in ka_get_all_function_in_model()])
+    if nextop in [fpair[0] for fpair in ka_get_all_function_in_model()]:
+        #加上ka_run_fun直接运行了
+        execstr = f"ka_run_fun('{nextop}', '{objname}', None, None)"
+        exec(execstr)
+        return execstr
     nextops = re.split(r"，", nextop)
     txtemp = lambda x: x if x else ""
     runmatch = _type+ txtemp(usesth) +nextops[0]
@@ -180,8 +189,8 @@ def ka_call(_type, objname, nextop, usesth):
                     #print(nextops[i])
                     g.append(ka_parse(nextops[i]))
             pycallable = v.format(objname, *g)
-            print("call ===>>>", pycallable)
-            print2kc(f"# call({_type} {objname} {nextop} {usesth}) => "+pycallable, "ka")
+            # print("call ===>>>", pycallable)
+            print2kc(f"# call({_type} {objname} {nextop} {usesth}) => "+pycallable, "kacalls")
             exec(pycallable)
             return pycallable
 
@@ -382,6 +391,7 @@ def ka_while(dosth, cmpst):
     # print("www", dosth, cmpst)
     if not dosth.startswith("ka_") or not cmpst.startswith("ka_"):
         raise "解析语句错误"
-    whilestrs = f"while True:\n    {dosth}\n    #print({cmpst})\n    if {cmpst}:\n        break"
-    print(whilestrs)
-    # exec(compile(whilestrs, "core_while", "exec"))
+    whilestrs = f"while not {cmpst}:\n    {dosth}\n    #print({cmpst})\n    if {cmpst}:\n        break"
+    # print(whilestrs)
+    exec(compile(f"print(\"{dosth}\",{cmpst})", "core_while", "exec"))
+    exec(compile(whilestrs, "core_while", "exec"))

@@ -159,8 +159,7 @@ def ka_get_all_function_in_model():
 
 # 抽取callbable函数
 def ka_scan_callable():
-    foos = ins.getmembers(sys.modules[__name__#'__main__'
-        ], ins.isfunction)#拿到主模块下所有的函数
+    foos = ka_get_all_function_in_model()#拿到主模块下所有的函数
     #print(foos)
     for fn in [f for f in foos if f[0].startswith("ka")]:
         fndoc = ins.getdoc(fn[1])
