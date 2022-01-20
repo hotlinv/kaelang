@@ -402,7 +402,7 @@ def print2kc(codes, fname, newfile=False):
         os.makedirs(".bin")
     except:
         pass
-    kb = open(f".bin/{fname}.kc", 'w+' if newfile else "a", encoding='utf-8')
+    kb = open(f".bin/{fname}.af", 'w+' if newfile else "a", encoding='utf-8')
     print(codes, file=kb)
     kb.close()
 
@@ -564,30 +564,37 @@ def ka_prepare_a_line(ka_fragments, line):
             #     continue
             ka_fragments["codes"]["main"].append(s)
 
-
+import hashlib, os
 nextsth = None
 @catch2cn
 def karun(foo, file):
     """主运行函数"""
     with open(file, "r", encoding='UTF-8') as kf:
         lines = [l.strip() for l in kf.readlines()]
-        # codes = []
-        #codes存放代码段
-        ka_fragments = {"step":0, "codes":{"main":[]}, "stack":["main"], "foo":[]}
-        for line in lines:
-            ka_prepare_a_line(ka_fragments, line)
+        #判断是否有生成过kc文件，如果有，就不重新解析了
+        fmd5 = hashlib.md5("\n".join(lines).encode("UTF-8")).hexdigest()
+        if os.access(f".bin/{fmd5}.af", os.F_OK):
+            #已经编译过了，就打开运行，不用重新解析
+            with open(f".bin/{fmd5}.af", "r", encoding='UTF-8') as af:
+                pycallable = af.read()
+        else:
+            # codes = []
+            #codes存放代码段
+            ka_fragments = {"step":0, "codes":{"main":[]}, "stack":["main"], "foo":[]}
+            for line in lines:
+                ka_prepare_a_line(ka_fragments, line)
 
-        mainlines = ["    {0}".format(ka_parse(ml)) for ml in ka_fragments["codes"]["main"]]
-        kc = DEF_TMP.format(foo, "\n".join(mainlines)[4:])
-        ka_fragments["foo"].append(kc)
-                # codes.append(kc)
-        if foo=="main":
-            ka_fragments["foo"].append("main(vals={})")
-        #pprint(ka_fragments)
-        
-        # print2kb("\n".join(codes))
-        pycallable = "".join(ka_fragments["foo"])
-        print2kc(pycallable, f"{foo}", True)
+            mainlines = ["    {0}".format(ka_parse(ml)) for ml in ka_fragments["codes"]["main"]]
+            kc = DEF_TMP.format(foo, "\n".join(mainlines)[4:])
+            ka_fragments["foo"].append(kc)
+                    # codes.append(kc)
+            if foo=="main":
+                ka_fragments["foo"].append("main(vals={})")
+            #pprint(ka_fragments)
+            
+            # print2kb("\n".join(codes))
+            pycallable = "".join(ka_fragments["foo"])
+            print2kc(pycallable, fmd5, True)
         # kac = open("kae.kc", 'w+', encoding='utf-8')
         # print("".join(ka_fragments["foo"]), file=kac)    
         # kac.close()
