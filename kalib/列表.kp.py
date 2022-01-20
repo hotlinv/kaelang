@@ -98,6 +98,7 @@ def ka_list_flatten(lstn):
 @catch2cn
 def ka_list_len(lstn):
     """获取列表长度"""
+    # print(lstn,ka_vals[lstn], len(ka_vals[lstn]))
     return len(ka_vals[lstn])
 
 @catch2cn

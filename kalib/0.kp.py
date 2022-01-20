@@ -351,6 +351,13 @@ def ka_neq(v1, v2):
     return eval(f"{v1}!={v2}")
 
 @catch2cn
+def ka_int_increment(name):
+    """自增
+    [k]数自增·'{0}'
+    """
+    ka_vals[name]+=1
+
+@catch2cn
 def ka_sel(iflist, elsefoo):
     """条件选择"""
     # print(iflist, elsefoo)
@@ -392,7 +399,7 @@ def ka_while(dosth, cmpst):
     # print("www", dosth, cmpst)
     if not dosth.startswith("ka_") or not cmpst.startswith("ka_"):
         raise "解析语句错误"
-    whilestrs = f"if not {cmpst}:\n    {dosth}\n    #print({cmpst})\n    if {cmpst}:\n        pass"
+    whilestrs = f"while not {cmpst}:\n    {dosth}\n    #print({cmpst})\n    if {cmpst}:\n        break"
     # print(whilestrs)
     # exec(compile(f"print(\"{dosth}\",{cmpst})", "core_while", "exec"))
     exec(compile(whilestrs, "core_while", "exec"))
