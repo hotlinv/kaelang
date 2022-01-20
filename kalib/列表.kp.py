@@ -21,6 +21,13 @@ def ka_new_emptylist(name, value):
 
 registType("空列表", ka_new_emptylist)
 
+def ka_new_list(name, value):
+    values = [eval(ka_parse(i)) for i in value.split("、")]
+    ka_vals[f"{name}"]=values
+    ka_vals[f"{name}_type"]="列表"
+
+registType("列表", ka_new_list)
+
 @catch2cn
 def ka_range(b, e):
     """区间范围"""
