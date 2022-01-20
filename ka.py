@@ -399,10 +399,10 @@ def ka_parse(statement):
 
 def print2kc(codes, fname, newfile=False):
     try:
-        os.makedirs(".tmp")
+        os.makedirs(".bin")
     except:
         pass
-    kb = open(f".tmp/{fname}.kc", 'w+' if newfile else "a", encoding='utf-8')
+    kb = open(f".bin/{fname}.kc", 'w+' if newfile else "a", encoding='utf-8')
     print(codes, file=kb)
     kb.close()
 
@@ -477,24 +477,28 @@ def ka_imp_fun(foo):
     # print("III", foo)
     if foo.startswith("《") and foo.endswith("》"):
         foo = foo[1:-1]
+    if foo in [f[0] for f in ka_get_all_function_in_model()]: #如果已经解析过了，就不解析
+        return
     if ka_imp_fun_name:
         funname = ka_imp_fun_name
+    else:
+        funname = foo
         # print(foo, foo in ka_get_all_function_in_model())
-        if foo in ka_get_all_function_in_model(): #如果已经解析过了，就不解析
-            return
-        karun(foo, f"功能单元/{foo}.ae")
-        # ka_sys[foo]=f"abc()"
-        ka_res.lmap[0].insert(0, [re.compile(f"{funname}，把《(.[^》]+)》的([^\s]+)设置为(.+)"), 
-                "ka_run_fun(\'"+foo+"\', '{0}', '{1}', '{2}')"])
-        ka_res.lmap[0].insert(1, [re.compile(f"{funname}"), 
-                "ka_run_fun(\'"+foo+"\', None, None, None)"])
-        ka_custom_foos.append(funname)
-        # print(ka_res)
+    karun(foo, f"功能单元/{foo}.ae")
+    # ka_sys[foo]=f"abc()"
+    ka_res.lmap[0].insert(0, [re.compile(f"{funname}，把《(.[^》]+)》的([^\s]+)设置为(.+)"), 
+            "ka_run_fun(\'"+foo+"\', '{0}', '{1}', '{2}')"])
+    ka_res.lmap[0].insert(1, [re.compile(f"{funname}"), 
+            "ka_run_fun(\'"+foo+"\', None, None, None)"])
+    ka_custom_foos.append(funname)
+    # print(ka_res)
 
 @catch2cn
 def ka_run_fun(foo, obj, attr, value):
     """运行功能单元"""
     # print("RRR", foo, obj, attr, value)
+    if foo not in  [f[0] for f in ka_get_all_function_in_model()]: #解析过，直接加载功能时没有导入
+        ka_imp_fun(foo)
     if obj is not None:
         if attr is not None and value is not None:
             ka_set_obj_attr(obj, attr, value)
@@ -555,9 +559,9 @@ def ka_prepare_a_line(ka_fragments, line):
             if _ka_m_impfoo.search(s):
                 ka_imp_fun(_ka_m_impfoo.match(s).groups()[0])
                 continue
-            if _ka_m_runfoo.search(s):
-                ka_run_fun(*_ka_m_runfoo.match(s).groups())
-                continue
+            # if _ka_m_runfoo.search(s):
+            #     ka_run_fun(*_ka_m_runfoo.match(s).groups())
+            #     continue
             ka_fragments["codes"]["main"].append(s)
 
 
