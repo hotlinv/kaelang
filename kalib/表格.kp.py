@@ -15,6 +15,11 @@ def ka_pd_open(path, tab, name ):
     #ka_vals[name] = Image.open(path)
     if path.endswith(".tsv") or path.endswith(".csv"):
         ef = pd.read_csv(path)
+    elif path.endswith(".sqlite"):
+        from sqlalchemy import create_engine
+        engine = create_engine('sqlite:///'+path, echo=True)
+        sqlite_connection = engine.connect()
+        ef = sql.read_sql('select * from '+tab, sqlite_connection)
     else:
         if tab:
             ef = pd.read_excel(path, sheet_name = tab) 
