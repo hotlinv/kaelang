@@ -255,6 +255,7 @@ class MessageList(flx.Widget):
     def on_run(self, *events):
         for ev in events:
             self.run_statement(ev.statement)
+            # print(ev.source)
             self.set_activeitem(ev.source)
     @flx.emitter
     def run_statement(self, statement):
@@ -270,6 +271,7 @@ class MessageList(flx.Widget):
     
     @flx.action
     def output_message(self, msg):
+        # print(self.activeitem)
         self.activeitem.print_output(msg)
 
 
@@ -730,6 +732,8 @@ def loadUrlmaps():
 urlmapconf = loadUrlmaps()
 # print(urlmapconf)
 
+flx.config.hostname = "192.168.2.195"
+flx.config.port = 8139
 
 fname = '.asserts/favicon64.ico'
 with open(fname, 'rb') as f1:
@@ -741,5 +745,12 @@ kae_png = f'data:image/ico;base64,{icos}'
 # , windowmode="maximized",
 app = flx.App(Kae, title=u"kæ语言交互终端", icon=kae_png)
 root = app.launch('app', size=(1300, 700), windowmode="maximized")  # to run as a desktop app
-# app.launch('browser')  # to open in the browser
+#root = app.launch('browser')  # to open in the browser
 flx.run()  # mainloop will exit when the app is closed 
+# app.serve('')
+# # root = app.launch('browser')
+# from flexx.app import manager
+# manager.register_app(app)
+# session = manager.create_session("__main__")
+# root = session.app
+# flx.start()
