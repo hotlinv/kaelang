@@ -19,8 +19,8 @@ def ka_pd_open(path, tab, name ):
         from sqlalchemy import create_engine
         engine = create_engine('sqlite:///'+path, echo=True)
         sqlite_connection = engine.connect()
-        ef = sql.read_sql('select * from '+tab, sqlite_connection)
-    else:
+        ef = pd.read_sql('select * from '+tab, sqlite_connection)
+    elif path.endswith(".xlsx") or path.endswith(".xls"):
         if tab:
             ef = pd.read_excel(path, sheet_name = tab) 
         else:
