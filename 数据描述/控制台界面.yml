@@ -1,0 +1,31 @@
+BoxLayout:
+    Splitter:
+        sizable_from: 'right'
+        size_hint: .25, 1
+        min_size: 200
+        max_size: 350
+        TreeView:
+            hide_root: True
+    TabbedPanel:
+        do_default_tab: False
+        TabbedPanelItem:
+            text: '终端'
+            font_name: 'fzh'
+            Label:
+                text: 'First tab content area'
+        TabbedPanelItem:
+            text: '文本'
+            font_name: 'fzh'
+            BoxLayout:
+                Label:
+                    text: 'kæ语言交互终端'
+                    font_name: 'fzh'
+                Button:
+                    text: 'Button that does nothing'
+        TabbedPanelItem:
+            text: '表格'
+            font_name: 'fzh'
+            RstDocument:
+                text:
+                    '\\n'.join(("Hello world", "-----------",
+                    "You are in the third tab."))
