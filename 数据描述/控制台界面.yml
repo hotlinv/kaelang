@@ -1,18 +1,22 @@
 BoxLayout:
+    app_icon: ".asserts/favicon.ico"
+    app_title: "kæ语言交互终端"
     Splitter:
         sizable_from: 'right'
         size_hint: .25, 1
         min_size: 200
         max_size: 350
-        TreeView:
+        FileTree:
             hide_root: True
+            id: tree
     TabbedPanel:
         do_default_tab: False
         TabbedPanelItem:
             text: '终端'
             font_name: 'fzh'
-            Label:
-                text: 'First tab content area'
+            Button:
+                text: 'Button that does nothing'
+                on_press: tree.on_create() 
         TabbedPanelItem:
             text: '文本'
             font_name: 'fzh'
@@ -22,6 +26,7 @@ BoxLayout:
                     font_name: 'fzh'
                 Button:
                     text: 'Button that does nothing'
+                    
         TabbedPanelItem:
             text: '表格'
             font_name: 'fzh'
