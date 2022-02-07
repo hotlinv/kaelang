@@ -2,7 +2,8 @@
 
 # 【映射】
 ka_pmap=KaeLevMap(lev0={
-    u"展示“(.+)”所描述的用户界面":"ka_gui_open(os.path.join(ka_workspace(), '数据描述', '{0}.yml'))",
+    u"读取用户界面“(.+)”":"ka_gui_open(os.path.join(ka_workspace(), '数据描述', '{0}.yml'), '{0}')",
+    u"展示用户界面《(.+)》":"ka_gui_run('{0}')",
 })
 
 # 【实现】
@@ -19,7 +20,7 @@ class FileTree(TreeView):
         self.add_node(TreeViewLabel(text='SubItem 2', font_name='fzh'), n1)
 
 @catch2cn
-def ka_gui_open(uiconfig):
+def ka_gui_open(uiconfig, name):
     """打开ui界面"""
     from kivy.app import App as kvApp
     from kivy.lang import Builder as kvBuilder
@@ -39,6 +40,9 @@ def ka_gui_open(uiconfig):
             return root
     
     app = TestApp()
-    ka_vals["guiapp"] = app
-    app.run()
+    ka_vals[name] = app
+
+@catch2cn
+def ka_gui_run(name):
+    ka_vals[name].run()
     

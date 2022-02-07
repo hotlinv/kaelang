@@ -1,5 +1,5 @@
 pyyaml 
 jieba
 pypinyin
-flexx
+kivy
 Pinyin2Hanzi
