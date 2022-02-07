@@ -19,6 +19,18 @@ class FileTree(TreeView):
         self.add_node(TreeViewLabel(text='SubItem 1', font_name='fzh'), n1)
         self.add_node(TreeViewLabel(text='SubItem 2', font_name='fzh'), n1)
 
+from kivy.uix.boxlayout import BoxLayout
+class MyPanel(BoxLayout):
+    def __init__(self, **kwargs):
+        super(MyPanel, self).__init__(**kwargs)
+    def addPanel(self):
+        from kivy.lang import Builder as kvBuilder
+        with open(os.path.join(ka_workspace(), '数据描述', '交互面板.yml'), encoding="utf-8") as f:
+                pconf = f.read()
+
+        p = kvBuilder.load_string(pconf)
+        self.add_widget(p)
+
 @catch2cn
 def ka_gui_open(uiconfig, name):
     """打开ui界面"""

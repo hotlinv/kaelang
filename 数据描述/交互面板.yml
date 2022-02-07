@@ -1,0 +1,5 @@
+BoxLayout:
+    TextInput: 
+        text: "input here"
+    Button:
+        text: 'Button that does nothing'

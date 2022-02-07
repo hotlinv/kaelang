@@ -21,11 +21,17 @@ BoxLayout:
             text: '文本'
             font_name: 'fzh'
             BoxLayout:
-                Label:
-                    text: 'kæ语言交互终端'
-                    font_name: 'fzh'
-                Button:
-                    text: 'Button that does nothing'
+                orientation: 'vertical'
+                MyPanel:
+                    id: texts
+                    orientation: 'vertical'
+                BoxLayout:
+                    Label:
+                        text: 'kæ语言交互终端'
+                        font_name: 'fzh'
+                    Button:
+                        text: 'Button that does nothing'
+                        on_press: texts.addPanel() 
                     
         TabbedPanelItem:
             text: '表格'
