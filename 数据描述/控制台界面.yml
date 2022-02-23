@@ -6,7 +6,8 @@ BoxLayout:
         size_hint: .25, 1
         min_size: 200
         max_size: 350
-        FileTree:
+        TreeView:
+            zh_name: "文件树"
             hide_root: True
             id: tree
     TabbedPanel:
@@ -22,7 +23,7 @@ BoxLayout:
             font_name: 'fzh'
             BoxLayout:
                 orientation: 'vertical'
-                MyPanel:
+                BoxLayout:
                     id: texts
                     orientation: 'vertical'
                 BoxLayout:
