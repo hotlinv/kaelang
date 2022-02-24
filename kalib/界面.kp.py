@@ -33,23 +33,24 @@ ka_pmap=KaeLevMap(lev0={
 #         p = kvBuilder.load_string(pconf)
 #         self.add_widget(p)
 
-def init_tree_view(tree_view, parent, node):
+def set_TreeView(tree_view, node, parent=None):
     from kivy.uix.treeview import TreeViewLabel
     if parent is None:
-        tree_node = tree_view.add_node(TreeViewLabel(text=node['node_id'],
+        tree_node = tree_view.add_node(TreeViewLabel(text=node['node_id'], font_name='fzh',
                                                      is_open=True))
     else:
-        tree_node = tree_view.add_node(TreeViewLabel(text=node['node_id'],
+        tree_node = tree_view.add_node(TreeViewLabel(text=node['node_id'], font_name='fzh',
                                                      is_open=True), parent)
-
-    for child_node in node['children']:
-        init_tree_view(tree_view, tree_node, child_node)
+    if node['children'] is not None:
+        for child_node in node['children']:
+            set_TreeView(tree_view, child_node, tree_node)
 
 @catch2cn
 def ka_gui_setdata(dataname):
     # data = ka_vals[f"{dataname}"]
-    ui = ka_vals[f"{ka_lastit}"]
-    ui.binds[-1].append(dataname)
+    ui = ka_vals[ka_lastit]
+    what = ui.binds[-1]
+    what.append(f"set_%s({what[0]}, ka_vals['{dataname}'])")
     #ka_vals[f"{ka_lastit}_cur"] = curel
 
 @catch2cn
@@ -74,9 +75,14 @@ def ka_gui_open(uiconfig, name):
     class TestApp(kvApp):
         def on_start(self):
             # print(self.root.ids.tree)
+            # init_TreeView(self.root.ids.tree, None, ka_vals['配置树'])
             for b in self.binds:
-                ctl = eval(b[0])
-                print(b)
+                _classname = str(eval(b[0]).__class__)
+                clsname = _classname[_classname.find("'")+1:_classname.rfind("'")].split(".")[-1]
+                # print("^"*10, clsname)
+
+                for ec in b[1:]:
+                    exec(ec % clsname)
                 #init_tree_view(ctl, None, ka_vals[b[1]])
         def build(self):
             with open(uiconfig, encoding="utf-8") as f:
