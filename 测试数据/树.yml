@@ -1,8 +1,8 @@
 node_id: '1'
 children: 
-  - 'node_id': '1.1'
+  - 'node_id': '1.1 章节1'
     'children': 
-      - 'node_id': '1.1.1'
+      - 'node_id': '1.1.1 子章节'
         'children': 
           - 'node_id': '1.1.1.1'
             'children': 
