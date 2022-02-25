@@ -56,7 +56,9 @@ def ka_gui_setdata(dataname):
 @catch2cn
 def ka_gui_find_ctl(ctlid):
     ui = ka_vals[f"{ka_lastit}"]
-    ui.binds.append([f"self.root.ids.{ctlid}"])
+    wid = ui.idpair[ctlid]
+    # print("g"*20, ui.idpair)
+    ui.binds.append([f"self.root.ids.{wid}"])
     # curel = eval(f"ui.ids.{ctlid}")
     # ka_vals[f"{ka_lastit}_cur"] = curel
     # print("********", ka_lastit, ui, ui.root)
@@ -87,7 +89,6 @@ def ka_gui_open(uiconfig, name):
         def build(self):
             with open(uiconfig, encoding="utf-8") as f:
                 uiconf = f.read()
-
             root = kvBuilder.load_string(uiconf)
             self.icon = root.app_icon
             self.title = root.app_title
@@ -95,6 +96,11 @@ def ka_gui_open(uiconfig, name):
     
     app = TestApp()
     app.binds = []
+    import yaml
+    with open(uiconfig, 'r',encoding='utf-8') as f:
+        uiconf = f.read()
+        conf = kvBuilder.load_string(uiconf)
+        app.idpair = {widget.zh_name:widget.wid for widget in conf.walk() if hasattr(widget, "zh_name")}
     ka_vals[name] = app
     return name
 

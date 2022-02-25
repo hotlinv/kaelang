@@ -8,6 +8,7 @@ BoxLayout:
         max_size: 350
         TreeView:
             zh_name: "文件树"
+            wid: "tree"
             hide_root: True
             id: tree
     TabbedPanel:
@@ -38,6 +39,4 @@ BoxLayout:
             text: '表格'
             font_name: 'fzh'
             RstDocument:
-                text:
-                    '\\n'.join(("Hello world", "-----------",
-                    "You are in the third tab."))
+                text: '\\n'
