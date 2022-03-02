@@ -6,6 +6,7 @@ ka_pmap=KaeLevMap(lev0={
     u"展示用户界面《(.+)》":"ka_gui_run('{0}')",
     u"在控件“(.+)”上守候":"ka_gui_find_ctl('{0}')",
     u"当其初始化完成时，读取数据“(.+)”":"ka_gui_setdata('{0}')",
+    u"当其(.+)时，(.+)":"ka_gui_bind('{0}', '{1}')"
 })
 
 # 【实现】
@@ -53,11 +54,19 @@ def ka_gui_setdata(dataname):
     what.append(f"set_%s({what[0]}, ka_vals['{dataname}'])")
     #ka_vals[f"{ka_lastit}_cur"] = curel
 
+def ka_gui_bind(whenst, bind):
+    ui = ka_vals[ka_lastit]
+    print("u"*20, ui)
+    what = ui.binds[-1]
+    print("u"*20, what)
+    what.append(f"pass")
+    #print(whenst, bind)
+
 @catch2cn
 def ka_gui_find_ctl(ctlid):
     ui = ka_vals[f"{ka_lastit}"]
+    print("g"*20, ui.idpair)
     wid = ui.idpair[ctlid]
-    # print("g"*20, ui.idpair)
     ui.binds.append([f"self.root.ids.{wid}"])
     # curel = eval(f"ui.ids.{ctlid}")
     # ka_vals[f"{ka_lastit}_cur"] = curel
@@ -84,6 +93,7 @@ def ka_gui_open(uiconfig, name):
                 # print("^"*10, clsname)
 
                 for ec in b[1:]:
+                    print("^"*10, ec, clsname)
                     exec(ec % clsname)
                 #init_tree_view(ctl, None, ka_vals[b[1]])
         def build(self):
@@ -97,10 +107,12 @@ def ka_gui_open(uiconfig, name):
     app = TestApp()
     app.binds = []
     import yaml
-    with open(uiconfig, 'r',encoding='utf-8') as f:
-        uiconf = f.read()
-        conf = kvBuilder.load_string(uiconf)
-        app.idpair = {widget.zh_name:widget.wid for widget in conf.walk() if hasattr(widget, "zh_name")}
+    with open(uiconfig+".idp", 'r',encoding='utf-8') as f:
+        uiconf = yaml.load(f, Loader=yaml.FullLoader)
+        # conf = kvBuilder.load_string(uiconf)
+        # loopwidget(conf)
+        app.idpair = {ck:cv for ck, cv in uiconf.items()}
+        print(app.idpair)
     ka_vals[name] = app
     return name
 
