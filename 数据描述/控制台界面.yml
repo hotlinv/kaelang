@@ -18,8 +18,13 @@ BoxLayout:
             id: tab_1
             text: '终端'
             font_name: 'fzh'
+            TextInput: 
+                text: "input here"
+                font_name: 'fzh'
+                id: myinput
             BoxLayout:
                 orientation: 'vertical'
+                font_name: 'fzh'
                 zh_name: "输出区"
                 wid: "output_area"
                 id: output_area

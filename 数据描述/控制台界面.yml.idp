@@ -1,3 +1,4 @@
 "文件树": "tree"
 "输出区": "output_area"
 "发送按钮": send_btn
+"输入框": myinput

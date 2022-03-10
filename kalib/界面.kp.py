@@ -55,11 +55,12 @@ def ka_gui_setdata(dataname):
     #ka_vals[f"{ka_lastit}_cur"] = curel
 
 def ka_gui_bind(whenst, bind):
+    print("bind"*3, whenst)
     ui = ka_vals[ka_lastit]
     print("u"*20, ui)
     what = ui.binds[-1]
     print("u"*20, what)
-    what.append(f"pass")
+    what.append(f"print('%s', {what[0]}, '{bind}')")
     #print(whenst, bind)
 
 @catch2cn
