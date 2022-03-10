@@ -11,9 +11,11 @@ ka_pmap=KaeLevMap(lev0={
     u"当其初始化完成时，读取数据“(.+)”":"ka_gui_setdata('{0}')",
     u"当其(.+)时，(.+)":"ka_gui_bind('{0}', '{1}')",
 }, lev1={
-    u"把控件“(.+)”的值放置在控件“(.+)”": "ka_gui_setvalueto('{0}', '{1}')",
+    u"把控件“(.+)”的值(.[^，]+)?(?:，结果)?放置在控件“(.+)”": 'ka_gui_setvalueto("{0}", "{1}", "{2}")',
 }, lev2={
     u"被(?:点击|按下|单击)":"on_press",
+    u"解析计算":"eval",
+    u"翻译计算":"ka_parse",
 })
 
 # 【实现】
@@ -79,13 +81,18 @@ def ka_gui_bind(whenst, bind):
     #print(whenst, bind)
 
 @catch2cn
-def ka_gui_setvalueto(fromctl, toctl):
+def ka_gui_setvalueto(fromctl, runfoostr, toctl):
     ui = ka_vals[ka_lastit]
     fid = ui.idpair[fromctl]
     fctl = f"ui.root.ids.{fid}"
     tid = ui.idpair[toctl]
     tctl = f"ui.root.ids.{tid}"
-    exec(f"{tctl}.text = {fctl}.text")
+    if runfoostr is None or runfoostr=="":
+        output = f"{fctl}.text"
+    else:
+        runf = ka_parse(runfoostr)
+        output = eval(f"{runf}({fctl}.text)")
+    exec(f"{tctl}.text = str({output})")
 
 @catch2cn
 def ka_gui_find_ctl(ctlid):

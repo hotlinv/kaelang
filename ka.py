@@ -20,13 +20,13 @@ jieba.setLogLevel(logging.INFO)
 def catch2cn(fn):
     @functools.wraps(fn) #要加这句，不然inspect的get方法认不到函数，只能认到inner
     def inner(*args):
-        try:
-            return fn(*args)
-        except Exception as e:
-            fndoc = ins.getdoc(fn)
-            err = u"{} 出错了：{}".format(fndoc.split()[0], str(e))
-            #print(err)
-            logging.error(err)
+        # try:
+        return fn(*args)
+        # except Exception as e:
+        #     fndoc = ins.getdoc(fn)
+        #     err = u"{} 出错了：{}".format(fndoc.split()[0], str(e))
+        #     #print(err)
+        #     logging.error(err)
     return inner
 
 def ka_foo(fn):
