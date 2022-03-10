@@ -1,12 +1,19 @@
 # 【引用】
 
 # 【映射】
+from ka import catch2cn
+
+
 ka_pmap=KaeLevMap(lev0={
     u"读取用户界面“(.+)”":"ka_gui_open(os.path.join(ka_workspace(), '数据描述', '{0}.yml'), '{0}')",
     u"展示用户界面《(.+)》":"ka_gui_run('{0}')",
     u"在控件“(.+)”上守候":"ka_gui_find_ctl('{0}')",
     u"当其初始化完成时，读取数据“(.+)”":"ka_gui_setdata('{0}')",
-    u"当其(.+)时，(.+)":"ka_gui_bind('{0}', '{1}')"
+    u"当其(.+)时，(.+)":"ka_gui_bind('{0}', '{1}')",
+}, lev1={
+    u"把控件“(.+)”的值放置在控件“(.+)”": "ka_gui_setvalueto('{0}', '{1}')",
+}, lev2={
+    u"被(?:点击|按下|单击)":"on_press",
 })
 
 # 【实现】
@@ -54,26 +61,31 @@ def ka_gui_setdata(dataname):
     what.append(f"set_%s({what[0]}, ka_vals['{dataname}'])")
     #ka_vals[f"{ka_lastit}_cur"] = curel
 
-ka_gui_eventmap = {
-    "被点击":"on_press"
-}
-
 def pressbtn(inst):
-    print("按钮按下", inst.cbfoo)
+    # print("按钮按下", inst.cbfoo)
+    exec(inst.cbfoo)
 
 def on_press_Button(btn, bind):
-    btn.cbfoo = bind
+    btn.cbfoo = ka_parse(bind)
     btn.bind(on_press=pressbtn)
 
+@catch2cn
 def ka_gui_bind(whenst, bind):
-    print("bind"*3, whenst)
     ui = ka_vals[ka_lastit]
-    print("u"*20, ui)
     what = ui.binds[-1]
-    evttype = ka_gui_eventmap[whenst]
+    evttype = ka_parse(whenst)
     what.append(f"{evttype}_%s({what[0]}, '{bind}')")
     #button.bind(on_press=print_button_text)
     #print(whenst, bind)
+
+@catch2cn
+def ka_gui_setvalueto(fromctl, toctl):
+    ui = ka_vals[ka_lastit]
+    fid = ui.idpair[fromctl]
+    fctl = f"ui.root.ids.{fid}"
+    tid = ui.idpair[toctl]
+    tctl = f"ui.root.ids.{tid}"
+    exec(f"{tctl}.text = {fctl}.text")
 
 @catch2cn
 def ka_gui_find_ctl(ctlid):
