@@ -54,13 +54,25 @@ def ka_gui_setdata(dataname):
     what.append(f"set_%s({what[0]}, ka_vals['{dataname}'])")
     #ka_vals[f"{ka_lastit}_cur"] = curel
 
+ka_gui_eventmap = {
+    "被点击":"on_press"
+}
+
+def pressbtn(inst):
+    print("按钮按下", inst.cbfoo)
+
+def on_press_Button(btn, bind):
+    btn.cbfoo = bind
+    btn.bind(on_press=pressbtn)
+
 def ka_gui_bind(whenst, bind):
     print("bind"*3, whenst)
     ui = ka_vals[ka_lastit]
     print("u"*20, ui)
     what = ui.binds[-1]
-    print("u"*20, what)
-    what.append(f"print('%s', {what[0]}, '{bind}')")
+    evttype = ka_gui_eventmap[whenst]
+    what.append(f"{evttype}_%s({what[0]}, '{bind}')")
+    #button.bind(on_press=print_button_text)
     #print(whenst, bind)
 
 @catch2cn

@@ -18,22 +18,24 @@ BoxLayout:
             id: tab_1
             text: '终端'
             font_name: 'fzh'
-            TextInput: 
-                text: "input here"
-                font_name: 'fzh'
-                id: myinput
+            
             BoxLayout:
                 orientation: 'vertical'
-                font_name: 'fzh'
-                zh_name: "输出区"
-                wid: "output_area"
-                id: output_area
-            Button:
-                text: '发送'
-                font_name: 'fzh'
-                zh_name: "发送按钮"
-                wid: "send_btn"
-                id: send_btn
+                Label:
+                    id: output_area
+                    font_name: 'fzh'
+                    text: "abcdefg"
+                BoxLayout:
+                    TextInput: 
+                        text: "input here"
+                        font_name: 'fzh'
+                        id: myinput
+                    Button:
+                        text: '发送'
+                        font_name: 'fzh'
+                        zh_name: "发送按钮"
+                        wid: "send_btn"
+                        id: send_btn
         TabbedPanelItem:
             id: tab_2
             text: '文本'
