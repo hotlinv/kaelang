@@ -1,0 +1,95 @@
+BoxLayout:
+    app_icon: ".asserts/favicon.ico"
+    app_title: "计算器"
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            id: output_area
+            font_name: 'fzh'
+            text: "abcdefg"
+        BoxLayout:
+            orientation: 'vertical'
+            BoxLayout:
+                Button:
+                    text: '1'
+                    font_name: 'fzh'
+                    id: num1
+                Button:
+                    text: '2'
+                    font_name: 'fzh'
+                    id: num2
+                Button:
+                    text: '3'
+                    font_name: 'fzh'
+                    id: num3
+                Button:
+                    text: '<'
+                    font_name: 'fzh'
+                    id: btn_back
+            BoxLayout:
+                Button:
+                    text: '4'
+                    font_name: 'fzh'
+                    id: num4
+                Button:
+                    text: '5'
+                    font_name: 'fzh'
+                    id: num5
+                Button:
+                    text: '6'
+                    font_name: 'fzh'
+                    id: num6
+                BoxLayout:
+                    Button:
+                        text: '+'
+                        font_name: 'fzh'
+                        id: btn_add
+                    Button:
+                        text: '-'
+                        font_name: 'fzh'
+                        id: btn_mis
+            BoxLayout:
+                Button:
+                    text: '7'
+                    font_name: 'fzh'
+                    id: num7
+                Button:
+                    text: '8'
+                    font_name: 'fzh'
+                    id: num8
+                Button:
+                    text: '9'
+                    font_name: 'fzh'
+                    id: num9
+                BoxLayout:
+                    Button:
+                        text: 'X'
+                        font_name: 'fzh'
+                        id: btn_mul
+                    Button:
+                        text: '/'
+                        font_name: 'fzh'
+                        id: btn_dev
+            BoxLayout:
+                Button:
+                    text: '0'
+                    font_name: 'fzh'
+                    id: num0
+                Button:
+                    text: '.'
+                    font_name: 'fzh'
+                    id: btn_poi
+                BoxLayout:
+                    Button:
+                        text: '('
+                        font_name: 'fzh'
+                        id: btn_beg
+                    Button:
+                        text: ')'
+                        font_name: 'fzh'
+                        id: btn_end
+                Button:
+                    text: '='
+                    font_name: 'fzh'
+                    id: btn_cac
+       
