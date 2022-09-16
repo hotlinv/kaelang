@@ -5,14 +5,18 @@ ka_pmap=KaeLevMap(lev1={
     u"^(.+)和(.+)(?:前半段|开头)相同$":"ka_str_startswith('{0}', '{1}')",
     u"^(.+)和(.+)(?:后半段|结尾)相同$":"ka_str_endswith('{0}', '{1}')",
     u"^(.+)和(.+)有包含关系$":"ka_str_in('{0}', '{1}')",
+    u"^在《(.+)》中追加：(.+)$":"ka_str_append(\"{0}\", {1})",
 })
 
 # 【实现】
 
 def ka_new_str(name, value):
-    value=value.replace("“","\"").replace("”","\"")
-    exec(f"ka_vals[\"{name}\"]={value}")
-    exec(f"ka_vals[\"{name}_type\"]='字符串'")
+    if value is not None:
+        value=value.replace("“","\"").replace("”","\"")
+    else:
+        value = ""
+    ka_vals[f"{name}"]=value
+    ka_vals[f"{name}_type"]='字符串'
     return name
 
 registType("字符串", ka_new_str)
@@ -39,3 +43,8 @@ def ka_str_in(str1, str2):
         return str1 in str2
     else:
         return str2 in str1
+
+@catch2cn
+def ka_str_append(name, str1):
+    """追加字符串"""
+    ka_vals[name] += str1
