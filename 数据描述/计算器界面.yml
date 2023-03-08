@@ -6,7 +6,7 @@ BoxLayout:
         Label:
             id: output_area
             font_name: 'fzh'
-            text: "abcdefg"
+            text: ""
         BoxLayout:
             orientation: 'vertical'
             BoxLayout:

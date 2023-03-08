@@ -2,93 +2,9 @@ import glob
 import inspect as ins
 from pprint import pprint
 import sys, os, re
-import logging
-import jieba
-import functools
 
-# 配置logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(filename)s:%(lineno)d - %(message)s',
-    handlers=[
-        #logging.FileHandler("ke.log", mode="a"),  # for logs write in file（mode：a为追加log，设置为w则表示每次清空，重新记录log）
-        logging.StreamHandler()  # for print at console
-    ]
-)
-jieba.setLogLevel(logging.INFO)
-
-def catch2cn(fn):
-    @functools.wraps(fn) #要加这句，不然inspect的get方法认不到函数，只能认到inner
-    def inner(*args):
-        # try:
-        return fn(*args)
-        # except Exception as e:
-        #     fndoc = ins.getdoc(fn)
-        #     err = u"{} 出错了：{}".format(fndoc.split()[0], str(e))
-        #     #print(err)
-        #     logging.error(err)
-    return inner
-
-def ka_foo(fn):
-    '''用于做功能单元的变量初始化和数据回收'''
-    @functools.wraps(fn) #要加这句，不然inspect的get方法认不到函数，只能认到inner
-    def inner(**args):
-        global ka_vals
-        try:
-            vals = {}
-            args["vals"] = vals #初始化本地数据（不污染全局变量）
-            args["_id"] = id(vals)
-            param, param_type, param_map = None, None, None
-            if "obj" in args:
-                if args["obj"] in ka_vals:
-                    param = ka_vals[args["obj"]]
-                if args["obj"]+"_type" in ka_vals:
-                    param_type = ka_vals[args["obj"]+"_type"]
-                if args["obj"]+"_map" in ka_vals:
-                    param_map = ka_vals[args["obj"]+"_map"]
-            ps = {}
-            if "params" in args:
-                ps = {k:ka_vals[k] for k in args["params"] }
-            ka_vals_global[args["_id"]] = vals
-            ka_vals = vals
-            if param:
-                ka_vals[args["obj"]] = param
-            if param_type:
-                ka_vals[args["obj"]+"_type"] = param_type
-            if param_map:
-                ka_vals[args["obj"]+"_map"] = param_map
-            ka_vals.update(ps)
-            ka_call_stacks.append(args["_id"])
-            # print("ffff", ka_vals)
-            ret = fn(**args) ##########运行函数
-            #取出返回
-            retmap = {}
-            for k in [key for key in ka_vals.keys() if key.startswith(fn.__name__)]:
-                retmap[k] = ka_vals[k]
-            # print(retmap)
-            #恢复上级环境
-            ka_call_stacks.pop()
-            if len(ka_call_stacks)>0:
-                ka_vals = ka_vals_global[ka_call_stacks[-1]]
-            else:
-                ka_vals = ka_vals_global
-            #保存返回
-            ka_vals.update(retmap)
-            #可以做垃圾回收
-            return ret
-        except Exception as e:
-            err = u"{} 出错了：{}".format(fn.__name__, str(e))
-            logging.error(err)
-    return inner
-
-def lastit(fn):#内部有产生新数据，会返回新数据名字。
-    @functools.wraps(fn) #要加这句，不然inspect的get方法认不到函数，只能认到inner
-    def inner(*args):
-        newname = fn(*args)
-        global ka_lastit
-        ka_lastit = newname
-        return newname
-    return inner
+from .annotations import *
+from .common import *
 
 @catch2cn
 def loadkts():
@@ -103,19 +19,7 @@ def loadkts():
             exec(m, globals())
 loadkts()
 
-def ka_replaceQuot(s):
-    '''把单引号变为转义字符'''
-    ss = s.split("'")
-    sss = []
-    for idx, si in enumerate(ss):
-        sss.append(si)
-        if idx==0 or idx==len(ss)-2:
-            sss.append("'")
-        elif si.endswith(r"\\"):
-            sss.append("'")
-        else:
-            sss.append(r"\'")
-    return "".join(sss[:-1])
+
 # print(KaeLevMap(lev0={}))
 
 ka_vals_global={} #放变量
@@ -484,7 +388,7 @@ def ka_imp_fun(foo):
     else:
         funname = foo
         # print(foo, foo in ka_get_all_function_in_model())
-    karun(foo, f"功能单元/{foo}.ae")
+    doo(foo, f"功能单元/{foo}.ae")
     # ka_sys[foo]=f"abc()"
     ka_res.lmap[0].insert(0, [re.compile(f"{funname}，把《(.[^》]+)》的([^\s]+)设置为(.+)"), 
             "ka_run_fun(\'"+foo+"\', '{0}', '{1}', '{2}')"])
@@ -511,7 +415,7 @@ def ka_run_fun(foo, obj, attr, value):
     # if foo.startswith("《") and foo.endswith("》"):
     #     foo = foo[1:-1]
     # if ka_imp_fun_name:
-    #     karun(foo, f"功能单元/{foo}.ae")
+    #     doo(foo, f"功能单元/{foo}.ae")
     #     res.insert(0, [re.compile(f"^{ka_imp_fun_name}$"), f"{ka_imp_fun_name}()"])
     #     print(res)
 
@@ -567,7 +471,7 @@ def ka_prepare_a_line(ka_fragments, line):
 import hashlib, os
 nextsth = None
 @catch2cn
-def karun(foo, file):
+def doo(foo, file):
     """主运行函数"""
     with open(file, "r", encoding='UTF-8') as kf:
         lines = [l.strip() for l in kf.readlines()]
@@ -629,4 +533,4 @@ def karuncli(slines):
 
 if __name__=="__main__":
     if len(sys.argv)>1:
-        karun("main", sys.argv[1])
+        doo("main", sys.argv[1])
