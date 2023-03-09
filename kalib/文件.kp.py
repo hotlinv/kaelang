@@ -39,7 +39,7 @@ def ka_path(path):
     mf[9] = f"{mf[9]}.{mf[10]}"
     ospath = [p2 for p2 in mf[1:-1] if p2!=""]
     # print("##", mf, ospath, os.path.join(*ospath))
-    return os.path.join(*ospath)
+    return os.path.expanduser(os.path.join(*ospath))
 
 @catch2cn
 def ka_workspace():
