@@ -1,4 +1,5 @@
 import setuptools #导入setuptools打包工具
+import os
  
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -21,5 +22,13 @@ setuptools.setup(
     python_requires='>=3.5',    #对python的最低版本要求
     entry_points={
         'console_scripts': ['kae=kae.lang:doo', 'kaecli=kae.lang:karuncli']
-    }
+    },
+    include_package_data=True,
+    data_files=[
+        ('', ['urlmap.yml']),
+        ("dict", ["dict/"+f for f in os.listdir("dict")]),
+        ("kalib", ["kalib/"+f for f in os.listdir("kalib")]),
+        # ("kalib", ["kalib/"+f for f in os.listdir("kalib")]),
+        # ('/usr/lib/systemd/system/', ['bin/*.service']),
+    ],
 )
