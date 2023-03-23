@@ -3,3 +3,4 @@ jieba
 pypinyin
 kivy
 Pinyin2Hanzi
+cherrypy

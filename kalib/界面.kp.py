@@ -1,7 +1,7 @@
 # 【引用】
 
 # 【映射】
-from ka import catch2cn
+from kae.annotations import catch2cn
 
 
 ka_pmap=KaeLevMap(lev0={
