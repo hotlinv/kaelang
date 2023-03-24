@@ -468,11 +468,27 @@ def ka_prepare_a_line(ka_fragments, line):
             #     continue
             ka_fragments["codes"]["main"].append(s)
 
+def runcmd():
+    import subprocess
+    try:
+
+        # 定义启动的命令行命令
+        command = ["python", "-m" "kae.ear"]
+
+        # 启动进程，不等待其结果
+        subprocess.Popen(command)
+    except:
+        pass
+
 import hashlib, os
 nextsth = None
 @catch2cn
-def doo(foo, file):
+def doo(foo=None, file=None):
     """主运行函数"""
+    if foo is None:
+        foo = "main"
+    if file is None:
+        file = sys.argv[-1]
     with open(file, "r", encoding='UTF-8') as kf:
         lines = [l.strip() for l in kf.readlines()]
         #判断是否有生成过kc文件，如果有，就不重新解析了
@@ -484,25 +500,57 @@ def doo(foo, file):
         else:
             # codes = []
             #codes存放代码段
-            ka_fragments = {"step":0, "codes":{"main":[]}, "stack":["main"], "foo":[]}
-            for line in lines:
-                ka_prepare_a_line(ka_fragments, line)
+            #######################################
+            # ka_fragments = {"step":0, "codes":{"main":[]}, "stack":["main"], "foo":[]}
+            # for line in lines:
+            #     ka_prepare_a_line(ka_fragments, line)
 
-            mainlines = ["    {0}".format(ka_parse(ml)) for ml in ka_fragments["codes"]["main"]]
-            kc = DEF_TMP.format(foo, "\n".join(mainlines)[4:])
-            ka_fragments["foo"].append(kc)
-                    # codes.append(kc)
-            if foo=="main":
-                ka_fragments["foo"].append("main(vals={})")
-            #pprint(ka_fragments)
+            # mainlines = ["    {0}".format(ka_parse(ml)) for ml in ka_fragments["codes"]["main"]]
+            # kc = DEF_TMP.format(foo, "\n".join(mainlines)[4:])
+            # ka_fragments["foo"].append(kc)
+            #         # codes.append(kc)
+            # if foo=="main":
+            #     ka_fragments["foo"].append("main(vals={})")
+            # pycallable = "".join(ka_fragments["foo"])
+            # print2kc(pycallable, fmd5, True)
+            ###################################
+            runcmd()
+            import time
+            time.sleep(5)
+
+            # 请求
+            import requests
+            import urllib.parse
+            import json
+
+            # 定义请求的URL
+            url = "http://localhost:19831/kaeear"
+
+            # 定义请求头和数据
+            headers = {"Content-Type": "application/x-www-form-urlencoded"}
+            data = {"say": "\n".join(lines)}
+            # print(data)
+            data = urllib.parse.urlencode(data)
+
+            # 发送POST请求并获取响应
+            response = requests.post(url, headers=headers, data=data)
+
+            # 打印响应内容
+            if response.status_code==200:
+                bincode = response.content.decode()
+                pos = bincode.index(":")
+                binfn, pycallable = bincode[:pos], bincode[pos+1:]
+                print2kc(pycallable, binfn, True)
+
+            ####################################
+            # pprint(ka_fragments)
             
             # print2kb("\n".join(codes))
-            pycallable = "".join(ka_fragments["foo"])
-            print2kc(pycallable, fmd5, True)
+            
+            
         # kac = open("kae.kc", 'w+', encoding='utf-8')
         # print("".join(ka_fragments["foo"]), file=kac)    
         # kac.close()
-        
         exec(compile(pycallable, kf.name, "exec"), globals())
         print2kc(ka_vals, "mem", True)
 
@@ -533,4 +581,4 @@ def karuncli(slines):
 
 if __name__=="__main__":
     if len(sys.argv)>1:
-        doo("main", sys.argv[1])
+        doo()

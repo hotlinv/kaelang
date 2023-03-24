@@ -22,8 +22,22 @@ class KaeEar(object):
     def kaeear(self, say=""):
         fmd5 = hashlib.md5("\n".join(say).encode("UTF-8")).hexdigest()
         return f"{fmd5}:{self.build(say)}"
-    
+
+import logging, os
+
+logging.getLogger("cherrypy").propagate = False
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s.%(msecs)03d [%(levelname)s] (%(name)s) %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+cherrypy.config.update({
+            'environment': 'production',
+            'server.socket_port': 2400,
+            'log.screen': False,
+            'log.access_file': os.path.join(os.getcwd(), 'access.log'),
+            'log.error_file': os.path.join(os.getcwd(), 'error.log')
+})
+
 if __name__ == "__main__":
+    
     conf = {
         'global': {
         # 主机0.0.0.0表示可以使用本机IP访问，如http://10.190.20.72:8090，可部署给别人访问

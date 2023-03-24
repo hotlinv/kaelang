@@ -1,5 +1,5 @@
 import functools
-
+import logging
 
 def catch2cn(fn):
     @functools.wraps(fn) #要加这句，不然inspect的get方法认不到函数，只能认到inner
@@ -18,6 +18,8 @@ def ka_foo(fn):
     @functools.wraps(fn) #要加这句，不然inspect的get方法认不到函数，只能认到inner
     def inner(**args):
         global ka_vals
+        global ka_vals_global
+        global ka_call_stacks
         try:
             vals = {}
             args["vals"] = vals #初始化本地数据（不污染全局变量）
