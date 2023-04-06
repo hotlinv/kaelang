@@ -10,7 +10,7 @@ class Word(BaseModel):
 class Sentence(BaseModel):
         """句式"""
         name: str = Field(title="文本")
-        parts: List[str] = Field(title="组成")
+        parts: List[Word] = Field(title="组成")
 
 class Intention(BaseModel):
         """意图"""
