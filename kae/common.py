@@ -25,3 +25,9 @@ def ka_replaceQuot(s):
         else:
             sss.append(r"\'")
     return "".join(sss[:-1])
+
+from _ctypes import PyObj_FromPtr
+ 
+def di(obj_id):
+    """ 通过变量ID 得到变量的值"""
+    return PyObj_FromPtr(obj_id)
