@@ -134,14 +134,38 @@ class Graph:
         fig=go.Figure(data=data, layout=layout)
         fig.show()
 
-import click, json
+def _newtag(g, comm):
+    carr = comm.split()
+    pkgs = carr[1].split(".")
+    exec("from "+".".join(pkgs[0:-1])+" import "+pkgs[-1])
+    g.createTag(eval(pkgs[-1]))
+
+def _newnode(g, comm):
+    carr = comm.split()
+    M = g.getTag(carr[1])
+    args = json.loads("".join(carr[2:]))
+    m = eval("M(**args)")
+    g.createNode(data=m)
+
+import click, json, os
 @click.command()
-@click.option('--db', prompt='数据库文件名',
-              help='指定数据库文件.')
-def graphcli(db):
+@click.option('--db', prompt='数据库文件名', help='指定数据库文件.')
+@click.option('--script', required=False, help='导入文件到数据库（不打开交互控制台）.')
+def graphcli(db, script):
     """图数据库cli."""
     # for x in range(count):
     g = Graph(db)
+    if script is not None:
+        #导入文件
+        if os.access(script, os.F_OK):
+            with open(script, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+                for line in lines:
+                    if line.startswith("newtag"):
+                        _newtag(g, line)
+                    elif line.startswith("newnode"):
+                        _newnode(g, line)
+        return 
     comm = click.prompt('~~> ')
     while comm!="quit" and comm!="exit":
         if comm=="tags":
@@ -149,16 +173,14 @@ def graphcli(db):
         elif comm == "nodes":
             click.echo(g.nodes)
         elif comm.startswith("newtag"):
+            _newtag(g, comm)
+        elif comm.startswith("newref"):
             carr = comm.split()
             pkgs = carr[1].split(".")
             exec("from "+".".join(pkgs[0:-1])+" import "+pkgs[-1])
-            g.createTag(eval(pkgs[-1]))
+            g.createRef(eval(pkgs[-1]))
         elif comm.startswith("newnode"):
-            carr = comm.split()
-            M = g.getTag(carr[1])
-            args = json.loads("".join(carr[2:]))
-            m = eval("M(**args)")
-            g.createNode(data=m)
+            _newnode(g, comm)
         elif comm=="plot":
             g.plot()
         comm = click.prompt('~~> ')

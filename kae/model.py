@@ -25,12 +25,12 @@ class Word(BaseModel):
     """词"""
     name: str = Field(title="文本")
     wordclass: str = Field(title="词性")
-    next:Optional[Union[NextRef, MayRef, List[Union[NextRef, MayRef]]]] = Field(title="下一个")
+    # next:Optional[Union[NextRef, MayRef, List[Union[NextRef, MayRef]]]] = Field(title="下一个（批）id")
 
 class Sentence(BaseModel):
     """句式"""
     name: str = Field(title="文本")
-    next: List[Union[NextRef, MayRef]] = Field(title="组成")
+    edges: List[int] = Field(title="组成id")
     src: Optional[str] = Field(title="来源")
     target: Optional[str] = Field(title="目标")
     action: Optional[str] = Field(title="动作")

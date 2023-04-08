@@ -13,7 +13,7 @@ def cut(s):
     return words
 
 def _match(sid, o, wl, i):
-    sl = [li.tar for li in o.next if li.src==sid]
+    sl = [li.tar for li in o.edges if li.src==sid]
     # isok = 0
     if len(sl)==0:
         if i==len(wl):#寻到底了
@@ -79,8 +79,8 @@ if __name__=="__main__":
     lins2.append(NextRef(name="", src=id(tar), tar=id(ju)))
 
     ss = []
-    ss.append(Sentence(name="把(tar)(act)", next=lins))
-    ss.append(Sentence(name="(act)(tar)", next=lins2))
+    ss.append(Sentence(name="把(tar)(act)", edges=lins))
+    ss.append(Sentence(name="(act)(tar)", edges=lins2))
 
     # for ref in lins:
     #     if ref.src is not None:

@@ -1,0 +1,6 @@
+newtag kae.model.Word
+newtag kae.model.Sentence
+newtag kae.model.Intention
+newnode Word {"name":"把", "wordclass":"p"}
+newnode Word {"name":"将", "wordclass":"p"}
+newnode Word {"name":"{target}", "wordclass":"n"}
