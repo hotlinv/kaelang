@@ -13,7 +13,8 @@ def cut(s):
     return words
 
 def _match(sid, o, wl, i):
-    sl = [li.tar for li in o.edges if li.src==sid]
+    # print([di(li) for li in o.edges])
+    sl = [di(li).tar for li in o.edges if di(li).src==sid]
     # isok = 0
     if len(sl)==0:
         if i==len(wl):#寻到底了
@@ -61,22 +62,24 @@ if __name__=="__main__":
     ju = Word(name=r".", wordclass="x")
     gantanz = Word(name=r"！", wordclass="x")
     gantan = Word(name=r"!", wordclass="x")
-    lins = []
-    lins.append(NextRef(name="", src=id(ba), tar=id(tar)))
-    lins.append(NextRef(name="", src=id(jiang), tar=id(tar)))
-    lins.append(NextRef(name="", src=id(tar), tar=id(act)))
-    lins.append(NextRef(name="", src=id(act), tar=id(juz)))
-    lins.append(NextRef(name="", src=id(act), tar=id(ju)))
-    lins.append(NextRef(name="", src=id(act), tar=id(gantanz)))
-    lins.append(NextRef(name="", src=id(act), tar=id(gantan)))
-    parts=[NextRef(name="", tar=id(ba)), NextRef(name="", tar=id(jiang))]
-    lins.extend(parts)
 
-    lins2 = []
-    lins2.append(NextRef(name="", tar=id(act)))
-    lins2.append(NextRef(name="", src=id(act), tar=id(tar)))
-    lins2.append(NextRef(name="", src=id(tar), tar=id(juz)))
-    lins2.append(NextRef(name="", src=id(tar), tar=id(ju)))
+    batar = NextRef(name="", src=id(ba), tar=id(tar))
+    jiangtar = NextRef(name="", src=id(jiang), tar=id(tar))
+    taract = NextRef(name="", src=id(tar), tar=id(act))
+    actjuz = NextRef(name="", src=id(act), tar=id(juz))
+    actju = NextRef(name="", src=id(act), tar=id(ju))
+    actgantanz = NextRef(name="", src=id(act), tar=id(gantanz))
+    actgantan = NextRef(name="", src=id(act), tar=id(gantan))
+    _ba = NextRef(name="", tar=id(ba))
+    _jiang = NextRef(name="", tar=id(jiang))
+    lins=[id(batar),id(jiangtar),id(taract), id(actjuz), id(actju), id(actgantanz), id(actgantan), id(_ba), id(_jiang)]
+
+    
+    _act = NextRef(name="", tar=id(act))
+    acttar = NextRef(name="", src=id(act), tar=id(tar))
+    tarjuz = NextRef(name="", src=id(tar), tar=id(juz))
+    tarju = NextRef(name="", src=id(tar), tar=id(ju))
+    lins2 = [id(_act), id(acttar), id(tarjuz), id(tarju)]
 
     ss = []
     ss.append(Sentence(name="把(tar)(act)", edges=lins))
