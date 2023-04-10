@@ -1,6 +1,16 @@
 newtag kae.model.Word
 newtag kae.model.Sentence
 newtag kae.model.Intention
+
 newnode Word {"name":"把", "wordclass":"p"}
 newnode Word {"name":"将", "wordclass":"p"}
 newnode Word {"name":"{target}", "wordclass":"n"}
+newnode Word {"name":"{action}", "wordclass":"v"}
+newnode Word {"name":"。", "wordclass":"x"}
+newnode Word {"name":".", "wordclass":"x"}
+newnode Word {"name":"！", "wordclass":"x"}
+newnode Word {"name":"!", "wordclass":"x"}
+
+newnode Intention {"name":"打开空调", "foo":"openf", "model":"devs", "target":"空调", "action":"打开"}
+newnode Intention {"name":"打开图像", "foo":"open", "model":"img", "target":"图像", "action":"打开"}
+newnode Intention {"name":"旋转图像", "foo":"ra", "model":"img", "target":"图像", "action":"旋转"}

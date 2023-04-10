@@ -2,25 +2,26 @@ from tinydb import TinyDB, Query
 from pydantic import BaseModel, Field, create_model
 
 class _AttrField(BaseModel):
-	fieldName: str
-	desc: str
-	dtype: str
+    fieldName: str
+    desc: str
+    dtype: str
+    required: bool
 
 class StrField(_AttrField):
-	def __init__(self, name, ename):
-		super().__init__(fieldName=name, desc=ename, dtype="str")
+	def __init__(self, name, ename, required=True):
+		super().__init__(fieldName=name, desc=ename, required=required, dtype="str")
 
 class IntField(_AttrField):
-	def __init__(self, name, ename):
-		super().__init__(fieldName=name, desc=ename, dtype="int")
+	def __init__(self, name, ename, required=True):
+		super().__init__(fieldName=name, desc=ename, required=required, dtype="int")
 
 class FloatField(_AttrField):
-	def __init__(self, name, ename):
-		super().__init__(fieldName=name, desc=ename, dtype="float")
+	def __init__(self, name, ename, required=True):
+		super().__init__(fieldName=name, desc=ename, required=required, dtype="float")
 
 class DateField(_AttrField):
-	def __init__(self, name, ename):
-		super().__init__(fieldName=name, desc=ename, dtype="date")
+	def __init__(self, name, ename, required=True):
+		super().__init__(fieldName=name, desc=ename, required=required, dtype="date")
 
 class Graph:
     def __init__(self, path):
@@ -35,7 +36,7 @@ class Graph:
         self.edges = self._graph.search(GraphData.type=="edge")
 
     def createTag(self, mod):
-        attrs = [eval(r"{}Field('{}', '{}')".format(mod.__fields__[fn].type_.__name__.capitalize(), fn, fconf["title"])) for fn, fconf in mod.schema()["properties"].items()]
+        attrs = [eval(r"{}Field('{}', '{}', {})".format(mod.__fields__[fn].type_.__name__.capitalize(), fn, fconf["title"], fn in mod.schema()["required"])) for fn, fconf in mod.schema()["properties"].items()]
         self._schema.insert({
             'type': 'tag', 
             'tagname': mod.schema()["title"], 
@@ -46,7 +47,7 @@ class Graph:
         Schema = Query()
         t = self._schema.search((Schema.type=="tag") & (Schema.tagname==tagname))[0]
         #print("doc_id:", t.doc_id)
-        at = {it["fieldName"]:(it["dtype"], ...) for it in t["attrs"]}
+        at = {it["fieldName"]:Field(it["dtype"], required=it["required"]) for it in t["attrs"]}
         return create_model(t["tagname"], type="tag", **at)
 
     def createRef(self, name, desc, tag1, tag2, attrs):
@@ -144,6 +145,7 @@ def _newnode(g, comm):
     carr = comm.split()
     M = g.getTag(carr[1])
     args = json.loads("".join(carr[2:]))
+    print(args)
     m = eval("M(**args)")
     g.createNode(data=m)
 
