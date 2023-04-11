@@ -1,5 +1,8 @@
 from tinydb import TinyDB, Query
 from pydantic import BaseModel, Field, create_model
+from typing import Optional, List
+from pydantic.fields import FieldInfo
+import inspect
 
 class _AttrField(BaseModel):
     fieldName: str
@@ -23,6 +26,10 @@ class DateField(_AttrField):
 	def __init__(self, name, ename, required=True):
 		super().__init__(fieldName=name, desc=ename, required=required, dtype="date")
 
+class List_int_Field(_AttrField):
+	def __init__(self, name, ename,  required=True):
+		super().__init__(fieldName=name, desc=ename, required=required, dtype="List[int]")
+
 class Graph:
     def __init__(self, path):
         self._db = TinyDB(path)
@@ -36,10 +43,12 @@ class Graph:
         self.edges = self._graph.search(GraphData.type=="edge")
 
     def createTag(self, mod):
-        attrs = [eval(r"{}Field('{}', '{}', {})".format(mod.__fields__[fn].type_.__name__.capitalize(), fn, fconf["title"], fn in mod.schema()["required"])) for fn, fconf in mod.schema()["properties"].items()]
+        fieldname = lambda f: f.outer_type_.__name__.capitalize() if "_name" not in dir(f.outer_type_) else f.outer_type_._name.capitalize()+"_"+f.type_.__name__+"_"
+        attrs = [eval(r"{}Field('{}', '{}', {})".format(fieldname(mod.__fields__[fn]), fn, fconf["title"], fn in mod.schema()["required"])) for fn, fconf in mod.schema()["properties"].items()]
         self._schema.insert({
             'type': 'tag', 
             'tagname': mod.schema()["title"], 
+            "classname": inspect.getmodule(mod).__name__+"."+mod.schema()["title"],
             "desc":"" if "description" not in mod.schema() else mod.schema()["description"], 
             "attrs":[j.dict() for j in attrs]})
 
@@ -47,26 +56,56 @@ class Graph:
         Schema = Query()
         t = self._schema.search((Schema.type=="tag") & (Schema.tagname==tagname))[0]
         #print("doc_id:", t.doc_id)
-        at = {it["fieldName"]:Field(it["dtype"], required=it["required"]) for it in t["attrs"]}
-        return create_model(t["tagname"], type="tag", **at)
+        # at = {it["fieldName"]:(eval(it["dtype"]) if it["required"] else eval(f'Optional[{it["dtype"]}]'), ...) for it in t["attrs"]}
+        # print(at)
+        # return create_model(t["tagname"], type="tag", **at)
+        mn = t["classname"].split(".")
+        exec(f"from {'.'.join(mn[0:-1])} import {mn[-1]}")
+        return eval(t["tagname"])
 
-    def createRef(self, name, desc, tag1, tag2, attrs):
-        self._schema.insert({'type': 'ref', 'refname': name, "desc":desc, "from":tag1, "to":tag2, "attrs":[j.dict() for j in attrs]})
+    def createRef(self, rmod):
+        attrs = [eval(r"{}Field('{}', '{}', {})".format(rmod.__fields__[fn].type_.__name__.capitalize(), fn, fconf["title"], fn in rmod.schema()["required"])) for fn, fconf in rmod.schema()["properties"].items()]
+        self._schema.insert({
+            'type': 'ref', 
+            'refname': rmod.schema()["title"], 
+            "desc":"" if "description" not in rmod.schema() else rmod.schema()["description"],
+            #"from":tag1, "to":tag2, 
+            "attrs":[j.dict() for j in attrs]})
 
-    def createNode(self, name=None, tags=None, data=None):
+    def createNode(self, nodetype, name=None, tags=None, data=None):
         if data is not None:
             name = data.name
             tags = [data]
-        node = {'type': 'node', 'name': name}
+        node = {'type': 'node', "nodetype":nodetype, 'name': name}
         for tag in tags:
             node.update({k:n for k, n in tag.dict().items() if k!="type"})
         self._graph.insert(node)
 
-    def createEdge(self, name, node1, node2, refs):
-        self._graph.insert({'type': 'edge', 'name': name, "from":node1.doc_id, "to":node2.doc_id, "refs":refs})
+    def createEdge(self, edgetype, node1name, node2name):
+        Node = Query()
+        node1id = None
+        if node1name is not None:
+            node1 = self._graph.search((Node.type=="node") & (Node.name==node1name))[0]
+            node1id = node1.doc_id
+        node2 = self._graph.search((Node.type=="node") & (Node.name==node2name))[0]
+        nid = self._graph.insert({
+            'type': 'edge', 
+            'name': edgetype, 
+            "src":node1id, 
+            "tar":node2.doc_id, 
+            "attrs":[]})
+        return nid
 
-    def query(self, query):
-        pass
+    def di(self, nid):
+        Node = Query()
+        node1 = self._graph.get(doc_id=nid)
+        return node1
+
+    def query(self, q):
+        Node = Query()
+        if type(q).__name__=="ModelMetaclass":
+            return self._graph.search(Node.nodetype==q.__name__)
+        return
 
     def plot(self):
         import plotly.graph_objects as go
@@ -141,13 +180,40 @@ def _newtag(g, comm):
     exec("from "+".".join(pkgs[0:-1])+" import "+pkgs[-1])
     g.createTag(eval(pkgs[-1]))
 
+def _newref(g, comm):
+    carr = comm.split()
+    pkgs = carr[1].split(".")
+    exec("from "+".".join(pkgs[0:-1])+" import "+pkgs[-1])
+    g.createRef(eval(pkgs[-1]))
+
 def _newnode(g, comm):
     carr = comm.split()
     M = g.getTag(carr[1])
     args = json.loads("".join(carr[2:]))
-    print(args)
+    for k, v in args.items():
+        if k.startswith("$"):
+            del args[k]
+            args[k[1:]] = vars[v]
+    # print(M, args)
     m = eval("M(**args)")
-    g.createNode(data=m)
+    g.createNode(M.schema()["title"], data=m)
+
+def _newedge(g, comm):
+    carr = comm.split()
+    edgetype = carr[1]
+    idn = carr[2] #id保存到变量名
+
+    node2name = carr[-1]
+    node1name = None if carr[-3]==carr[2] else carr[-3]
+    nid = g.createEdge(edgetype, node1name, node2name)
+    exec(f"vars['{idn}']={nid}")
+
+vars = {}
+def _newlist(comm):
+    carr = comm.split()
+    listname = carr[1]
+    arr = [vars[vn] for vn in carr[2:]]
+    vars[listname] = arr
 
 import click, json, os
 @click.command()
@@ -165,8 +231,14 @@ def graphcli(db, script):
                 for line in lines:
                     if line.startswith("newtag"):
                         _newtag(g, line)
+                    elif line.startswith("newref"):
+                        _newref(g, line)
                     elif line.startswith("newnode"):
                         _newnode(g, line)
+                    elif line.startswith("newedge"):
+                        _newedge(g, line)
+                    elif line.startswith("newlist"):
+                        _newlist(line)
         return 
     comm = click.prompt('~~> ')
     while comm!="quit" and comm!="exit":
@@ -177,14 +249,15 @@ def graphcli(db, script):
         elif comm.startswith("newtag"):
             _newtag(g, comm)
         elif comm.startswith("newref"):
-            carr = comm.split()
-            pkgs = carr[1].split(".")
-            exec("from "+".".join(pkgs[0:-1])+" import "+pkgs[-1])
-            g.createRef(eval(pkgs[-1]))
+            _newref(g, comm)
         elif comm.startswith("newnode"):
             _newnode(g, comm)
+        elif comm.startswith("newedge"):
+            _newedge(g, comm)
         elif comm=="plot":
             g.plot()
+        elif comm.startswith("newlist"):
+            _newlist(comm)
         comm = click.prompt('~~> ')
 
 
