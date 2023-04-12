@@ -112,10 +112,22 @@ class Graph:
         import networkx as nx
         import random
         G = nx.Graph()
+        
         labels = []
         for idx,n in enumerate(self.nodes):
             G.add_node(n.doc_id, name=n["name"])
             labels.append(n["name"])
+        for edge in self.edges:
+            if edge["src"] is not None:
+                G.add_edge(edge["src"], edge["tar"])
+            # x0, y0 = G.nodes[edge[0]]['pos']
+            # x1, y1 = G.nodes[edge[1]]['pos']
+            # edge_x.append(x0)
+            # edge_x.append(x1)
+            # edge_x.append(None)
+            # edge_y.append(y0)
+            # edge_y.append(y1)
+            # edge_y.append(None)
         pos = nx.spring_layout(G)
         # pos = nx.nx_agraph.graphviz_layout(G)
         # layt=G.layout('kk', dim=3)
@@ -124,6 +136,25 @@ class Graph:
         Xn = [pos[node][0] for node in G.nodes()]
         Yn = [pos[node][1] for node in G.nodes()]
         Zn = [0 for node in G.nodes()]
+        edge_x = []
+        edge_y = []
+        edge_z = []
+        for edge in G.edges:
+            edge_x.append(pos[edge[0]][0])
+            edge_x.append(pos[edge[1]][0])
+            edge_x.append(None)
+            edge_y.append(pos[edge[0]][1])
+            edge_y.append(pos[edge[1]][1])
+            edge_y.append(None)
+            edge_z.append(0)
+            edge_z.append(0)
+            edge_z.append(None)
+
+        edge_trace = go.Scatter3d(
+            x=edge_x, y=edge_y, z=edge_z,
+            line=dict(width=0.5, color='#888'),
+            hoverinfo='none',
+            mode='lines')
         
         trace2=go.Scatter3d(x=Xn,
                y=Yn,
@@ -170,7 +201,7 @@ class Graph:
                     font=dict(size=14)
                     )
                 ],    ) 
-        data=[trace2]
+        data=[edge_trace, trace2]
         fig=go.Figure(data=data, layout=layout)
         fig.show()
 
