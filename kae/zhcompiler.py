@@ -58,25 +58,31 @@ def understand(intes, sen):
             inte["args"] = sen["args"]
             return inte
 
-def compile():
-    name = " ".join(sys.argv[1:])
+def compile(name=" ".join(sys.argv[1:])):
+    # name = " ".join(sys.argv[1:])
     words = cut(name)
 
     g = Graph("kae.db")
     ss = g.query(Sentence)
 
     s = match(ss, words, g)
+    res = {"input":name}
     # print(s)
     if s is not None:
         intes = g.query(Intention)
         inte = understand(intes, s)
         if inte is not None:
             # s = Sentence(name=name, parts=words)
-            print("运行语句: ", f"{inte['model']}.{inte['foo']}({'' if 'args' not in inte else inte['args']})")
+            res["errno"] = 0
+            res["exec"] = f"{inte['model']}.{inte['foo']}({'' if 'args' not in inte else inte['args']})"
+            print("运行语句: ", res["exec"])
         else:
+            res["errno"] = 2
             print("我不理解你的意思：", name)
     else:
+        res["errno"] = 1
         print("我不懂你在说什么:", name)
+    return res
 
 if __name__=="__main__":
     # ba = Word(name="把", wordclass="p")
