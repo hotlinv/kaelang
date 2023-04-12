@@ -9,6 +9,7 @@ newnode Word {"name":"把", "wordclass":"p"}
 newnode Word {"name":"将", "wordclass":"pd"}
 newnode Word {"name":"{target}", "wordclass":"n"}
 newnode Word {"name":"{action}", "wordclass":"v"}
+newnode Word {"name":"{args}", "wordclass":"nm"}
 newnode Word {"name":"。", "wordclass":"x"}
 newnode Word {"name":".", "wordclass":"x"}
 newnode Word {"name":"！", "wordclass":"x"}
@@ -32,12 +33,19 @@ newedge NextRef actju {action} ~> .
 newedge NextRef actganz {action} ~> ！
 newedge NextRef actgan {action} ~> !
 
+
 newedge MayRef tarshang {target} ~> 上
 newedge MayRef shangact 上 ~> {action}
 newedge MayRef tarjinxing {target} ~> 进行
 newedge MayRef jinxingact 进行 ~> {action}
+newedge MayRef shangjinxing 上 ~> 进行
+newedge MayRef actargs {action} ~> {args}
+newedge NextRef argsjuz {args} ~> 。
+newedge NextRef argsju {args} ~> .
+newedge NextRef argsganz {args} ~> ！
+newedge NextRef argsgan {args} ~> !
 
-newlist lk1 ba jiang batar jiangtar taract tarjinxing jinxingact actjuz actju actganz actgan
+newlist lk1 ba jiang batar jiangtar taract tarjinxing jinxingact actargs actjuz actju actganz actgan argsjuz argsju argsganz argsgan
 
 newedge NextRef _act  ~> {action}
 newedge NextRef acttar {action} ~> {target}
@@ -49,7 +57,7 @@ newlist lk2 _act acttar tarjuz tarju
 newnode Sentence {"name":"把(tar)(act)", "$edges":"lk1"}
 newnode Sentence {"name":"(act)(tar)", "$edges":"lk2"}
 
-newlist lk3 zai yu zaitar yutar tarshang shangact taract actjuz actju
+newlist lk3 zai yu zaitar yutar tarshang shangact shangjinxing jinxingact taract actjuz actju
 newnode Sentence {"name":"在(tar)(act)", "$edges":"lk3"}
 
 newnode Intention {"name":"打开空调", "foo":"openf", "model":"devs", "target":"空调", "action":"打开"}

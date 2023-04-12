@@ -30,7 +30,7 @@ def _match(gdb, sid, o, wl, i):
         if i>=len(wl):
             continue
         print(" +", s, "->", wl[i])
-        if s["name"].startswith("{") and s["name"].endswith("}") and s["wordclass"]==wl[i].wordclass:
+        if s["name"].startswith("{") and s["name"].endswith("}") and wl[i].wordclass in s["wordclass"]:
             exec(f"o['{s['name'][1:-1]}']=wl[i].name")
         elif s["name"] != wl[i].name or wl[i].wordclass not in s['wordclass'] : 
             print(" X", wl[i])
@@ -55,6 +55,7 @@ def understand(intes, sen):
     '''从句式对应意图'''
     for inte in intes:
         if inte["target"]==sen["target"] and inte["action"]==sen["action"]:
+            inte["args"] = sen["args"]
             return inte
 
 if __name__=="__main__":
@@ -115,7 +116,7 @@ if __name__=="__main__":
         inte = understand(intes, s)
         if inte is not None:
             # s = Sentence(name=name, parts=words)
-            print("运行语句: ", f"{inte['model']}.{inte['foo']}()")
+            print("运行语句: ", f"{inte['model']}.{inte['foo']}({'' if 'args' not in inte else inte['args']})")
         else:
             print("我不理解你的意思：", name)
     else:

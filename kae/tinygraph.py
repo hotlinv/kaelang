@@ -253,6 +253,8 @@ import click, json, os
 def graphcli(db, script):
     """图数据库cli."""
     # for x in range(count):
+    if script is not None and os.access(db, os.F_OK):
+        os.remove(db) #重新初始化的时候要删除原数据库
     g = Graph(db)
     if script is not None:
         #导入文件
