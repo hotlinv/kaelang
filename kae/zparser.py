@@ -14,13 +14,17 @@ def cut(s):
 
 def _match(gdb, sid, o, wl, i):
     # print([di(li) for li in o.edges])
-    sl = [gdb.di(li)["tar"] for li in o["edges"] if gdb.di(li)["src"]==sid]
+    sl = []
+    for li in o["edges"]:
+        edge = gdb.di(li)
+        if edge["src"]==sid:
+            sl.append((edge["tar"], edge["name"]))  
     # isok = 0
     if len(sl)==0:
         if i==len(wl):#寻到底了
             return True
     # print("_", sl, "->", wl[i])
-    for si in sl:
+    for si, st in sl:
         s = gdb.di(si)
             # _match(gdb, si, o, wl, i)
         if i>=len(wl):
@@ -28,7 +32,7 @@ def _match(gdb, sid, o, wl, i):
         print(" +", s, "->", wl[i])
         if s["name"].startswith("{") and s["name"].endswith("}") and s["wordclass"]==wl[i].wordclass:
             exec(f"o['{s['name'][1:-1]}']=wl[i].name")
-        elif s["name"] != wl[i].name or s['wordclass']!=wl[i].wordclass:
+        elif s["name"] != wl[i].name or wl[i].wordclass not in s['wordclass'] : 
             print(" X", wl[i])
             continue
         
@@ -111,8 +115,8 @@ if __name__=="__main__":
         inte = understand(intes, s)
         if inte is not None:
             # s = Sentence(name=name, parts=words)
-            print("结果: ", f"{inte['model']}.{inte['foo']}()")
+            print("运行语句: ", f"{inte['model']}.{inte['foo']}()")
         else:
-            print("无法理解的语句：", name)
+            print("我不理解你的意思：", name)
     else:
-        print("无法解析的句式:", name)
+        print("我不懂你在说什么:", name)
