@@ -57,7 +57,7 @@ newlist lk2 _act acttar tarjuz tarju
 newnode Sentence {"name":"把(tar)(act)", "$edges":"lk1"}
 newnode Sentence {"name":"(act)(tar)", "$edges":"lk2"}
 
-newlist lk3 zai yu zaitar yutar tarshang shangact shangjinxing jinxingact taract actjuz actju
+newlist lk3 zai yu zaitar yutar tarshang shangact shangjinxing jinxingact taract actargs actjuz actju argsjuz argsju
 newnode Sentence {"name":"在(tar)(act)", "$edges":"lk3"}
 
 newnode Intention {"name":"打开空调", "foo":"openf", "model":"devs", "target":"空调", "action":"打开"}
