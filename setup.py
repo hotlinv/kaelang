@@ -21,7 +21,7 @@ setuptools.setup(
     ],
     python_requires='>=3.5',    #对python的最低版本要求
     entry_points={
-        'console_scripts': ['kae=kae.lang:doo', 'kaecli=kae.lang:karuncli', "graphdb=kae.tinygraph:graphcli"]
+        'console_scripts': ['kae=kae.lang:doo', 'kaecli=kae.lang:karuncli', "graphdb=kae.tinygraph:graphcli", "kac=kae.zhcompiler:compile"]
     },
     include_package_data=True,
     data_files=[

@@ -58,6 +58,26 @@ def understand(intes, sen):
             inte["args"] = sen["args"]
             return inte
 
+def compile():
+    name = " ".join(sys.argv[1:])
+    words = cut(name)
+
+    g = Graph("kae.db")
+    ss = g.query(Sentence)
+
+    s = match(ss, words, g)
+    # print(s)
+    if s is not None:
+        intes = g.query(Intention)
+        inte = understand(intes, s)
+        if inte is not None:
+            # s = Sentence(name=name, parts=words)
+            print("运行语句: ", f"{inte['model']}.{inte['foo']}({'' if 'args' not in inte else inte['args']})")
+        else:
+            print("我不理解你的意思：", name)
+    else:
+        print("我不懂你在说什么:", name)
+
 if __name__=="__main__":
     # ba = Word(name="把", wordclass="p")
     # jiang = Word(name="将", wordclass="p")
@@ -103,21 +123,4 @@ if __name__=="__main__":
 
     # print(s1)
 
-    name = " ".join(sys.argv[1:])
-    words = cut(name)
-
-    g = Graph("kae.db")
-    ss = g.query(Sentence)
-
-    s = match(ss, words, g)
-    # print(s)
-    if s is not None:
-        intes = g.query(Intention)
-        inte = understand(intes, s)
-        if inte is not None:
-            # s = Sentence(name=name, parts=words)
-            print("运行语句: ", f"{inte['model']}.{inte['foo']}({'' if 'args' not in inte else inte['args']})")
-        else:
-            print("我不理解你的意思：", name)
-    else:
-        print("我不懂你在说什么:", name)
+    compile()
