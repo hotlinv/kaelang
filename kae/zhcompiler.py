@@ -66,12 +66,29 @@ def iscomment(words):
 
 ENDSENT = ".。!！;；?？"
 
+YH = '“”"'
+
 def splitSentence(paragraph):
-    '''拆分句子'''
+    '''拆分句子（顺带划分整体语素：括弧，引号等）'''
     sents =[[]]
     words = cut(paragraph)
+    yh = 0
     for word in words:
-        sents[-1].append(word)
+        if word.wordclass=="x" and word.name in YH:
+            yh+=1
+            if yh%2==0:
+                sents[-1][-1].name = sents[-1][-1].name+'"' #收尾
+                continue
+            else:
+                sents[-1].append(word) #开启
+                sents[-1][-1].name='"'
+                sents[-1][-1].wordclass="*"
+                continue
+        if yh%2==0:
+            sents[-1].append(word)
+        else:
+            sents[-1][-1].name = sents[-1][-1].name+word.name #把分词后的字符串再拼一起
+            continue
         if word.wordclass=="x" and word.name in ENDSENT:
             sents.append([])
     return sents[:-1]
@@ -82,6 +99,10 @@ def compile(paragraph=" ".join(sys.argv[1:])):
     # name = " ".join(sys.argv[1:])
     # words = cut(name)
     sents = splitSentence(paragraph)
+    import kae
+    print(kae.__file__) #需要考虑在某个特别目录下放db文件
+    g = Graph("kae.db")
+    ss = g.query(Sentence)
     ress = []
     for sent in sents:
         res = {"input":remakeLine(sent)}
@@ -89,9 +110,6 @@ def compile(paragraph=" ".join(sys.argv[1:])):
             res["errno"] = 0
             res["exec"] = f"# {remakeLine(sent)}"
             return res
-
-        g = Graph("kae.db")
-        ss = g.query(Sentence)
 
         s = match(ss, sent, g)
         

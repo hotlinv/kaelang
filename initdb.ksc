@@ -9,7 +9,7 @@ newnode Word {"name":"把", "wordclass":"p"}
 newnode Word {"name":"将", "wordclass":"pd"}
 newnode Word {"name":"{target}", "wordclass":"n"}
 newnode Word {"name":"{action}", "wordclass":"v"}
-newnode Word {"name":"{args}", "wordclass":"nm"}
+newnode Word {"name":"{args}", "wordclass":"nm*"}
 newnode Word {"name":"。", "wordclass":"x"}
 newnode Word {"name":".", "wordclass":"x"}
 newnode Word {"name":"！", "wordclass":"x"}
@@ -18,6 +18,8 @@ newnode Word {"name":"在", "wordclass":"p"}
 newnode Word {"name":"于", "wordclass":"p"}
 newnode Word {"name":"上", "wordclass":"f"}
 newnode Word {"name":"进行", "wordclass":"v"}
+newnode Word {"name":":", "wordclass":"x"}
+newnode Word {"name":"：", "wordclass":"x"}
 
 newedge NextRef ba  ~> 把
 newedge NextRef jiang ~> 将
@@ -32,6 +34,10 @@ newedge NextRef actjuz {action} ~> 。
 newedge NextRef actju {action} ~> .
 newedge NextRef actganz {action} ~> ！
 newedge NextRef actgan {action} ~> !
+newedge NextRef actmaoz {action} ~> ：
+newedge NextRef actmao {action} ~> :
+newedge NextRef maozargs ： ~> {args}
+newedge NextRef maoargs : ~> {args}
 
 
 newedge MayRef tarshang {target} ~> 上
@@ -57,10 +63,10 @@ newlist lk2 _act acttar tarjuz tarju
 newnode Sentence {"name":"把(tar)(act)", "$edges":"lk1"}
 newnode Sentence {"name":"(act)(tar)", "$edges":"lk2"}
 
-newlist lk3 zai yu zaitar yutar tarshang shangact shangjinxing jinxingact taract actargs actjuz actju argsjuz argsju
-newnode Sentence {"name":"在(tar)(act)", "$edges":"lk3"}
+newlist lk3 zai yu zaitar yutar tarshang shangact shangjinxing jinxingact taract actmaoz actmao actargs maozargs maoargs actjuz actju argsjuz argsju
+newnode Sentence {"name":"在(tar)(act):(args)", "$edges":"lk3"}
 
 newnode Intention {"name":"打开空调", "foo":"openf", "model":"devs", "target":"空调", "action":"打开"}
 newnode Intention {"name":"打开图像", "foo":"open", "model":"img", "target":"图像", "action":"打开"}
 newnode Intention {"name":"旋转图像", "foo":"ra", "model":"img", "target":"图像", "action":"旋转"}
-newnode Intention {"name":"输出文本", "foo":"std", "model":"print", "target":"终端", "action":"输出"}
+newnode Intention {"name":"输出文本", "foo":"print", "model":"io", "target":"终端", "action":"输出"}

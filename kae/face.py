@@ -20,13 +20,14 @@ def bmi():
 def kface():
     ips = input("请输入：", type=TEXT)
     while ips:
-        ex = compile(ips)
-        if ex["errno"]==0:
-            put_text("编译结果：%s" % ex["exec"])
-        elif ex["errno"]==1:
-            put_text("编译失败，无法解析的语句：%s" % ex["input"])
-        elif ex["errno"]==2:
-            put_text("编译失败，不会执行的语句：%s" % ex["input"])
+        exs = compile(ips)
+        for ex in exs:
+            if ex["errno"]==0:
+                put_text("编译结果：%s" % ex["exec"])
+            elif ex["errno"]==1:
+                put_text("编译失败，无法解析的语句：%s" % ex["input"])
+            elif ex["errno"]==2:
+                put_text("编译失败，不会执行的语句：%s" % ex["input"])
         ips = input("请输入：", type=TEXT)
 
 if __name__ == '__main__':
