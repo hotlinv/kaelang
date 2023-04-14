@@ -59,40 +59,59 @@ def understand(intes, sen):
             return inte
 
 def iscomment(words):
+    '''判断是注释'''
     if words[0].name=="说明" and words[1].name=="：" or words[1].name==":":
         return True
     return False
 
-def compile(name=" ".join(sys.argv[1:])):
+ENDSENT = ".。!！;；?？"
+
+def splitSentence(paragraph):
+    '''拆分句子'''
+    sents =[[]]
+    words = cut(paragraph)
+    for word in words:
+        sents[-1].append(word)
+        if word.wordclass=="x" and word.name in ENDSENT:
+            sents.append([])
+    return sents[:-1]
+
+remakeLine = lambda words: "".join([word.name for word in words])
+
+def compile(paragraph=" ".join(sys.argv[1:])):
     # name = " ".join(sys.argv[1:])
-    words = cut(name)
-    res = {"input":name}
-    if iscomment(words):
-        res["errno"] = 0
-        res["exec"] = f"# {name}"
-        return res
-
-    g = Graph("kae.db")
-    ss = g.query(Sentence)
-
-    s = match(ss, words, g)
-    
-    # print(s)
-    if s is not None:
-        intes = g.query(Intention)
-        inte = understand(intes, s)
-        if inte is not None:
-            # s = Sentence(name=name, parts=words)
+    # words = cut(name)
+    sents = splitSentence(paragraph)
+    ress = []
+    for sent in sents:
+        res = {"input":remakeLine(sent)}
+        if iscomment(sent):
             res["errno"] = 0
-            res["exec"] = f"{inte['model']}.{inte['foo']}({'' if 'args' not in inte else inte['args']})"
-            print("运行语句: ", res["exec"])
+            res["exec"] = f"# {remakeLine(sent)}"
+            return res
+
+        g = Graph("kae.db")
+        ss = g.query(Sentence)
+
+        s = match(ss, sent, g)
+        
+        # print(s)
+        if s is not None:
+            intes = g.query(Intention)
+            inte = understand(intes, s)
+            if inte is not None:
+                # s = Sentence(name=name, parts=sent)
+                res["errno"] = 0
+                res["exec"] = f"{inte['model']}.{inte['foo']}({'' if 'args' not in inte else inte['args']})"
+                print("运行语句: ", res["exec"])
+            else:
+                res["errno"] = 2
+                print("我懂，但我不懂怎么做：", remakeLine(sent))
         else:
-            res["errno"] = 2
-            print("我懂，但我不懂怎么做：", name)
-    else:
-        res["errno"] = 1
-        print("看看你在说什么:", name)
-    return res
+            res["errno"] = 1
+            print("看看你在说什么:", remakeLine(sent))
+        ress.append(res)
+    return ress
 
 if __name__=="__main__":
     # ba = Word(name="把", wordclass="p")
