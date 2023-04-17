@@ -493,6 +493,7 @@ def doo(foo=None, file=None):
         lines = [l.strip() for l in kf.readlines()]
         #判断是否有生成过kc文件，如果有，就不重新解析了
         fmd5 = hashlib.md5("\n".join(lines).encode("UTF-8")).hexdigest()
+        # print("\n".join(lines).encode("UTF-8"), fmd5)
         if os.access(f".bin/{fmd5}.af", os.F_OK):
             #已经编译过了，就打开运行，不用重新解析
             with open(f".bin/{fmd5}.af", "r", encoding='UTF-8') as af:

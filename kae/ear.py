@@ -8,7 +8,7 @@ class KaeEar(object):
     def index(self):
         return "你好，欢迎使用kæ语言!"
     def build(self, slines):
-        print(slines)
+        print(slines.encode("UTF-8"))
         lines = [l.strip() for l in slines.split("\n")]
         #codes存放代码段
         ka_fragments = {"step":0, "codes":{"main":[]}, "stack":["main"], "foo":[]}
@@ -25,7 +25,7 @@ class KaeEar(object):
         return pycallable
     @cherrypy.expose
     def kaeear(self, say=""):
-        fmd5 = hashlib.md5("\n".join(say).encode("UTF-8")).hexdigest()
+        fmd5 = hashlib.md5(say.encode("UTF-8")).hexdigest()
         return f"{fmd5}:{self.build(say)}"
 
 import logging, os
