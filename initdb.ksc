@@ -69,4 +69,5 @@ newnode Sentence {"name":"在(tar)(act):(args)", "$edges":"lk3"}
 newnode Intention {"name":"打开空调", "foo":"openf", "model":"devs", "target":"空调", "action":"打开"}
 newnode Intention {"name":"打开图像", "foo":"open", "model":"img", "target":"图像", "action":"打开"}
 newnode Intention {"name":"旋转图像", "foo":"ra", "model":"img", "target":"图像", "action":"旋转"}
-newnode Intention {"name":"输出文本", "foo":"print", "model":"io", "target":"终端", "action":"输出"}
+newnode Intention {"name":"终端输出文本", "foo":"stdprint", "model":"kae.libs.io", "target":"终端", "action":"输出"}
+newnode Intention {"name":"文件输出文本", "foo":"fprint", "model":"kae.libs.io", "target":"文件", "action":"输出"}

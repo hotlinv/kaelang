@@ -100,10 +100,11 @@ def compile(paragraph=" ".join(sys.argv[1:])):
     # words = cut(name)
     sents = splitSentence(paragraph)
     import kae
-    print(kae.__file__) #需要考虑在某个特别目录下放db文件
+    # print(kae.__file__) #需要考虑在某个特别目录下放db文件
     g = Graph("kae.db")
     ss = g.query(Sentence)
     ress = []
+    mods = []
     for sent in sents:
         res = {"input":remakeLine(sent)}
         if iscomment(sent):
@@ -121,6 +122,8 @@ def compile(paragraph=" ".join(sys.argv[1:])):
                 # s = Sentence(name=name, parts=sent)
                 res["errno"] = 0
                 res["exec"] = f"{inte['model']}.{inte['foo']}({'' if 'args' not in inte else inte['args']})"
+                if inte['model'] not in mods:
+                    mods.append(inte['model'])
                 print("运行语句: ", res["exec"])
             else:
                 res["errno"] = 2
@@ -129,6 +132,8 @@ def compile(paragraph=" ".join(sys.argv[1:])):
             res["errno"] = 1
             print("看看你在说什么:", remakeLine(sent))
         ress.append(res)
+    for mod in mods:
+        ress.insert(0, {"input":"", "errno": 0, "exec": f"import {mod}"})
     return ress
 
 if __name__=="__main__":
