@@ -81,6 +81,14 @@ class Graph:
             node.update({k:n for k, n in tag.dict().items() if k!="type"})
         self._graph.insert(node)
 
+    def getNodes(self, nodetype, name=None):
+        Data = Query()
+        q = (Data.type=="node") & (Data.nodetype==nodetype)
+        if name is not None:
+            q = q & (Data.name==name)
+        ns = self._graph.search( q )
+        return ns
+
     def createEdge(self, edgetype, node1name, node2name):
         Node = Query()
         node1id = None
@@ -102,10 +110,10 @@ class Graph:
         return node1
 
     def query(self, q):
-        Node = Query()
         if type(q).__name__=="ModelMetaclass":
+            Node = Query()
             return self._graph.search(Node.nodetype==q.__name__)
-        return
+        return #self._graph.search(q)
 
     def plot(self):
         import plotly.graph_objects as go

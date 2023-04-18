@@ -12,6 +12,23 @@ def cut(s):
         words.append(Word(name=word, wordclass=flag))
     return words
 
+def replacesame(gdb, words):
+    # 同义词替代
+    for word in words:
+        sws = gdb.getNodes("SameWord", word.name)
+        if len(sws)>0:
+            word.name = sws[0]["sameas"] 
+
+def deluseless(gdb, words):
+    # 去除无用词
+    uls = [ul["name"] for ul in gdb.getNodes("UselessWord")]
+    dels = []
+    for word in words:
+        if word.name in uls:
+            dels.append(word)
+    for dw in dels:
+        words.remove(dw)
+
 def _match(gdb, sid, o, wl, i):
     # print([di(li) for li in o.edges])
     sl = []
@@ -112,6 +129,8 @@ def compile(paragraph=" ".join(sys.argv[1:])):
             res["exec"] = f"# {remakeLine(sent)}"
             return res
 
+        replacesame(g, sent) #替换同义词
+        deluseless(g, sent) #去除无用词
         s = match(ss, sent, g)
         
         # print(s)
