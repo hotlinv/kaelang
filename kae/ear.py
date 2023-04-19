@@ -8,7 +8,7 @@ class KaeEar(object):
     def index(self):
         return "你好，欢迎使用kæ语言!"
     def build(self, slines):
-        print(slines.encode("UTF-8"))
+        # print(slines.encode("UTF-8"))
         lines = [l.strip() for l in slines.split("\n")]
         #codes存放代码段
         ka_fragments = {"step":0, "codes":{"main":[]}, "stack":["main"], "foo":[]}
@@ -16,7 +16,7 @@ class KaeEar(object):
         #     ka_prepare_a_line(ka_fragments, line)
 
         # mainlines = ["{0}".format(ka_parse(ml)) for ml in ka_fragments["codes"]["main"]]
-        bs = zcompile(slines)
+        bs = zcompile("".join(lines))
         print(bs)
         ka_fragments["foo"].append(r"aa={}")
         ka_fragments["foo"].extend([zl["exec"] for zl in bs if zl["errno"]==0])
