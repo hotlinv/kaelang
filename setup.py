@@ -25,7 +25,7 @@ setuptools.setup(
     },
     include_package_data=True,
     data_files=[
-        ('', ['urlmap.yml']),
+        ('', ['urlmap.yml', "kae.db"]),
         ("dict", ["dict/"+f for f in os.listdir("dict")]),
         ("kalib", ["kalib/"+f for f in os.listdir("kalib")]),
         # ("kalib", ["kalib/"+f for f in os.listdir("kalib")]),
