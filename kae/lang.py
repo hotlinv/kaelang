@@ -542,7 +542,8 @@ def doo(foo=None, file=None):
                 pos = bincode.index(":")
                 binfn, pycallable = bincode[:pos], bincode[pos+1:]
                 print2kc(pycallable, binfn, True)
-
+            else:
+                pycallable = ""
             ####################################
             # pprint(ka_fragments)
             
@@ -552,8 +553,9 @@ def doo(foo=None, file=None):
         # kac = open("kae.kc", 'w+', encoding='utf-8')
         # print("".join(ka_fragments["foo"]), file=kac)    
         # kac.close()
-        exec(compile(pycallable, kf.name, "exec"), globals())
-        print2kc(ka_vals, "mem", True)
+        if pycallable is not None:
+            exec(compile(pycallable, kf.name, "exec"), globals())
+        #print2kc(ka_vals, "mem", True)
 
 @catch2cn
 def karuncli(slines):

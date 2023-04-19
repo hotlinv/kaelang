@@ -127,7 +127,7 @@ def compile(paragraph=" ".join(sys.argv[1:])):
         res = {"input":remakeLine(sent)}
         if iscomment(sent):
             res["errno"] = 0
-            res["exec"] = f"# {remakeLine(sent)}"
+            res["exec"] = "# "
             return res
 
         replacesame(g, sent) #替换同义词
