@@ -3,6 +3,25 @@ import os
  
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
+
+from setuptools import Command
+
+class InitDBScript(Command):
+    """ init db command.
+    """
+    description = 'init database'
+
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        import os
+        os.system("graphdb --db=kae.db --script=initdb.ksc")
  
 setuptools.setup(
     name="kaelang", 
@@ -31,4 +50,7 @@ setuptools.setup(
         # ("kalib", ["kalib/"+f for f in os.listdir("kalib")]),
         # ('/usr/lib/systemd/system/', ['bin/*.service']),
     ],
+    cmdclass={
+        "initdb": InitDBScript
+    }
 )

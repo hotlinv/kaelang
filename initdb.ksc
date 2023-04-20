@@ -11,7 +11,7 @@ newnode Word {"name":"把", "wordclass":"p"}
 newnode Word {"name":"将", "wordclass":"pd"}
 newnode Word {"name":"{target}", "wordclass":"n"}
 newnode Word {"name":"{action}", "wordclass":"v"}
-newnode Word {"name":"{args}", "wordclass":"nm*"}
+newnode Word {"name":"{args}", "wordclass":"nm*+"}
 newnode Word {"name":"。", "wordclass":"x"}
 newnode Word {"name":".", "wordclass":"x"}
 newnode Word {"name":"！", "wordclass":"x"}
@@ -84,5 +84,6 @@ newnode Intention {"name":"打开图像", "foo":"open", "model":"img", "target":
 newnode Intention {"name":"旋转图像", "foo":"ra", "model":"img", "target":"图像", "action":"旋转"}
 newnode Intention {"name":"终端输出文本", "foo":"stdprint", "model":"kae.libs.io", "target":"终端", "action":"输出"}
 newnode Intention {"name":"文件输出文本", "foo":"fprint", "model":"kae.libs.io", "target":"文件", "action":"输出"}
-newnode Intention {"name":"计算公式", "foo":"eval", "model":"kae.libs.os", "target":"公式", "action":"计算"}
-newnode Intention {"name":"计算表达式", "foo":"eval", "model":"kae.libs.os", "target":"表达式", "action":"计算"}
+newnode Intention {"name":"新建", "foo":"newobj", "model":"kae.libs.sys", "target":"", "action":"创建"}
+newnode Intention {"name":"计算公式", "foo":"eval", "model":"kae.libs.sys", "target":"公式", "action":"计算"}
+newnode Intention {"name":"计算表达式", "foo":"eval", "model":"kae.libs.sys", "target":"表达式", "action":"计算"}
