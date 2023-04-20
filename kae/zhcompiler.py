@@ -4,6 +4,15 @@ import jieba.posseg as pseg
 from kae.model import *
 from kae.tinygraph import *
 
+MAO = ":："
+ENDSENT = ".。!！;；?？"
+YH = '“”"'
+KUOSTAR = '('
+KUOEND = ')'
+SHUSTAR = '《'
+SHUEND = '》'
+SPLIT = "、"
+
 def cut(s):
     '''分词'''
     seg_list = pseg.cut(s)
@@ -12,14 +21,14 @@ def cut(s):
         words.append(Word(name=word, wordclass=flag))
     return words
 
-def replacesame(gdb, words):
+def replaceSame(gdb, words):
     # 同义词替代
     for word in words:
         sws = gdb.getNodes("SameWord", word.name)
         if len(sws)>0:
             word.name = sws[0]["sameas"] 
 
-def deluseless(gdb, words):
+def delUseless(gdb, words):
     # 去除无用词
     uls = [ul["name"] for ul in gdb.getNodes("UselessWord")]
     dels = []
@@ -28,6 +37,25 @@ def deluseless(gdb, words):
             dels.append(word)
     for dw in dels:
         words.remove(dw)
+
+def parseSubSentence(gdb, words):
+    # 切分子句
+    maoidx = -1
+    endidx = -1
+    for idx, word in enumerate(words):
+        if word.name in MAO:#找到冒号作为开始
+            maoidx = idx
+        if word.name in ENDSENT:#句子结束作为结束
+            endidx = idx
+            
+    if maoidx != -1 and (endidx-maoidx)>2: #找到冒号
+        sub = []
+        for i in range(maoidx+1,endidx):
+            w = words.pop(maoidx+1)
+            if w.name not in SPLIT:
+                sub.append(w)
+        words.insert(maoidx+1, sub)
+
 
 def _match(gdb, sid, o, wl, i):
     # print([di(li) for li in o.edges])
@@ -47,8 +75,10 @@ def _match(gdb, sid, o, wl, i):
         if i>=len(wl):
             continue
         print(" +", s, "->", wl[i])
-        if s["name"].startswith("{") and s["name"].endswith("}") and wl[i].wordclass in s["wordclass"]:
+        if type(wl[i])!=list and s["name"].startswith("{") and s["name"].endswith("}") and wl[i].wordclass in s["wordclass"]:
             exec(f"o['{s['name'][1:-1]}']=wl[i].name")
+        elif type(wl[i])==list and s["name"].startswith("{") and s["name"].endswith("}"):
+            exec(f"o['{s['name'][1:-1]}']=wl[i]")
         elif s["name"] != wl[i].name or wl[i].wordclass not in s['wordclass'] : 
             print(" X", wl[i])
             continue
@@ -72,18 +102,23 @@ def understand(intes, sen):
     '''从句式对应意图'''
     for inte in intes:
         if inte["target"]==sen["target"] and inte["action"]==sen["action"]:
-            inte["args"] = sen["args"]
+            if type(sen["args"])!=list:
+                inte["args"] = sen["args"]
+            else:
+                inte["args"] = [eval(w.name) for w in sen["args"]]
             return inte
+
+
 
 def iscomment(words):
     '''判断是注释'''
-    if words[0].name=="说明" and words[1].name=="：" or words[1].name==":":
+    if words[0].name=="说明" and words[1].name in MAO:
+        return True
+    elif words[0].name=="［" and words[1]=="注" and words[2]=="］":
         return True
     return False
 
-ENDSENT = ".。!！;；?？"
 
-YH = '“”"'
 
 def splitSentence(paragraph):
     '''拆分句子（顺带划分整体语素：括弧，引号等）'''
@@ -112,6 +147,8 @@ def splitSentence(paragraph):
 
 remakeLine = lambda words: "".join([word.name for word in words])
 
+ARGS = lambda args: args if type(args)!=list else str(args)[1:-1]
+
 def compile(paragraph=" ".join(sys.argv[1:])):
     # name = " ".join(sys.argv[1:])
     # words = cut(name)
@@ -125,13 +162,16 @@ def compile(paragraph=" ".join(sys.argv[1:])):
     mods = []
     for sent in sents:
         res = {"input":remakeLine(sent)}
-        if iscomment(sent):
+        if iscomment(sent): #判断是否是注释
             res["errno"] = 0
             res["exec"] = "# "
             return res
 
-        replacesame(g, sent) #替换同义词
-        deluseless(g, sent) #去除无用词
+        replaceSame(g, sent) #替换同义词
+        delUseless(g, sent) #去除无用词
+
+        parseSubSentence(g, sent)
+
         s = match(ss, sent, g)
         
         # print(s)
@@ -141,7 +181,7 @@ def compile(paragraph=" ".join(sys.argv[1:])):
             if inte is not None:
                 # s = Sentence(name=name, parts=sent)
                 res["errno"] = 0
-                res["exec"] = f"{inte['model']}.{inte['foo']}({'' if 'args' not in inte else inte['args']})"
+                res["exec"] = f"{inte['model']}.{inte['foo']}({'' if 'args' not in inte else ARGS(inte['args'])})"
                 if inte['model'] not in mods:
                     mods.append(inte['model'])
                 print("运行语句: ", res["exec"])
