@@ -27,6 +27,11 @@ class Word(BaseModel):
     wordclass: str = Field(title="词性")
     # next:Optional[Union[NextRef, MayRef, List[Union[NextRef, MayRef]]]] = Field(title="下一个（批）id")
 
+class UserWord(BaseModel):
+    """用户定义词（用于调整分词词频和词性）"""
+    name: str = Field(title="文本")
+    wordclass: str = Field(title="词性")
+
 class SameWord(BaseModel):
     """同义词"""
     name: str = Field(title="文本")

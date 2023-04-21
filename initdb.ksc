@@ -3,6 +3,7 @@ newtag kae.model.Sentence
 newtag kae.model.Intention
 newtag kae.model.UselessWord
 newtag kae.model.SameWord
+newtag kae.model.UserWord
 
 newref kae.model.NextRef
 newref kae.model.MayRef
@@ -23,11 +24,16 @@ newnode Word {"name":"进行", "wordclass":"v"}
 newnode Word {"name":":", "wordclass":"x"}
 newnode Word {"name":"：", "wordclass":"x"}
 
+newnode UserWord {"name":"控制台", "wordclass":"n"}
+newnode UserWord {"name":"空列表", "wordclass":"n"}
+
 newnode UselessWord {"name":"给", "wordclass":"p"}
 newnode UselessWord {"name":"立刻", "wordclass":"d"}
 newnode UselessWord {"name":"请", "wordclass":"v"}
 newnode UselessWord {"name":"你", "wordclass":"r"}
 newnode UselessWord {"name":"我", "wordclass":"r"}
+newnode UselessWord {"name":"并", "wordclass":"c"}
+newnode UselessWord {"name":"并且", "wordclass":"c"}
 
 newnode SameWord {"name":"立即", "wordclass":"d", "sameas":"立刻"}
 newnode SameWord {"name":"即刻", "wordclass":"d", "sameas":"立刻"}

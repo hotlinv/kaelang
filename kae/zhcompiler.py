@@ -13,6 +13,12 @@ SHUSTAR = '《'
 SHUEND = '》'
 SPLIT = "、"
 
+def prepareWordDict(g):
+    '''修改词典'''
+    dicts = g.getNodes("UserWord")
+    for d in dicts:
+        jieba.add_word(d["name"], 100, d["wordclass"])
+
 def cut(s):
     '''分词'''
     seg_list = pseg.cut(s)
@@ -150,13 +156,15 @@ remakeLine = lambda words: "".join([word.name for word in words])
 ARGS = lambda args: args if type(args)!=list else str(args)[1:-1]
 
 def compile(paragraph=" ".join(sys.argv[1:])):
-    # name = " ".join(sys.argv[1:])
-    # words = cut(name)
-    sents = splitSentence(paragraph)
     import kae, os
     dbf = os.path.join(os.path.split(os.path.split(kae.__file__)[0])[0], "kae.db")
     # print(kae.__file__) #需要考虑在某个特别目录下放db文件
     g = Graph(dbf)
+    prepareWordDict(g)
+    # name = " ".join(sys.argv[1:])
+    # words = cut(name)
+    sents = splitSentence(paragraph)
+    
     ss = g.query(Sentence)
     ress = []
     mods = []
