@@ -114,7 +114,7 @@ def iscomment(words):
     '''判断是注释'''
     if words[0].name=="说明" and words[1].name in MAO:
         return True
-    elif words[0].name=="［" and words[1]=="注" and words[2]=="］":
+    elif words[0].name=="【" and words[1].name=="注" and words[2].name=="】":
         return True
     return False
 
@@ -165,7 +165,8 @@ def compile(paragraph=" ".join(sys.argv[1:])):
         if iscomment(sent): #判断是否是注释
             res["errno"] = 0
             res["exec"] = "# "
-            return res
+            ress.append(res)
+            continue
 
         replaceSame(g, sent) #替换同义词
         delUseless(g, sent) #去除无用词
