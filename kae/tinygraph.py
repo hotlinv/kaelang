@@ -30,6 +30,10 @@ class List_int_Field(_AttrField):
 	def __init__(self, name, ename,  required=True):
 		super().__init__(fieldName=name, desc=ename, required=required, dtype="List[int]")
 
+class List_str_Field(_AttrField):
+	def __init__(self, name, ename,  required=True):
+		super().__init__(fieldName=name, desc=ename, required=required, dtype="List[str]")
+
 class Graph:
     def __init__(self, path):
         self._db = TinyDB(path)

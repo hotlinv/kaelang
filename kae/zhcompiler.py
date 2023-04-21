@@ -18,6 +18,9 @@ def prepareWordDict(g):
     dicts = g.getNodes("UserWord")
     for d in dicts:
         jieba.add_word(d["name"], 100, d["wordclass"])
+    sdicts = g.getNodes("UserSpWord")
+    for sd in sdicts:
+        jieba.suggest_freq(sd["name"].split("/"), tune=True)
 
 def cut(s):
     '''分词'''

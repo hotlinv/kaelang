@@ -32,6 +32,10 @@ class UserWord(BaseModel):
     name: str = Field(title="文本")
     wordclass: str = Field(title="词性")
 
+class UserSpWord(BaseModel):
+    """用户定义词（用于调整分词词频和词性）"""
+    name: str = Field(title="文本列表")
+
 class SameWord(BaseModel):
     """同义词"""
     name: str = Field(title="文本")

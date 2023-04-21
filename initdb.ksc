@@ -4,6 +4,7 @@ newtag kae.model.Intention
 newtag kae.model.UselessWord
 newtag kae.model.SameWord
 newtag kae.model.UserWord
+newtag kae.model.UserSpWord
 
 newref kae.model.NextRef
 newref kae.model.MayRef
@@ -26,6 +27,8 @@ newnode Word {"name":"：", "wordclass":"x"}
 
 newnode UserWord {"name":"控制台", "wordclass":"n"}
 newnode UserWord {"name":"空列表", "wordclass":"n"}
+
+newnode UserSpWord {"name":"计算/公式"}
 
 newnode UselessWord {"name":"给", "wordclass":"p"}
 newnode UselessWord {"name":"立刻", "wordclass":"d"}
