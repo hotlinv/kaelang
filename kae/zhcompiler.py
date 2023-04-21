@@ -44,6 +44,8 @@ def delUseless(gdb, words):
     for word in words:
         if word.name in uls:
             dels.append(word)
+        elif word.wordclass=="y":
+            dels.append(word)
     for dw in dels:
         words.remove(dw)
 
@@ -172,6 +174,7 @@ def compile(paragraph=" ".join(sys.argv[1:])):
     ress = []
     mods = []
     for sent in sents:
+        # print(sent)
         res = {"input":remakeLine(sent)}
         if iscomment(sent): #判断是否是注释
             res["errno"] = 0

@@ -27,6 +27,7 @@ newnode Word {"name":"：", "wordclass":"x"}
 
 newnode UserWord {"name":"控制台", "wordclass":"n"}
 newnode UserWord {"name":"空列表", "wordclass":"n"}
+newnode UserWord {"name":"给老子", "wordclass":"y"}
 
 newnode UserSpWord {"name":"计算/公式"}
 
@@ -38,10 +39,12 @@ newnode UselessWord {"name":"我", "wordclass":"r"}
 newnode UselessWord {"name":"并", "wordclass":"c"}
 newnode UselessWord {"name":"并且", "wordclass":"c"}
 
+newnode SameWord {"name":"赶紧", "wordclass":"d", "sameas":"立刻"}
 newnode SameWord {"name":"立即", "wordclass":"d", "sameas":"立刻"}
 newnode SameWord {"name":"即刻", "wordclass":"d", "sameas":"立刻"}
 newnode SameWord {"name":"立马", "wordclass":"d", "sameas":"立刻"}
 newnode SameWord {"name":"马上", "wordclass":"d", "sameas":"立刻"}
+newnode SameWord {"name":"控制台", "wordclass":"n", "sameas":"终端"}
 
 newedge NextRef ba  ~> 把
 newedge NextRef jiang ~> 将
@@ -80,7 +83,7 @@ newedge NextRef acttar {action} ~> {target}
 newedge NextRef tarjuz {target} ~> 。
 newedge NextRef tarju {target} ~> .
 
-newlist lk2 _act acttar actargs tarjuz tarju argsjuz argsju
+newlist lk2 _act acttar actargs argsjuz argsju tarjuz tarju
 
 newnode Sentence {"name":"把(tar)(act)", "$edges":"lk1"}
 newnode Sentence {"name":"(act)(tar)(args)", "$edges":"lk2"}
