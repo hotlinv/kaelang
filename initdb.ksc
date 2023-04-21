@@ -45,6 +45,9 @@ newnode SameWord {"name":"即刻", "wordclass":"d", "sameas":"立刻"}
 newnode SameWord {"name":"立马", "wordclass":"d", "sameas":"立刻"}
 newnode SameWord {"name":"马上", "wordclass":"d", "sameas":"立刻"}
 newnode SameWord {"name":"控制台", "wordclass":"n", "sameas":"终端"}
+newnode SameWord {"name":"：", "wordclass":"x", "sameas":":"}
+newnode SameWord {"name":"；", "wordclass":"x", "sameas":";"}
+newnode SameWord {"name":"！", "wordclass":"x", "sameas":"!"}
 
 newedge NextRef ba  ~> 把
 newedge NextRef jiang ~> 将
@@ -59,6 +62,8 @@ newedge NextRef actjuz {action} ~> 。
 newedge NextRef actju {action} ~> .
 newedge NextRef actganz {action} ~> ！
 newedge NextRef actgan {action} ~> !
+newedge NextRef tarmaoz {target} ~> ：
+newedge NextRef tarmao {target} ~> :
 newedge NextRef actmaoz {action} ~> ：
 newedge NextRef actmao {action} ~> :
 newedge NextRef maozargs ： ~> {args}
@@ -83,10 +88,10 @@ newedge NextRef acttar {action} ~> {target}
 newedge NextRef tarjuz {target} ~> 。
 newedge NextRef tarju {target} ~> .
 
-newlist lk2 _act acttar actargs argsjuz argsju tarjuz tarju
+newlist lk2 _act acttar tarmao maoargs actargs argsjuz argsju tarjuz tarju
 
 newnode Sentence {"name":"把(tar)(act)", "$edges":"lk1"}
-newnode Sentence {"name":"(act)(tar)(args)", "$edges":"lk2"}
+newnode Sentence {"name":"(act)(tar):(args)", "$edges":"lk2"}
 
 newlist lk3 zai yu zaitar yutar tarshang shangact shangjinxing jinxingact taract actmaoz actmao actargs maozargs maoargs actjuz actju argsjuz argsju
 newnode Sentence {"name":"在(tar)(act):(args)", "$edges":"lk3"}
@@ -97,5 +102,5 @@ newnode Intention {"name":"旋转图像", "foo":"ra", "model":"img", "target":"�
 newnode Intention {"name":"终端输出文本", "foo":"stdprint", "model":"kae.libs.io", "target":"终端", "action":"输出"}
 newnode Intention {"name":"文件输出文本", "foo":"fprint", "model":"kae.libs.io", "target":"文件", "action":"输出"}
 newnode Intention {"name":"新建", "foo":"newobj", "model":"kae.libs.sys", "target":"", "action":"创建"}
-newnode Intention {"name":"计算公式", "foo":"eval", "model":"kae.libs.sys", "target":"公式", "action":"计算"}
-newnode Intention {"name":"计算表达式", "foo":"eval", "model":"kae.libs.sys", "target":"表达式", "action":"计算"}
+newnode Intention {"name":"计算公式", "foo":"cacl", "model":"kae.libs.sys", "target":"公式", "action":"计算"}
+newnode Intention {"name":"计算表达式", "foo":"cacl", "model":"kae.libs.sys", "target":"表达式", "action":"计算"}
