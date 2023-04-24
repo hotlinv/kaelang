@@ -113,8 +113,9 @@ def understand(intes, sen):
     '''从句式对应意图'''
     for inte in intes:
         if inte["target"]==sen["target"] and inte["action"]==sen["action"]:
+            inte["tarargs"] = sen["tarargs"]
             if type(sen["args"])!=list:
-                inte["args"] = sen["args"]
+                inte["args"] = [eval(sen["args"])]
             else:
                 inte["args"] = [eval(w.name) for w in sen["args"]]
             return inte

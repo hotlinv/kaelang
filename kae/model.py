@@ -53,6 +53,7 @@ class Sentence(BaseModel):
     edges: List[int] = Field(title="组成id")
     src: Optional[str] = Field(title="来源")
     target: Optional[str] = Field(title="目标")
+    tarargs: Optional[str] = Field(title="目标参数（文件名等）")
     action: Optional[str] = Field(title="动作")
     args: Optional[str] = Field(title="参数")
     # _next:Union[NextRef, MayRef] = Field(title="下一个")
@@ -64,6 +65,7 @@ class Intention(BaseModel):
     model: str = Field(title="模块")
     src: Optional[str] = Field(title="来源")
     target: Optional[str] = Field(title="目标")
+    tarargs: Optional[str] = Field(title="目标参数（文件名等）")
     action: Optional[str] = Field(title="动作")
     args: Optional[str] = Field(title="参数")
 
