@@ -26,7 +26,9 @@ class KaeEar(object):
     @cherrypy.expose
     def kaeear(self, say=""):
         fmd5 = hashlib.md5(say.encode("UTF-8")).hexdigest()
-        return f"{fmd5}:{self.build(say)}"
+        exc = self.build(say)
+        print(exc)
+        return fmd5+":"+exc
 
 import logging, os
 

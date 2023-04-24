@@ -469,11 +469,11 @@ def ka_prepare_a_line(ka_fragments, line):
             ka_fragments["codes"]["main"].append(s)
 
 def runcmd():
-    import subprocess
+    import subprocess, sys
     try:
-
+        execp = sys.executable
         # 定义启动的命令行命令
-        command = ["python", "-m" "kae.ear"]
+        command = [execp, "-m" "kae.ear"]
 
         # 启动进程，不等待其结果
         subprocess.Popen(command)

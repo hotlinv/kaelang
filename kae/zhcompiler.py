@@ -1,7 +1,7 @@
 import jieba, sys
 import jieba.posseg as pseg
 
-import os, json, yaml
+import os, json, yaml, re
 
 ka_mount = {} #放数据目录
 
@@ -13,11 +13,16 @@ def ka_load_urlmaps():
     ka_mount = y
     #把路径加入分词中
     for k, val in y.items():
-        print(k)
         jieba.add_word(k, 100, "ns")
         if val:
             for sk, sv in val.items():
                 jieba.add_word(sk, 100, "ns")
+    #把格式加入分词（用于路径收尾）
+    jieba.add_word("文本间", 100, "nfs")
+    jieba.add_word("目录间", 100, "nfs")
+    jieba.add_word("表格间", 100, "nfs")
+    jieba.add_word("图像间", 100, "nfs")
+    jieba.add_word("杰森间", 100, "nfs")
 
 from kae.model import *
 from kae.tinygraph import *
@@ -47,6 +52,28 @@ def cut(s):
     for word, flag in seg_list:
         words.append(Word(name=word, wordclass=flag))
     return words
+
+def joinPath(gdb, words): #把路径连成一整个
+    paths = []
+    finded = False
+    # rens = re.compile(r".+")
+    for word in words:
+        if not finded and word.wordclass=="ns":
+            finded = True
+            paths.append(word)
+        elif finded:
+            paths.append(word)
+        if finded and word.wordclass=="nfs":
+            finded = False
+            break
+    path = ""
+    for p in paths:
+        path+=p.name
+    if len(paths)>0:
+        paths[0].name = path
+        for p in paths[1:]:
+            words.remove(p)
+    
 
 def replaceSame(gdb, words):
     # 同义词替代
@@ -202,6 +229,7 @@ def compile(paragraph=" ".join(sys.argv[1:])):
             ress.append(res)
             continue
 
+        joinPath(g, sent)
         replaceSame(g, sent) #替换同义词
         delUseless(g, sent) #去除无用词
 
