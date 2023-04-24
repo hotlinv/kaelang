@@ -13,7 +13,7 @@ newnode Word {"name":"把", "wordclass":"p"}
 newnode Word {"name":"将", "wordclass":"pd"}
 newnode Word {"name":"{target}", "wordclass":"n"}
 newnode Word {"name":"{action}", "wordclass":"v"}
-newnode Word {"name":"{tarargs}", "wordclass":"nmnz*"}
+newnode Word {"name":"{tarargs}", "wordclass":"nmnzns*"}
 newnode Word {"name":"{args}", "wordclass":"nm*+"}
 newnode Word {"name":"。", "wordclass":"x"}
 newnode Word {"name":".", "wordclass":"x"}

@@ -1,6 +1,24 @@
 import jieba, sys
 import jieba.posseg as pseg
 
+import os, json, yaml
+
+ka_mount = {} #放数据目录
+
+def ka_load_urlmaps():
+    '''加载路径对应文件'''
+    global ka_mount
+    f = open("urlmap.yml", 'r',encoding='utf-8')
+    y = yaml.load(f, Loader=yaml.FullLoader)
+    ka_mount = y
+    #把路径加入分词中
+    for k, val in y.items():
+        print(k)
+        jieba.add_word(k, 100, "ns")
+        if val:
+            for sk, sv in val.items():
+                jieba.add_word(sk, 100, "ns")
+
 from kae.model import *
 from kae.tinygraph import *
 
@@ -163,6 +181,7 @@ ARGS = lambda args: args if type(args)!=list else str(args)[1:-1]
 
 def compile(paragraph=" ".join(sys.argv[1:])):
     import kae, os, re
+    ka_load_urlmaps()
     dbf = os.path.join(os.path.split(os.path.split(kae.__file__)[0])[0], "kae.db")
     # print(kae.__file__) #需要考虑在某个特别目录下放db文件
     g = Graph(dbf)
