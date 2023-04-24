@@ -161,7 +161,7 @@ remakeLine = lambda words: "".join([word.name for word in words])
 ARGS = lambda args: args if type(args)!=list else str(args)[1:-1]
 
 def compile(paragraph=" ".join(sys.argv[1:])):
-    import kae, os
+    import kae, os, re
     dbf = os.path.join(os.path.split(os.path.split(kae.__file__)[0])[0], "kae.db")
     # print(kae.__file__) #需要考虑在某个特别目录下放db文件
     g = Graph(dbf)
@@ -196,7 +196,14 @@ def compile(paragraph=" ".join(sys.argv[1:])):
             if inte is not None:
                 # s = Sentence(name=name, parts=sent)
                 res["errno"] = 0
-                res["exec"] = f"{inte['model']}.{inte['foo']}({'' if 'args' not in inte else ARGS(inte['args'])})"
+                regex = r"{{(\w+)}}"
+                foo = inte['foo'] #({'' if 'args' not in inte else ARGS(inte['args'])})
+                matches = re.findall(regex, foo)
+                if len(matches)>0:
+                    fooexec = re.sub(regex, lambda m: str(inte[m.group()[2:-2]]), foo)
+                else:
+                    fooexec = foo
+                res["exec"] = f"{inte['model']}.{fooexec}"
                 if inte['model'] not in mods:
                     mods.append(inte['model'])
                 print("运行语句: ", res["exec"])
