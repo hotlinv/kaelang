@@ -273,10 +273,10 @@ def compile(paragraph=" ".join(sys.argv[1:])):
                 print("运行语句: ", res["exec"])
             else:
                 res["errno"] = 2
-                print("我懂，但我不懂怎么做：", remakeLine(sent))
+                print("我懂，但我不懂怎么做：", res["input"])
         else:
             res["errno"] = 1
-            print("看看你在说什么:", remakeLine(sent))
+            print("看看你在说什么:", res["input"])
         ress.append(res)
     for mod in mods:
         ress.insert(0, {"input":"", "errno": 0, "exec": f"import {mod}"})
