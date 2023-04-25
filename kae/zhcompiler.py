@@ -172,11 +172,12 @@ def match(ss, wl, gdb):
 
 def understand(gdb, intes, sen):
     '''从句式对应意图'''
+    print(sen)
     for inte in intes:
         if inte["target"]==sen["target"] and inte["action"]==sen["action"]:
             inte["tarargs"] = sen["tarargs"]
             if type(sen["args"])!=list:
-                inte["args"] = [eval(sen["args"])]
+                inte["args"] = sen["args"]
             else:
                 inte["args"] = [evalExpression(gdb, w) for w in sen["args"]]
             return inte
