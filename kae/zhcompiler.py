@@ -31,13 +31,13 @@ from kae.model import *
 from kae.tinygraph import *
 
 MAO = ":："
-ENDSENT = ".。!！;；?？"
+ENDSENT = ".。!！?？"
 YH = '“”"'
 KUOSTAR = '('
 KUOEND = ')'
 SHUSTAR = '《'
 SHUEND = '》'
-SPLIT = "、"
+SPLIT = "、；;，,"
 
 def prepareWordDict(g):
     '''修改词典'''
@@ -97,6 +97,13 @@ def delUseless(gdb, words):
     for dw in dels:
         words.remove(dw)
 
+def evalExpression(gdb, words):
+    # 把子句转换成表达式
+    if len(words)==1 and words[0].wordclass=="*": #单纯字符串
+        return eval(words[0].name)
+    if len(words)==4 and words[0].name=="公式" and words[-2].name=="的" and words[-1].name=="值": #
+        return eval(words[1].name[1:-1])
+
 def parseSubSentence(gdb, words):
     # 切分子句
     maoidx = -1
@@ -107,13 +114,19 @@ def parseSubSentence(gdb, words):
         if word.name in ENDSENT:#句子结束作为结束
             endidx = idx
             
-    if maoidx != -1 and (endidx-maoidx)>2: #找到冒号
+    if maoidx != -1 : #找到冒号
+        subs = []
+        subi = maoidx+1
         sub = []
-        for i in range(maoidx+1,endidx):
-            w = words.pop(maoidx+1)
+        for i in range(subi,endidx):
+            w = words.pop(subi)
             if w.name not in SPLIT:
                 sub.append(w)
-        words.insert(maoidx+1, sub)
+            else:
+                subs.append(sub)
+                sub = []
+        subs.append(sub)
+        words.insert(subi, subs)
 
 
 def _match(gdb, sid, o, wl, i):
@@ -157,7 +170,7 @@ def match(ss, wl, gdb):
         if _match(gdb, None, s, wl, 0) and s["action"] is not None:
             return s
 
-def understand(intes, sen):
+def understand(gdb, intes, sen):
     '''从句式对应意图'''
     for inte in intes:
         if inte["target"]==sen["target"] and inte["action"]==sen["action"]:
@@ -165,14 +178,14 @@ def understand(intes, sen):
             if type(sen["args"])!=list:
                 inte["args"] = [eval(sen["args"])]
             else:
-                inte["args"] = [eval(w.name) for w in sen["args"]]
+                inte["args"] = [evalExpression(gdb, w) for w in sen["args"]]
             return inte
 
 
 
 def iscomment(words):
     '''判断是注释'''
-    if words[0].name=="说明" and words[1].name in MAO:
+    if (words[0].name=="说明" or words[0].name=="声明") and words[1].name in MAO:
         return True
     elif words[0].name=="【" and words[1].name=="注" and words[2].name=="】":
         return True
@@ -243,7 +256,7 @@ def compile(paragraph=" ".join(sys.argv[1:])):
         # print(s)
         if s is not None:
             intes = g.query(Intention)
-            inte = understand(intes, s)
+            inte = understand(g, intes, s)
             if inte is not None:
                 # s = Sentence(name=name, parts=sent)
                 res["errno"] = 0
