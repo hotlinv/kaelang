@@ -126,7 +126,7 @@ newnode Intention {"name":"打开空调", "foo":"openf()", "model":"devs", "targ
 newnode Intention {"name":"打开图像", "foo":"open()", "model":"img", "target":"图像", "action":"打开"}
 newnode Intention {"name":"旋转图像", "foo":"ra()", "model":"img", "target":"图像", "action":"旋转"}
 newnode Intention {"name":"终端输出文本", "foo":"stdprint(*{{args}})", "model":"kae.libs.io", "target":"终端", "action":"输出"}
-newnode Intention {"name":"文件输出文本", "foo":"fprint(kae.libs.sys.fpath('{{tarargs}}'), *{{args}})", "model":"kae.libs.io", "target":"文件", "action":"输出"}
+newnode Intention {"name":"文件输出文本", "foo":"fprint('{{tarargs}}', *{{args}})", "model":"kae.libs.io", "target":"文件", "action":"输出"}
 newnode Intention {"name":"新建变量", "foo":"newobj('{{args}}')", "model":"kae.libs.sys", "action":"创建"}
 newnode Intention {"name":"新建变量2", "foo":"newobj('{{args}}')", "model":"kae.libs.sys", "target":"变量", "action":"创建"}
 newnode Intention {"name":"计算公式", "foo":"cacl({{args}})", "model":"kae.libs.sys", "target":"公式", "action":"计算"}

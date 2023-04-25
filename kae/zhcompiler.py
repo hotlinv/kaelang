@@ -5,24 +5,27 @@ import os, json, yaml, re
 
 ka_mount = {} #放数据目录
 
+ka_fext = {} #放数据扩展名
+
 def ka_load_urlmaps():
     '''加载路径对应文件'''
     global ka_mount
+    global ka_fext
     f = open("urlmap.yml", 'r',encoding='utf-8')
     y = yaml.load(f, Loader=yaml.FullLoader)
     ka_mount = y
     #把路径加入分词中
     for k, val in y.items():
-        jieba.add_word(k, 100, "ns")
-        if val:
+        if not k.endswith("处"):
+            jieba.add_word(k, 100, "ns")
+            if val:
+                for sk, sv in val.items():
+                    jieba.add_word(sk, 100, "ns")
+        else:
+            #把格式加入分词（用于路径收尾）
             for sk, sv in val.items():
-                jieba.add_word(sk, 100, "ns")
-    #把格式加入分词（用于路径收尾）
-    jieba.add_word("文本间", 100, "nfs")
-    jieba.add_word("目录间", 100, "nfs")
-    jieba.add_word("表格间", 100, "nfs")
-    jieba.add_word("图像间", 100, "nfs")
-    jieba.add_word("杰森间", 100, "nfs")
+                jieba.add_word(sk, 100, "nfs")
+                ka_fext[sk] = sv
 
 from kae.model import *
 from kae.tinygraph import *
