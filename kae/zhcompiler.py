@@ -3,17 +3,14 @@ import jieba.posseg as pseg
 
 import os, json, yaml, re
 
-ka_mount = {} #放数据目录
 
-ka_fext = {} #放数据扩展名
 
 def ka_load_urlmaps():
     '''加载路径对应文件'''
-    global ka_mount
-    global ka_fext
+    from kae import ka_mount, ka_fext
     f = open("urlmap.yml", 'r',encoding='utf-8')
     y = yaml.load(f, Loader=yaml.FullLoader)
-    ka_mount = y
+    ka_mount.update(y)
     #把路径加入分词中
     for k, val in y.items():
         if not k.endswith("处"):

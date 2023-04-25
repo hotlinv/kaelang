@@ -550,7 +550,7 @@ def doo(foo=None, file=None):
             # print2kb("\n".join(codes))
             
         from kae.zhcompiler import ka_load_urlmaps
-        global ka_mount
+        # global ka_mount
         ka_load_urlmaps()
         # print(ka_mount)
         # kac = open("kae.kc", 'w+', encoding='utf-8')
