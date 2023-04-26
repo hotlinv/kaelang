@@ -7,30 +7,29 @@ newtag kae.model.UserWord
 newtag kae.model.UserSpWord
 
 newref kae.model.NextRef
-newref kae.model.MayRef
 
-newnode Word {"name":"把", "wordclass":"p"}
-newnode Word {"name":"将", "wordclass":"pd"}
-newnode Word {"name":"{target}", "wordclass":"n"}
-newnode Word {"name":"{action}", "wordclass":"v"}
-newnode Word {"name":"{tarargs}", "wordclass":"nmnznsnfs*"}
-newnode Word {"name":"{args}", "wordclass":"nm*+"}
-newnode Word {"name":"。", "wordclass":"x"}
-newnode Word {"name":".", "wordclass":"x"}
-newnode Word {"name":"！", "wordclass":"x"}
-newnode Word {"name":"!", "wordclass":"x"}
-newnode Word {"name":"在", "wordclass":"p"}
-newnode Word {"name":"于", "wordclass":"p"}
-newnode Word {"name":"上", "wordclass":"f"}
-newnode Word {"name":"中", "wordclass":"f"}
-newnode Word {"name":"里", "wordclass":"f"}
-newnode Word {"name":"进行", "wordclass":"v"}
-newnode Word {"name":"创建", "wordclass":"v"}
-newnode Word {"name":"一个", "wordclass":"m"}
-newnode Word {"name":"称作", "wordclass":"v"}
-newnode Word {"name":"变量", "wordclass":"vn"}
-newnode Word {"name":":", "wordclass":"x"}
-newnode Word {"name":"：", "wordclass":"x"}
+#newnode Word {"name":"把", "wordclass":"p"}
+#newnode Word {"name":"将", "wordclass":"pd"}
+#newnode Word {"name":"{target}", "wordclass":"n"}
+#newnode Word {"name":"{action}", "wordclass":"v"}
+#newnode Word {"name":"{tarargs}", "wordclass":"nmnznsnfs*"}
+#newnode Word {"name":"{args}", "wordclass":"nm*+"}
+#newnode Word {"name":"。", "wordclass":"x"}
+#newnode Word {"name":".", "wordclass":"x"}
+#newnode Word {"name":"！", "wordclass":"x"}
+#newnode Word {"name":"!", "wordclass":"x"}
+#newnode Word {"name":"在", "wordclass":"p"}
+#newnode Word {"name":"于", "wordclass":"p"}
+#newnode Word {"name":"上", "wordclass":"f"}
+#newnode Word {"name":"中", "wordclass":"f"}
+#newnode Word {"name":"里", "wordclass":"f"}
+#newnode Word {"name":"进行", "wordclass":"v"}
+#newnode Word {"name":"创建", "wordclass":"v"}
+#newnode Word {"name":"一个", "wordclass":"m"}
+#newnode Word {"name":"称作", "wordclass":"v"}
+#newnode Word {"name":"变量", "wordclass":"vn"}
+#newnode Word {"name":":", "wordclass":"x"}
+#newnode Word {"name":"：", "wordclass":"x"}
 
 newnode UserWord {"name":"新建", "wordclass":"v"}
 newnode UserWord {"name":"变量", "wordclass":"n"}
@@ -60,67 +59,67 @@ newnode SameWord {"name":"：", "wordclass":"x", "sameas":":"}
 newnode SameWord {"name":"；", "wordclass":"x", "sameas":";"}
 newnode SameWord {"name":"！", "wordclass":"x", "sameas":"!"}
 
-newedge NextRef operan {action} ~> 一个
-newedge NextRef antype 一个 ~> {args}
-newedge NextRef typearg {args} ~> {target}
-newedge NextRef tar2tarargs {target} ~> {tarargs}
-newedge NextRef ba  ~> 把
-newedge NextRef jiang ~> 将
-newedge NextRef zai  ~> 在
-newedge NextRef yu  ~> 于
-newedge NextRef batar 把 ~> {target}
-newedge NextRef jiangtar 将 ~> {target}
-newedge NextRef zaitar 在 ~> {target}
-newedge NextRef yutar 于 ~> {target}
-newedge NextRef taract {target} ~> {action}
-newedge NextRef actjuz {action} ~> 。
-newedge NextRef actju {action} ~> .
-newedge NextRef actganz {action} ~> ！
-newedge NextRef actgan {action} ~> !
-newedge NextRef tarmaoz {target} ~> ：
-newedge NextRef tarmao {target} ~> :
-newedge NextRef actmaoz {action} ~> ：
-newedge NextRef actmao {action} ~> :
-newedge NextRef maozargs ： ~> {args}
-newedge NextRef maoargs : ~> {args}
-newedge NextRef _act  ~> {action}
-newedge NextRef acttar {action} ~> {target}
-newedge NextRef tarjuz {target} ~> 。
-newedge NextRef tarju {target} ~> .
+#newedge NextRef operan {action} ~> 一个
+#newedge NextRef antype 一个 ~> {args}
+#newedge NextRef typearg {args} ~> {target}
+#newedge NextRef tar2tarargs {target} ~> {tarargs}
+#newedge NextRef ba  ~> 把
+#newedge NextRef jiang ~> 将
+#newedge NextRef zai  ~> 在
+#newedge NextRef yu  ~> 于
+#newedge NextRef batar 把 ~> {target}
+#newedge NextRef jiangtar 将 ~> {target}
+#newedge NextRef zaitar 在 ~> {target}
+#newedge NextRef yutar 于 ~> {target}
+#newedge NextRef taract {target} ~> {action}
+#newedge NextRef actjuz {action} ~> 。
+#newedge NextRef actju {action} ~> .
+#newedge NextRef actganz {action} ~> ！
+#newedge NextRef actgan {action} ~> !
+#newedge NextRef tarmaoz {target} ~> ：
+#newedge NextRef tarmao {target} ~> :
+#newedge NextRef actmaoz {action} ~> ：
+#newedge NextRef actmao {action} ~> :
+#newedge NextRef maozargs ： ~> {args}
+#newedge NextRef maoargs : ~> {args}
+#newedge NextRef _act  ~> {action}
+#newedge NextRef acttar {action} ~> {target}
+#newedge NextRef tarjuz {target} ~> 。
+#newedge NextRef tarju {target} ~> .
 
-newedge MayRef tarargsshang {tarargs} ~> 上
-newedge MayRef tarargsli {tarargs} ~> 里
-newedge MayRef tarargszhong {tarargs} ~> 中
-newedge MayRef tarshang {target} ~> 上
-newedge MayRef tarli {target} ~> 里
-newedge MayRef tarzhong {target} ~> 中
-newedge MayRef shangact 上 ~> {action}
-newedge MayRef liact 里 ~> {action}
-newedge MayRef zhongact 中 ~> {action}
-newedge MayRef tarjinxing {target} ~> 进行
-newedge MayRef jinxingact 进行 ~> {action}
-newedge MayRef shangjinxing 上 ~> 进行
-newedge MayRef actargs {action} ~> {args}
-newedge NextRef argsjuz {args} ~> 。
-newedge NextRef argsju {args} ~> .
-newedge NextRef argsganz {args} ~> ！
-newedge NextRef argsgan {args} ~> !
+#newedge MayRef tarargsshang {tarargs} ~> 上
+#newedge MayRef tarargsli {tarargs} ~> 里
+#newedge MayRef tarargszhong {tarargs} ~> 中
+#newedge MayRef tarshang {target} ~> 上
+#newedge MayRef tarli {target} ~> 里
+#newedge MayRef tarzhong {target} ~> 中
+#newedge MayRef shangact 上 ~> {action}
+#newedge MayRef liact 里 ~> {action}
+#newedge MayRef zhongact 中 ~> {action}
+#newedge MayRef tarjinxing {target} ~> 进行
+#newedge MayRef jinxingact 进行 ~> {action}
+#newedge MayRef shangjinxing 上 ~> 进行
+#newedge MayRef actargs {action} ~> {args}
+#newedge NextRef argsjuz {args} ~> 。
+#newedge NextRef argsju {args} ~> .
+#newedge NextRef argsganz {args} ~> ！
+#newedge NextRef argsgan {args} ~> !
 
-newlist lk1 ba jiang batar jiangtar taract tarjinxing jinxingact actargs actjuz actju actganz actgan argsjuz argsju argsganz argsgan
+#newlist lk1 ba jiang batar jiangtar taract tarjinxing jinxingact actargs actjuz actju actganz actgan argsjuz argsju argsganz argsgan
 
-newlist lk2 _act acttar tarmao maoargs actargs argsjuz argsju tarjuz tarju
+#newlist lk2 _act acttar tarmao maoargs actargs argsjuz argsju tarjuz tarju
 
-newnode Sentence {"name":"把(tar)(act)", "$edges":"lk1"}
-newnode Sentence {"name":"(act)(tar):(args)", "$edges":"lk2"}
+#newnode Sentence {"name":"把(tar)(act)", "$edges":"lk1"}
+#newnode Sentence {"name":"(act)(tar):(args)", "$edges":"lk2"}
 
-newlist lk3 zai yu zaitar yutar tarshang tarli tarzhong liact zhongact shangact shangjinxing jinxingact taract actmaoz actmao actargs maozargs maoargs actjuz actju argsjuz argsju
-newnode Sentence {"name":"在(tar)(act):(args)", "$edges":"lk3"}
+#newlist lk3 zai yu zaitar yutar tarshang tarli tarzhong liact zhongact shangact shangjinxing jinxingact taract actmaoz actmao actargs maozargs maoargs actjuz actju argsjuz argsju
+#newnode Sentence {"name":"在(tar)(act):(args)", "$edges":"lk3"}
 
-newlist lk4 zai yu zaitar yutar tar2tarargs tarargsshang tarargsli tarargszhong liact zhongact shangact shangjinxing jinxingact taract actmaoz actmao actargs maozargs maoargs actjuz actju argsjuz argsju
-newnode Sentence {"name":"在(tar)(tarargs)上(act):(args)", "$edges":"lk4"}
+#newlist lk4 zai yu zaitar yutar tar2tarargs tarargsshang tarargsli tarargszhong liact zhongact shangact shangjinxing jinxingact taract actmaoz actmao actargs maozargs maoargs actjuz actju argsjuz argsju
+#newnode Sentence {"name":"在(tar)(tarargs)上(act):(args)", "$edges":"lk4"}
 
-newlist creats _act operan antype typearg argsjuz tarjuz
-newnode Sentence {"name":"创建一个变量", "$edges":"creats"}
+#newlist creats _act operan antype typearg argsjuz tarjuz
+#newnode Sentence {"name":"创建一个变量", "$edges":"creats"}
 
 newnode Intention {"name":"打开空调", "foo":"openf()", "model":"devs", "target":"空调", "action":"打开"}
 newnode Intention {"name":"打开图像", "foo":"open()", "model":"img", "target":"图像", "action":"打开"}
@@ -131,3 +130,7 @@ newnode Intention {"name":"新建变量", "foo":"newobj('{{args}}')", "model":"k
 newnode Intention {"name":"新建变量2", "foo":"newobj('{{args}}')", "model":"kae.libs.sys", "target":"变量", "action":"创建"}
 newnode Intention {"name":"计算公式", "foo":"cacl({{args}})", "model":"kae.libs.sys", "target":"公式", "action":"计算"}
 newnode Intention {"name":"计算表达式", "foo":"cacl({{args}})", "model":"kae.libs.sys", "target":"表达式", "action":"计算"}
+
+parse sentence 把空调打开。 空调:{target} 打开:{action}
+parse sentence 将图片进行旋转。 图片:{target} 旋转:{action}
+parse sentence 在控制台上输出：“你好世界”。 控制台:{target} 输出:{action} “你好世界”:{args}

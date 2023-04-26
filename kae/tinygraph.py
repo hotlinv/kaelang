@@ -83,7 +83,12 @@ class Graph:
         node = {'type': 'node', "nodetype":nodetype, 'name': name}
         for tag in tags:
             node.update({k:n for k, n in tag.dict().items() if k!="type"})
-        self._graph.insert(node)
+        nid = self._graph.insert(node)
+        return nid
+
+    def updateNode(self, nodeid, **args):
+        print(args)
+        self._graph.update(args, doc_ids=[nodeid])
 
     def getNodes(self, nodetype, name=None):
         Data = Query()
@@ -107,6 +112,12 @@ class Graph:
             "tar":node2.doc_id, 
             "attrs":[]})
         return nid
+
+    def getEdge(self, etype, src, tar):
+        Data = Query()
+        q = (Data.type=="edge") & (Data.name==etype) & (Data.src==src) & (Data.tar==tar)
+        ns = self._graph.search( q )
+        return ns[0] if len(ns)>0 else None
 
     def di(self, nid):
         Node = Query()
@@ -258,6 +269,69 @@ def _newlist(comm):
     arr = [vars[vn] for vn in carr[2:]]
     vars[listname] = arr
 
+def parseTempl(g, comm):
+    # 自动分析语句，进行图谱构建。
+    import jieba
+    import jieba.posseg as pseg
+    from kae.model import Word, Sentence
+    carr = comm.split()
+    nodetype = carr[1]
+    tmpl = carr[2] #句式模板
+    wordlst = g.getNodes("Word")
+    wordls = [w["name"] for w in wordlst]
+    for it in carr[3:]: #对应参数
+        k, v = it.split(":")
+        if v.startswith("{") and v.endswith("}") and v not in wordls:
+            print(v)
+            jieba.add_word(v)
+        tmpl = tmpl.replace(k, v)
+    
+    
+    seg_list = pseg.lcut(tmpl)
+    # print(tmpl, [s for s in seg_list])
+    #合并{}
+    for ix, si in enumerate(seg_list): 
+        if si.word=="}":
+            seg_list[ix-1].word = "{"+seg_list[ix-1].word+"}"
+    # print(seg_list)
+    seglist = [(s.word, s.flag) for s in seg_list if s.word not in "}{" ]
+    # for w,f in seg_list:
+    #     #print(s)
+    #     seglist.append((w,f))
+    print(seglist)
+    # vars = {}
+    #开始处理
+    for word, flag in seglist:
+        print("-"*10, word, flag)
+        
+        if word not in wordls:
+            nid = g.createNode("Word", data=Word(name=word, wordclass=flag))
+        else:
+            nw = g.getNodes("Word", word)[0]
+            if flag not in nw["wordclass"]:
+                g.updateNode(nw.doc_id, wordclass=nw["wordclass"]+flag)
+        
+        wordlst = g.getNodes("Word")
+        wordls = [w["name"] for w in wordlst]
+    
+    edges = []
+    last = None
+    for word, flag in seglist:
+        src = last
+        tar = word
+        e = g.getEdge("NextRef", src, tar)
+        if e is None:
+            eid = g.createEdge("NextRef", src, tar)
+        else:
+            eid = e.doc_id
+        edges.append(eid)
+
+        last = word
+    print(edges)
+    g.createNode("Sentence", data=Sentence(name=tmpl, edges=edges))
+    
+    
+
 import click, json, os
 @click.command()
 @click.option('--db', prompt='数据库文件名', help='指定数据库文件.')
@@ -284,6 +358,8 @@ def graphcli(db, script):
                         _newedge(g, line)
                     elif line.startswith("newlist"):
                         _newlist(line)
+                    elif line.startswith("parse"):
+                        parseTempl(g, line)
         return 
     comm = click.prompt('~~> ')
     while comm!="quit" and comm!="exit":
