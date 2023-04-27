@@ -82,6 +82,13 @@ def replaceSame(gdb, words):
         if len(sws)>0:
             word.name = sws[0]["sameas"] 
 
+def replaceSameLst(gdb, words):
+    # 同义词替代 适用于lcut
+    for word in words:
+        sws = gdb.getNodes("SameWord", word.word)
+        if len(sws)>0:
+            word.word = sws[0].sameas 
+
 def delUseless(gdb, words):
     # 去除无用词
     uls = [ul["name"] for ul in gdb.getNodes("UselessWord")]
