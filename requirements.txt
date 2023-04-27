@@ -4,3 +4,5 @@ pypinyin
 kivy
 Pinyin2Hanzi
 cherrypy
+python-docx
+bayoo-docx

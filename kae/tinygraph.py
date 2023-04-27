@@ -269,6 +269,21 @@ def _newlist(comm):
     arr = [vars[vn] for vn in carr[2:]]
     vars[listname] = arr
 
+TAGMAP = {"动作":r"{action}", "对象":r"{target}", "内容":r"{args}", "对象参数":r"{tarargs}"}
+def parseTemplFile(g, comm):
+    # 解析word来进行语料训练
+    import docx
+    carr = comm.split()
+    document = docx.Document(carr[1])
+
+    for p in document.paragraphs:
+        if p.text!="":
+            # print( [ r.comments for r in p.runs])
+            iis = [ix for ix, e in enumerate( [len(r.comments) for r in p.runs]) if e !=0]
+            props = [p.runs[i-1].text+":"+TAGMAP[p.runs[i].comments[0].text] for i in iis]
+            line = f"parse sentence {p.text} {' '.join(props)}"
+            parseTempl(g, line)
+    
 def parseTempl(g, comm):
     # 自动分析语句，进行图谱构建。
     import jieba
@@ -360,6 +375,8 @@ def graphcli(db, script):
                         _newlist(line)
                     elif line.startswith("parse"):
                         parseTempl(g, line)
+                    elif line.startswith("train"):
+                        parseTemplFile(g, line)
         return 
     comm = click.prompt('~~> ')
     while comm!="quit" and comm!="exit":

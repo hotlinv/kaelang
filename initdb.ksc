@@ -131,6 +131,8 @@ newnode Intention {"name":"新建变量2", "foo":"newobj('{{args}}')", "model":"
 newnode Intention {"name":"计算公式", "foo":"cacl({{args}})", "model":"kae.libs.sys", "target":"公式", "action":"计算"}
 newnode Intention {"name":"计算表达式", "foo":"cacl({{args}})", "model":"kae.libs.sys", "target":"表达式", "action":"计算"}
 
-parse sentence 把空调打开。 空调:{target} 打开:{action}
-parse sentence 将图片进行旋转。 图片:{target} 旋转:{action}
-parse sentence 在控制台上输出：“你好世界”。 控制台:{target} 输出:{action} “你好世界”:{args}
+#parse sentence 把空调打开。 空调:{target} 打开:{action}
+#parse sentence 将图片进行旋转。 图片:{target} 旋转:{action}
+#parse sentence 在控制台上输出：“你好世界”。 控制台:{target} 输出:{action} “你好世界”:{args}
+
+train 训练语料/句式.docx
