@@ -115,8 +115,14 @@ class Graph:
 
     def getEdge(self, etype, src, tar):
         Data = Query()
-        q = (Data.type=="edge") & (Data.name==etype) & (Data.src==src) & (Data.tar==tar)
+        node1id = None
+        if src is not None:
+            node1 = self._graph.search((Data.type=="node") & (Data.name==src))[0]
+            node1id = node1.doc_id
+        node2 = self._graph.search((Data.type=="node") & (Data.name==tar))[0]
+        q = (Data.type=="edge") & (Data.name==etype) & (Data.src==node1id) & (Data.tar==node2.doc_id)
         ns = self._graph.search( q )
+        print(ns)
         return ns[0] if len(ns)>0 else None
 
     def di(self, nid):
