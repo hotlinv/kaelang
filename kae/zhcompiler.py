@@ -180,6 +180,7 @@ def understand(gdb, intes, sen):
     for inte in intes:
         if inte["target"]==sen["target"] and inte["action"]==sen["action"]:
             inte["tarargs"] = sen["tarargs"]
+            inte["tartype"] = sen["tartype"]
             if type(sen["args"])!=list:
                 inte["args"] = sen["args"]
             else:

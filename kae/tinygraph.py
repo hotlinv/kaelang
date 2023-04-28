@@ -122,7 +122,7 @@ class Graph:
         node2 = self._graph.search((Data.type=="node") & (Data.name==tar))[0]
         q = (Data.type=="edge") & (Data.name==etype) & (Data.src==node1id) & (Data.tar==node2.doc_id)
         ns = self._graph.search( q )
-        print(ns)
+        # print(ns)
         return ns[0] if len(ns)>0 else None
 
     def di(self, nid):
@@ -275,7 +275,7 @@ def _newlist(comm):
     arr = [vars[vn] for vn in carr[2:]]
     vars[listname] = arr
 
-TAGMAP = {"动作":r"{action}", "目标":r"{target}", "内容":r"{args}", "目标路径":r"{tarargs}", "对象参数":r"{tarargs}", "可选":"~"}
+TAGMAP = {"动作":r"{action}", "目标":r"{target}", "内容":r"{args}", "目标名称":r"{tarargs}", "对象参数":r"{tarargs}", "可选":"~", "目标类型": r"{tartype}"}
 
 def parseTemplFile(g, comm):
     # 解析word来进行语料训练
@@ -296,24 +296,24 @@ def parseTempl(g, comm):
     import jieba
     import jieba.posseg as pseg
     from kae.model import Word, Sentence
-    from kae.zhcompiler import replaceSameLst
+    from kae.zhcompiler import replaceSame, cut, splitSentence
     carr = comm.split()
     nodetype = carr[1]
     tmpl = f"{carr[2]}" #句式模板
     wordlst = g.getNodes("Word")
     wordls = [w["name"] for w in wordlst]
     wordcs = [w["wordclass"] for w in wordlst]
-    segoa = pseg.lcut(f"{tmpl}") #先分词一遍，获取词性
-    segks = [w.word for w in segoa]
+    segoa = splitSentence(f"{tmpl}")[0] #先分词一遍，获取词性
+    segks = [w.name for w in segoa]
     keyts = {r"{args}":r"nm*+", r"{tarargs}":r"nmnznsnfs*"}   #需要修改此处
     optionals = []
     for it in carr[3:]: #对应参数
         k, v = it.split(":")
-        if k in segks:
-            keyts[v]=[w.flag for w in segoa if w.word==k][0]
+        k1 = k.replace("“", '"').replace("”", '"')#做字符串判断时候会有符号变化
+        if k1 in segks:
+            keyts[v]=[w.wordclass for w in segoa if w.name==k1][0]
         if v.startswith("{") and v.endswith("}") :
             if v not in wordls:
-                print(k, v)
                 jieba.add_word(k)
         elif v=="~":#可选
             optionals.append(k)
@@ -322,16 +322,16 @@ def parseTempl(g, comm):
     
     print(segoa, keyts, optionals)
     
-    seg_list = pseg.lcut(tmpl)
-    replaceSameLst(g, seg_list)
+    seg_list = splitSentence(tmpl)[0]#pseg.lcut(tmpl)
+    replaceSame(g, seg_list)
     # print(tmpl, [s for s in seg_list])
     #合并{}
     for ix, si in enumerate(seg_list): 
-        if si.word=="}":
-            seg_list[ix-1].word = "{"+seg_list[ix-1].word+"}"
-            seg_list[ix-1].flag = keyts[seg_list[ix-1].word]
+        if si.name=="}":
+            seg_list[ix-1].name = "{"+seg_list[ix-1].name+"}"
+            seg_list[ix-1].wordclass = keyts[seg_list[ix-1].name]
     # print(seg_list)
-    seglist = [(s.word, s.flag) for s in seg_list if s.word not in "}{" ]
+    seglist = [(s.name, s.wordclass) for s in seg_list if s.name not in "}{" ]
     # for w,f in seg_list:
     #     #print(s)
     #     seglist.append((w,f))
