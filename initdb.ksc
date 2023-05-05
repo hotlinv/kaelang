@@ -46,6 +46,7 @@ newnode UselessWord {"name":"你", "wordclass":"r"}
 newnode UselessWord {"name":"我", "wordclass":"r"}
 newnode UselessWord {"name":"并", "wordclass":"c"}
 newnode UselessWord {"name":"并且", "wordclass":"c"}
+newnode UselessWord {"name":"然后", "wordclass":"c"}
 
 newnode SameWord {"name":"新建", "wordclass":"d", "sameas":"创建"}
 newnode SameWord {"name":"定义", "wordclass":"d", "sameas":"创建"}

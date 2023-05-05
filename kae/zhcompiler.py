@@ -104,9 +104,11 @@ def delUseless(gdb, words):
 def evalExpression(gdb, words):
     # 把子句转换成表达式
     if len(words)==1 and words[0].wordclass=="*": #单纯字符串
-        return eval(words[0].name)
-    if len(words)==4 and words[0].name=="公式" and words[-2].name=="的" and words[-1].name=="值": #
-        return eval(words[1].name[1:-1])
+        return str(words[0].name)
+    if len(words)==4 and words[0].name=="公式" and words[-2].name=="的" and words[-1].name=="值": #表达式的值
+        return {"type":"foo" ,"op":"eval", "val":words[1].name}
+    if len(words)==3 and words[-2].name=="的" and words[-1].name=="值": #变量的值
+        return {"type":"foo" ,"op":"kae.libs.sys.getobj", "val":words[0].name}
 
 def parseSubSentence(gdb, words):
     # 切分子句
@@ -176,11 +178,13 @@ def match(ss, wl, gdb):
 
 def understand(gdb, intes, sen):
     '''从句式对应意图'''
+    DEFARG = ["type", "nodetype", "name", "edges", "args"]
     print(sen)
     for inte in intes:
         if inte["target"]==sen["target"] and inte["action"]==sen["action"]:
-            inte["tarargs"] = sen["tarargs"]
-            inte["tartype"] = sen["tartype"]
+            for key in sen.keys():
+                if key not in DEFARG:
+                    inte[key] = sen[key]
             if type(sen["args"])!=list:
                 inte["args"] = sen["args"]
             else:
@@ -228,6 +232,19 @@ remakeLine = lambda words: "".join([word.name for word in words])
 
 ARGS = lambda args: args if type(args)!=list else str(args)[1:-1]
 
+def STR (args):
+    if type(args)==list:
+        return "["+",".join([STR(a) for a in args])+"]"
+    elif type(args)==dict:
+        if "type" in args.keys() and args["type"]=="foo":
+            return f"{args['op']}({args['val']})"
+        else:
+            kvs = []
+            for k in args.keys():
+                kvs.append(fr"\'{k}\'={STR(args[k])}")
+            return "{"+",".join([STR(a) for a in args])+"}"
+    return  str(args)
+
 def compile(paragraph=" ".join(sys.argv[1:])):
     import kae, os, re
     ka_load_urlmaps()
@@ -241,7 +258,7 @@ def compile(paragraph=" ".join(sys.argv[1:])):
     
     ss = g.query(Sentence)
     ress = []
-    mods = []
+    mods = ["kae.libs.sys"]
     for sent in sents:
         # print(sent)
         res = {"input":remakeLine(sent)}
@@ -270,7 +287,7 @@ def compile(paragraph=" ".join(sys.argv[1:])):
                 foo = inte['foo'] #({'' if 'args' not in inte else ARGS(inte['args'])})
                 matches = re.findall(regex, foo)
                 if len(matches)>0:
-                    fooexec = re.sub(regex, lambda m: str(inte[m.group()[2:-2]]), foo)
+                    fooexec = re.sub(regex, lambda m: STR(inte[m.group()[2:-2]]), foo)
                 else:
                     fooexec = foo
                 res["exec"] = f"{inte['model']}.{fooexec}"

@@ -27,3 +27,8 @@ def newobj(type, name, val):
     from kae import ka_vals
     ka_vals[name] = val
     return name
+
+def getobj(name):
+    '''获取变量'''
+    from kae import ka_vals
+    return ka_vals[name]
