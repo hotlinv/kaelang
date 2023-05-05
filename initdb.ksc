@@ -1,5 +1,6 @@
 newtag kae.model.Word
 newtag kae.model.Sentence
+newtag kae.model.Expression
 newtag kae.model.Intention
 newtag kae.model.UselessWord
 newtag kae.model.SameWord
@@ -130,15 +131,19 @@ newnode Intention {"name":"打开图像", "foo":"open()", "model":"img", "target
 newnode Intention {"name":"旋转图像", "foo":"ra()", "model":"img", "target":"图像", "action":"旋转"}
 newnode Intention {"name":"终端输出文本", "foo":"stdprint(*{{args}})", "model":"kae.libs.io", "target":"终端", "action":"输出"}
 newnode Intention {"name":"文件输出文本", "foo":"fprint('{{tarargs}}', *{{args}})", "model":"kae.libs.io", "target":"文件", "action":"输出"}
-newnode Intention {"name":"新建变量", "foo":"newobj('{{tartype}}',{{tarargs}},'{{args}}')", "model":"kae.libs.sys", "action":"创建"}
-newnode Intention {"name":"定义变量", "foo":"newobj('{{tartype}}',{{tarargs}},'{{args}}')", "model":"kae.libs.sys", "action":"有"}
-newnode Intention {"name":"新建变量2", "foo":"newobj('{{tartype}}',{{tarargs}},'{{args}}')", "model":"kae.libs.sys", "target":"变量", "action":"创建"}
-newnode Intention {"name":"定义变量2", "foo":"newobj('{{tartype}}',{{tarargs}},'{{args}}')", "model":"kae.libs.sys", "target":"变量", "action":"有"}
+newnode Intention {"name":"新建变量", "foo":"newobj('{{tartype}}',{{tarargs}},{{args}})", "model":"kae.libs.sys", "action":"创建"}
+newnode Intention {"name":"定义变量", "foo":"newobj('{{tartype}}',{{tarargs}},{{args}})", "model":"kae.libs.sys", "action":"有"}
+newnode Intention {"name":"新建变量2", "foo":"newobj('{{tartype}}',{{tarargs}},{{args}})", "model":"kae.libs.sys", "target":"变量", "action":"创建"}
+newnode Intention {"name":"定义变量2", "foo":"newobj('{{tartype}}',{{tarargs}},{{args}})", "model":"kae.libs.sys", "target":"变量", "action":"有"}
 newnode Intention {"name":"计算公式", "foo":"cacl({{args}})", "model":"kae.libs.sys", "target":"公式", "action":"计算"}
 newnode Intention {"name":"计算表达式", "foo":"cacl({{args}})", "model":"kae.libs.sys", "target":"表达式", "action":"计算"}
+newnode Intention {"name":"获取变量的值", "foo":"getobj({{tarargs}})", "model":"kae.libs.sys", "target":"值", "action":"获取"}
 
 #parse sentence 把空调打开。 空调:{target} 打开:{action}
 #parse sentence 将图片进行旋转。 图片:{target} 旋转:{action}
 #parse sentence 在控制台上输出：“你好世界”。 控制台:{target} 输出:{action} “你好世界”:{args}
+
+parse expression “空调”的值 “空调”:{tarargs} 获取:{action} 值:{target}
+#parse expression “空调”的值的2倍 空调:{tarargs} 获取:{action} 值:{target}
 
 train 训练语料/句式.docx

@@ -103,12 +103,15 @@ def delUseless(gdb, words):
 
 def evalExpression(gdb, words):
     # 把子句转换成表达式
+    print("eee"*10, words)
     if len(words)==1 and words[0].wordclass=="*": #单纯字符串
         return str(words[0].name)
     if len(words)==4 and words[0].name=="公式" and words[-2].name=="的" and words[-1].name=="值": #表达式的值
         return {"type":"foo" ,"op":"eval", "val":words[1].name}
     if len(words)==3 and words[-2].name=="的" and words[-1].name=="值": #变量的值
         return {"type":"foo" ,"op":"kae.libs.sys.getobj", "val":words[0].name}
+    else:
+        return words[0].name
 
 def parseSubSentence(gdb, words):
     # 切分子句
@@ -202,7 +205,10 @@ def understand(gdb, intes, sen):
                     inte[key] = sen[key]
             if type(sen["args"])!=list:
                 inte["args"] = sen["args"]
+            elif len(sen["args"])==1:
+                inte["args"] = evalExpression(gdb, sen["args"][0])
             else:
+                # print("a"*10, sen["args"])
                 inte["args"] = [evalExpression(gdb, w) for w in sen["args"]]
             return inte
 
@@ -241,7 +247,8 @@ def splitSentence(paragraph):
             continue
         if word.wordclass=="x" and word.name in ENDSENT:
             sents.append([])
-    return sents[:-1]
+        
+    return sents[:-1] if len(sents)>1 else sents
 
 remakeLine = lambda words: "".join([word.name for word in words])
 
