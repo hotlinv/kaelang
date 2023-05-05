@@ -55,6 +55,9 @@ newnode SameWord {"name":"立即", "wordclass":"d", "sameas":"立刻"}
 newnode SameWord {"name":"即刻", "wordclass":"d", "sameas":"立刻"}
 newnode SameWord {"name":"立马", "wordclass":"d", "sameas":"立刻"}
 newnode SameWord {"name":"马上", "wordclass":"d", "sameas":"立刻"}
+newnode SameWord {"name":"叫做", "wordclass":"v", "sameas":"名为"}
+newnode SameWord {"name":"称做", "wordclass":"v", "sameas":"名为"}
+newnode SameWord {"name":"称为", "wordclass":"v", "sameas":"名为"}
 newnode SameWord {"name":"控制台", "wordclass":"n", "sameas":"终端"}
 newnode SameWord {"name":"：", "wordclass":"x", "sameas":":"}
 newnode SameWord {"name":"；", "wordclass":"x", "sameas":";"}

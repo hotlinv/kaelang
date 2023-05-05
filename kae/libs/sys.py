@@ -25,6 +25,10 @@ def fpath(path):
 def newobj(type, name, val):
     '''新建变量'''
     from kae import ka_vals
+    if type=="整数":
+        val = int(val)
+    elif type=="数字" or type=="浮点数":
+        val = float(val)
     ka_vals[name] = val
     return name
 

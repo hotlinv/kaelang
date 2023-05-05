@@ -152,18 +152,33 @@ def _match(gdb, sid, o, wl, i):
             # _match(gdb, si, o, wl, i)
         if i>=len(wl):
             continue
+        nowi = si
         print(" +", s, "->", wl[i])
+        if s["name"]==r"{args}":
+            # 复杂内容延续直至结束。
+            o["args"] = [[]]
+            while i<len(wl):
+                if wl[i].name in ENDSENT:
+                    # args 结束了。
+                    return True
+                elif wl[i].name in SPLIT:
+                    o["args"].append([])
+                else:
+                    # args 开启
+                    o['args'][-1].append(wl[i])
+                i+=1
         if type(wl[i])!=list and s["name"].startswith("{") and s["name"].endswith("}") and wl[i].wordclass in s["wordclass"]:
             exec(f"o['{s['name'][1:-1]}']=wl[i].name")
         elif type(wl[i])==list and s["name"].startswith("{") and s["name"].endswith("}"):
             exec(f"o['{s['name'][1:-1]}']=wl[i]")
-        elif s["name"] != wl[i].name or wl[i].wordclass not in s['wordclass'] : 
+        elif s["name"] != wl[i].name or wl[i].wordclass not in s['wordclass']: 
             print(" X", wl[i])
             continue
+        # el
         
         # _next = s.next
         # if _next is not None:
-        if _match(gdb, si, o, wl, i+1):
+        if _match(gdb, nowi, o, wl, i+1):
             # isok +=1
             return True
     return False #isok>0 or len(sl)==0
