@@ -138,12 +138,13 @@ newnode Intention {"name":"定义变量2", "foo":"newobj('{{tartype}}',{{tarargs
 newnode Intention {"name":"计算公式", "foo":"cacl({{args}})", "model":"kae.libs.sys", "target":"公式", "action":"计算"}
 newnode Intention {"name":"计算表达式", "foo":"cacl({{args}})", "model":"kae.libs.sys", "target":"表达式", "action":"计算"}
 newnode Intention {"name":"获取变量的值", "foo":"getobj({{tarargs}})", "model":"kae.libs.sys", "target":"值", "action":"获取"}
+newnode Intention {"name":"计算倍数的值", "foo":"multiply({{tarargs}},{{args}})", "model":"kae.libs.sys", "target":"值", "action":"倍数"}
 
 #parse sentence 把空调打开。 空调:{target} 打开:{action}
 #parse sentence 将图片进行旋转。 图片:{target} 旋转:{action}
 #parse sentence 在控制台上输出：“你好世界”。 控制台:{target} 输出:{action} “你好世界”:{args}
 
 parse expression “空调”的值 “空调”:{tarargs} 获取:{action} 值:{target}
-#parse expression “空调”的值的2倍 空调:{tarargs} 获取:{action} 值:{target}
+parse expression 空调的2倍 空调:{tarargs} 倍数:{action} 值:{target} 2:{args}
 
 train 训练语料/句式.docx

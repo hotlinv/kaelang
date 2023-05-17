@@ -78,14 +78,15 @@ def joinPath(gdb, words): #把路径连成一整个
 def replaceSame(gdb, words):
     # 同义词替代
     for word in words:
-        sws = gdb.getNodes("SameWord", word.name)
+        sws = gdb.getNodes("SameWord", name=word.name)
+        # print("s   ", sws)
         if len(sws)>0:
             word.name = sws[0]["sameas"] 
 
 def replaceSameLst(gdb, words):
     # 同义词替代 适用于lcut
     for word in words:
-        sws = gdb.getNodes("SameWord", word.word)
+        sws = gdb.getNodes("SameWord", name=word.word)
         if len(sws)>0:
             word.word = sws[0].sameas 
 
@@ -101,17 +102,144 @@ def delUseless(gdb, words):
     for dw in dels:
         words.remove(dw)
 
+
+# def _matchExp(gdb, sid, o, wl, i):
+#     '''匹配表达式'''
+#     # print([di(li) for li in o.edges])
+#     sl = []
+#     for li in o["edges"]:
+#         edge = gdb.di(li)
+#         if edge["src"]==sid:
+#             sl.append((edge["tar"], edge["name"]))  
+#     # isok = 0
+#     if len(sl)==0:
+#         if i==len(wl):#结束了
+#             return True
+#     # print("_", sl, "->", wl[i])
+#     for si, st in sl:
+#         s = gdb.di(si)
+#             # _match(gdb, si, o, wl, i)
+#         if i>=len(wl):
+#             continue
+#         nowi = si
+#         print(" +", s, "->", wl[i])
+        
+#         if type(wl[i])!=list and s["name"].startswith("{") and s["name"].endswith("}") and wl[i].wordclass in s["wordclass"]:
+#             exec(f"o['{s['name'][1:-1]}']=wl[i].name")
+#         elif type(wl[i])==list and s["name"].startswith("{") and s["name"].endswith("}"):
+#             exec(f"o['{s['name'][1:-1]}']=wl[i]")
+#         elif s["name"] != wl[i].name or wl[i].wordclass not in s['wordclass']: 
+#             print(" X", wl[i])
+#             continue
+#         # el
+        
+#         # _next = s.next
+#         # if _next is not None:
+#         if _matchExp(gdb, nowi, o, wl, i+1):
+#             # isok +=1
+#             return True
+#     return False #isok>0 or len(sl)==0
+
+def _expre(regx, nowre, words, wi, begend):
+    r = regx if nowre is None else nowre
+    w = words[wi]
+    print(wi, w , r["name"], r["wordclass"])
+    if (r["name"][0]=="{" and r["name"][-1]=="}" and type(w)==list) \
+        or (type(w)!=list and w.name==r["name"] and w.wordclass in r["wordclass"]) \
+        or (type(w)!=list and r["name"][0]=="{" and r["name"][-1]=="}" and w.wordclass in r["wordclass"]) \
+        :
+        # 完全匹配
+        print("匹配")
+        if len(begend)==0 or len(begend[-1])==2:
+            begend.append([wi])
+        if "next" not in r:
+            begend[-1].append(wi) #end
+            
+        if wi+1<len(words):
+            if "next" in r:
+                _expre(regx, r["next"], words, wi+1, begend)
+            else:
+                _expre(regx, None, words, wi+1, begend)
+    else:
+        # 不匹配，复位
+        print("不匹配")
+        nwi = wi
+        if len(begend)>0 and len(begend[-1])==1:
+            lastbe = begend.pop(-1)
+            nwi = lastbe[0]
+        if nwi+1<len(words):
+            _expre(regx, None, words, nwi+1, begend)
+
+def expre(regx, words):
+    # 匹配表达式，如果找到匹配的，返回分割后的表达式，如果没找到匹配分割表，找到的就返回空
+    sl = []
+    begend = []
+    _expre(regx, None, words, 0, begend)
+    print("*"*10, begend)
+    if len(begend[-1])==1: #去除不完整的匹配
+        begend.pop(-1)
+    
+    laste = 0
+    for beg, end in begend:
+        sl.extend(words[laste:beg])
+        sl.append(words[beg:end+1])
+        laste = end+1
+    sl.extend(words[laste:])
+    return sl if len(begend)>0 else None
+
 def evalExpression(gdb, words):
     # 把子句转换成表达式
     print("eee"*10, words)
     if len(words)==1 and words[0].wordclass=="*": #单纯字符串
         return str(words[0].name)
-    if len(words)==4 and words[0].name=="公式" and words[-2].name=="的" and words[-1].name=="值": #表达式的值
-        return {"type":"foo" ,"op":"eval", "val":words[1].name}
-    if len(words)==3 and words[-2].name=="的" and words[-1].name=="值": #变量的值
-        return {"type":"foo" ,"op":"kae.libs.sys.getobj", "val":words[0].name}
-    else:
-        return words[0].name
+    
+    # if len(words)==4 and words[0].name=="公式" and words[-2].name=="的" and words[-1].name=="值": #表达式的值
+    #     return {"type":"foo" ,"op":"eval", "val":words[1].name}
+    # if len(words)==3 and words[-2].name=="的" and words[-1].name=="值": #变量的值
+    #     return {"type":"foo" ,"op":"kae.libs.sys.getobj", "val":words[0].name}
+    es = []
+    exps = gdb.getNodes("Expression")
+    print("eee"*5, exps)
+    for exp in exps:
+        es.append({"name":""})
+        lis = []
+        for li in exp["edges"]:
+            edge = gdb.di(li)
+            srcid = edge["src"]
+            tarid = edge["tar"]
+            lis.append((srcid, tarid))
+        # print(lis)
+        nownode = es[-1]
+        for link in lis:
+            wd = gdb.di(link[1])
+            node = {"name":wd["name"], "wordclass":wd["wordclass"]}
+            nownode["next"] = node
+            nownode = node
+            # _makeexpress(gdb, es[-1], lis)
+
+    print(es)
+    res = words
+    while True:
+        count = 0
+        for exp in es:
+            reword = expre(exp["next"], res)
+            print("reword!", reword)
+            if reword is not None:
+                res = reword
+                count+=1
+                break
+        if count==0:
+            break
+    print(res)
+    return res
+
+# def _makeexpress(gdb, es, sid):
+#     # exps = gdb.getNodes("Expression", src=sid)
+#     s = gdb.di(si)
+        
+#     _makeexpress(gdb, es, edge["tar"])
+        # if edge["src"]==sid:
+        #     es.append(edge)  
 
 def parseSubSentence(gdb, words):
     # 切分子句
@@ -158,22 +286,31 @@ def _match(gdb, sid, o, wl, i):
         nowi = si
         print(" +", s, "->", wl[i])
         if s["name"]==r"{args}":
-            # 复杂内容延续直至结束。
-            o["args"] = [[]]
-            while i<len(wl):
-                if wl[i].name in ENDSENT:
-                    # args 结束了。
-                    return True
-                elif wl[i].name in SPLIT:
-                    o["args"].append([])
-                else:
-                    # args 开启
-                    o['args'][-1].append(wl[i])
-                i+=1
+            if type(wl[i])==list:
+                # 如果已经是列表
+                o["args"] = []
+                for part in wl[i]:
+                    o["args"].append(part)
+            else:
+                # 复杂内容延续直至结束。
+                o["args"] = [[]]
+                while i<len(wl):
+                    if wl[i].name in ENDSENT:
+                        # args 结束了。
+                        return True
+                    elif wl[i].name in SPLIT:
+                        o["args"].append([])
+                    else:
+                        # args 开启
+                        o['args'][-1].append(wl[i])
+                    i+=1
         if type(wl[i])!=list and s["name"].startswith("{") and s["name"].endswith("}") and wl[i].wordclass in s["wordclass"]:
             exec(f"o['{s['name'][1:-1]}']=wl[i].name")
         elif type(wl[i])==list and s["name"].startswith("{") and s["name"].endswith("}"):
             exec(f"o['{s['name'][1:-1]}']=wl[i]")
+        elif wl[i].name in ENDSENT:
+            # 结束了。
+            return True
         elif s["name"] != wl[i].name or wl[i].wordclass not in s['wordclass']: 
             print(" X", wl[i])
             continue
@@ -199,16 +336,19 @@ def understand(gdb, intes, sen):
     DEFARG = ["type", "nodetype", "name", "edges", "args"]
     print(sen)
     for inte in intes:
-        if inte["target"]==sen["target"] and inte["action"]==sen["action"]:
+        # print(inte["action"], sen["action"], inte["target"]==sen["target"] if "target" in sen else True)
+        if inte["action"]==sen["action"] and (inte["target"]==sen["target"] if "target" in sen else True):#带目标对象的最好目标对象也一致
             for key in sen.keys():
                 if key not in DEFARG:
                     inte[key] = sen[key]
             if type(sen["args"])!=list:
+                print("a"*10, sen["args"])
                 inte["args"] = sen["args"]
             elif len(sen["args"])==1:
+                print("b"*10, sen["args"])
                 inte["args"] = evalExpression(gdb, sen["args"][0])
             else:
-                # print("a"*10, sen["args"])
+                print("c"*10, sen["args"])
                 inte["args"] = [evalExpression(gdb, w) for w in sen["args"]]
             return inte
 

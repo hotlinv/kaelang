@@ -6,3 +6,6 @@ Pinyin2Hanzi
 cherrypy
 python-docx
 bayoo-docx
+simple-graph-sqlite
+cogdb
+graphdb

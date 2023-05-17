@@ -87,15 +87,23 @@ class Graph:
         return nid
 
     def updateNode(self, nodeid, **args):
-        print(args)
+        # print(args)
         self._graph.update(args, doc_ids=[nodeid])
 
-    def getNodes(self, nodetype, name=None):
+    def getNodes(self, nodetype, **args):
         Data = Query()
         q = (Data.type=="node") & (Data.nodetype==nodetype)
-        if name is not None:
-            q = q & (Data.name==name)
+        if args is not None:
+            for k in args.keys():
+                v = args[k]
+                v = str([v])[1:-1]
+                execs = f"q = q & (Data.{k}=={v})"
+                local = {"q":q, "Data":Data}
+                exec(execs, {}, local)
+                q = local["q"]
+        # print(q)
         ns = self._graph.search( q )
+        # print(args, q, ns)
         return ns
 
     def createEdge(self, edgetype, node1name, node2name):
@@ -324,6 +332,7 @@ def parseTempl(g, comm):
     
     seg_list = splitSentence(tmpl)[0]#pseg.lcut(tmpl)
     replaceSame(g, seg_list)
+    print("XX"*5, seg_list)
     # print(tmpl, [s for s in seg_list])
     #合并{}
     for ix, si in enumerate(seg_list): 
@@ -344,7 +353,7 @@ def parseTempl(g, comm):
         if word not in wordls:
             nid = g.createNode("Word", data=Word(name=word, wordclass=flag))
         else:
-            nw = g.getNodes("Word", word)[0]
+            nw = g.getNodes("Word", name=word)[0]
             if flag not in nw["wordclass"]:
                 g.updateNode(nw.doc_id, wordclass=nw["wordclass"]+flag)
         
@@ -376,7 +385,7 @@ def parseTempl(g, comm):
         # print(last)
         
     print("edges", edges)
-    g.createNode("Sentence", data=Sentence(name=tmpl, edges=edges))
+    g.createNode(nodetype.capitalize(), data=Sentence(name=tmpl, edges=edges))
     
     
 
