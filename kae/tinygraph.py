@@ -315,9 +315,12 @@ def parseTempl(g, comm):
     segks = [w.name for w in segoa]
     keyts = {r"{args}":r"nm*+", r"{tarargs}":r"nmnznsnfs*"}   #需要修改此处
     optionals = []
+    vir = {}
     for it in carr[3:]: #对应参数
         k, v = it.split(":")
         k1 = k.replace("“", '"').replace("”", '"')#做字符串判断时候会有符号变化
+        if k.startswith("@"):
+            vir[v] = k[1:]
         if k1 in segks:
             keyts[v]=[w.wordclass for w in segoa if w.name==k1][0]
         if v.startswith("{") and v.endswith("}") :
@@ -385,7 +388,12 @@ def parseTempl(g, comm):
         # print(last)
         
     print("edges", edges)
-    g.createNode(nodetype.capitalize(), data=Sentence(name=tmpl, edges=edges))
+    if len(vir.keys())>0:
+        print("*"*40, vir)
+    sf= Sentence(name=tmpl, edges=edges)
+    for vk in vir.keys():
+        exec(f"sf.{vk[1:-1]} = '{vir[vk]}'")
+    g.createNode(nodetype.capitalize(), data=sf)
     
     
 

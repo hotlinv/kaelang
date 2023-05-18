@@ -140,26 +140,32 @@ def delUseless(gdb, words):
 #             return True
 #     return False #isok>0 or len(sl)==0
 
-def _expre(regx, nowre, words, wi, begend):
+def _expre(regx, nowre, words, wi, begend, args):
     r = regx if nowre is None else nowre
     w = words[wi]
-    print(wi, w , r["name"], r["wordclass"])
-    if (r["name"][0]=="{" and r["name"][-1]=="}" and type(w)==list) \
-        or (type(w)!=list and w.name==r["name"] and w.wordclass in r["wordclass"]) \
-        or (type(w)!=list and r["name"][0]=="{" and r["name"][-1]=="}" and w.wordclass in r["wordclass"]) \
+    print(wi, words, w , r["name"], r["wordclass"])
+    if (r["name"][0]=="{" and r["name"][-1]=="}" and "expid" in w) \
+        or ("expid" not in w and w.name==r["name"] and w.wordclass in r["wordclass"]) \
+        or ("expid" not in w and r["name"][0]=="{" and r["name"][-1]=="}" and w.wordclass in r["wordclass"]) \
         :
         # 完全匹配
         print("匹配")
         if len(begend)==0 or len(begend[-1])==2:
             begend.append([wi])
+            args.append({})
+        if r["name"][0]=="{" and r["name"][-1]=="}":# 把关键信息塞进args去
+            if type(w)!=dict:
+                args[-1][r["name"][1:-1]]=w.name 
+            else:
+                args[-1][r["name"][1:-1]]=r"{{subexp}}"
         if "next" not in r:
             begend[-1].append(wi) #end
             
         if wi+1<len(words):
             if "next" in r:
-                _expre(regx, r["next"], words, wi+1, begend)
+                _expre(regx, r["next"], words, wi+1, begend, args)
             else:
-                _expre(regx, None, words, wi+1, begend)
+                _expre(regx, None, words, wi+1, begend, args)
     else:
         # 不匹配，复位
         print("不匹配")
@@ -167,22 +173,31 @@ def _expre(regx, nowre, words, wi, begend):
         if len(begend)>0 and len(begend[-1])==1:
             lastbe = begend.pop(-1)
             nwi = lastbe[0]
+            args.pop(-1)
         if nwi+1<len(words):
-            _expre(regx, None, words, nwi+1, begend)
+            _expre(regx, None, words, nwi+1, begend, args)
 
-def expre(regx, words):
+def expre(gdb, regx, words):
     # 匹配表达式，如果找到匹配的，返回分割后的表达式，如果没找到匹配分割表，找到的就返回空
+    exudek = ["edges", "type", "nodetype"]
     sl = []
     begend = []
-    _expre(regx, None, words, 0, begend)
+    args = []
+    _expre(regx["next"], None, words, 0, begend, args)
     print("*"*10, begend)
     if len(begend[-1])==1: #去除不完整的匹配
         begend.pop(-1)
     
     laste = 0
-    for beg, end in begend:
+    for idx, be in enumerate(begend):
+        beg, end = be
         sl.extend(words[laste:beg])
-        sl.append(words[beg:end+1])
+        expinf = {k:v for k,v in gdb.di(regx["name"]).items() if k not in exudek}
+        subexp = {"expid": regx["name"],"subexp":words[beg:end+1]}
+        subexp.update(expinf)
+        print(subexp)
+        subexp.update(args[idx])
+        sl.append(subexp)
         laste = end+1
     sl.extend(words[laste:])
     return sl if len(begend)>0 else None
@@ -201,7 +216,7 @@ def evalExpression(gdb, words):
     exps = gdb.getNodes("Expression")
     print("eee"*5, exps)
     for exp in exps:
-        es.append({"name":""})
+        es.append({"name":exp.doc_id})
         lis = []
         for li in exp["edges"]:
             edge = gdb.di(li)
@@ -222,8 +237,8 @@ def evalExpression(gdb, words):
     while True:
         count = 0
         for exp in es:
-            reword = expre(exp["next"], res)
-            print("reword!", reword)
+            reword = expre(gdb, exp, res)
+            # print("reword!", reword)
             if reword is not None:
                 res = reword
                 count+=1
@@ -231,7 +246,35 @@ def evalExpression(gdb, words):
         if count==0:
             break
     print(res)
-    return res
+
+    intes = gdb.query(Intention)
+    result = _understandexp(intes, res[0])
+    
+    return result
+
+argregex = r"{{(\w+)}}"
+
+def _understandexp(intes, expm):
+    res = {"type":"expression" ,"foo":""}
+    intefs = [i for i in intes if i["action"]==expm["action"]]
+    if len(intefs)>0:
+        intef = intefs[0] #意图
+        print("i"*30, intef)
+        
+        res["foo"] = intef['foo'] 
+        matches = re.findall(argregex, res["foo"])
+        print(matches)
+        if len(matches)>0:
+            for ma in matches:
+                m2 = re.match(argregex, expm[ma])
+                if m2 is not None: #需要嵌入下一级
+                    res["foo"] = re.sub(r"{{("+ma+r")}}", lambda m: _understandexp(intes, expm["subexp"][0])["foo"], res["foo"])
+                else:
+                    print("now", ma, res["foo"])
+                    res["foo"] = re.sub(argregex, lambda m: expm[m.group()[2:-2]], res["foo"])
+        print(res)
+        return res
+    
 
 # def _makeexpress(gdb, es, sid):
 #     # exps = gdb.getNodes("Expression", src=sid)
@@ -342,13 +385,13 @@ def understand(gdb, intes, sen):
                 if key not in DEFARG:
                     inte[key] = sen[key]
             if type(sen["args"])!=list:
-                print("a"*10, sen["args"])
+                # print("a"*10, sen["args"])
                 inte["args"] = sen["args"]
             elif len(sen["args"])==1:
-                print("b"*10, sen["args"])
+                # print("b"*10, sen["args"])
                 inte["args"] = evalExpression(gdb, sen["args"][0])
             else:
-                print("c"*10, sen["args"])
+                # print("c"*10, sen["args"])
                 inte["args"] = [evalExpression(gdb, w) for w in sen["args"]]
             return inte
 
@@ -398,8 +441,8 @@ def STR (args):
     if type(args)==list:
         return "["+",".join([STR(a) for a in args])+"]"
     elif type(args)==dict:
-        if "type" in args.keys() and args["type"]=="foo":
-            return f"{args['op']}({args['val']})"
+        if "type" in args.keys() and args["type"]=="expression":#表达式
+            return f"{args['foo']}"
         else:
             kvs = []
             for k in args.keys():
