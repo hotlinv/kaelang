@@ -389,7 +389,7 @@ def understand(gdb, intes, sen):
                 inte["args"] = sen["args"]
             elif len(sen["args"])==1:
                 # print("b"*10, sen["args"])
-                inte["args"] = evalExpression(gdb, sen["args"][0])
+                inte["args"] = [evalExpression(gdb, sen["args"][0])]
             else:
                 # print("c"*10, sen["args"])
                 inte["args"] = [evalExpression(gdb, w) for w in sen["args"]]
