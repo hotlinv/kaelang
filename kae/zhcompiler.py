@@ -185,7 +185,7 @@ def expre(gdb, regx, words):
     args = []
     _expre(regx["next"], None, words, 0, begend, args)
     print("*"*10, begend)
-    if len(begend[-1])==1: #去除不完整的匹配
+    if len(begend)>0 and len(begend[-1])==1: #去除不完整的匹配
         begend.pop(-1)
     
     laste = 0
