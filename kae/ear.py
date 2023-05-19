@@ -16,6 +16,7 @@ class KaeEar(object):
         #     ka_prepare_a_line(ka_fragments, line)
 
         # mainlines = ["{0}".format(ka_parse(ml)) for ml in ka_fragments["codes"]["main"]]
+        # print(lines)
         bs = zcompile("".join(lines))
         print(bs)
         ka_fragments["foo"].append(r"aa={}")
@@ -29,6 +30,11 @@ class KaeEar(object):
         exc = self.build(say)
         print(exc)
         return fmd5+":"+exc
+    @cherrypy.expose
+    def close(self):
+        cherrypy.engine.stop()
+        cherrypy.engine.exit()
+        return "closed"
 
 import logging, os
 

@@ -259,19 +259,19 @@ def _understandexp(intes, expm):
     intefs = [i for i in intes if i["action"]==expm["action"]]
     if len(intefs)>0:
         intef = intefs[0] #意图
-        print("i"*30, intef)
+        # print("i"*30, intef)
         
         res["foo"] = intef['foo'] 
         matches = re.findall(argregex, res["foo"])
-        print(matches)
+        # print(matches)
         if len(matches)>0:
             for ma in matches:
                 m2 = re.match(argregex, expm[ma])
                 if m2 is not None: #需要嵌入下一级
                     res["foo"] = re.sub(r"{{("+ma+r")}}", lambda m: _understandexp(intes, expm["subexp"][0])["foo"], res["foo"])
                 else:
-                    print("now", ma, res["foo"])
-                    res["foo"] = re.sub(argregex, lambda m: expm[m.group()[2:-2]], res["foo"])
+                    # print("now", ma, res["foo"])
+                    res["foo"] = intef["model"]+"."+re.sub(argregex, lambda m: expm[m.group()[2:-2]], res["foo"])
         print(res)
         return res
     
