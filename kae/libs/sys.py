@@ -36,3 +36,7 @@ def getobj(name):
     '''获取变量'''
     from kae import ka_vals
     return ka_vals[name]
+
+def multiply(a, b):
+    '''乘法'''
+    return a*b

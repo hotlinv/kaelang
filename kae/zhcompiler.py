@@ -205,7 +205,7 @@ def expre(gdb, regx, words):
 def evalExpression(gdb, words):
     # 把子句转换成表达式
     print("eee"*10, words)
-    if len(words)==1 and words[0].wordclass=="*": #单纯字符串
+    if len(words)==1 and words[0].wordclass in "*m": #单纯字符串或数字
         return str(words[0].name)
     
     # if len(words)==4 and words[0].name=="公式" and words[-2].name=="的" and words[-1].name=="值": #表达式的值
@@ -256,6 +256,7 @@ argregex = r"{{(\w+)}}"
 
 def _understandexp(intes, expm):
     res = {"type":"expression" ,"foo":""}
+    print(intes, expm)
     intefs = [i for i in intes if i["action"]==expm["action"]]
     if len(intefs)>0:
         intef = intefs[0] #意图
@@ -439,7 +440,10 @@ ARGS = lambda args: args if type(args)!=list else str(args)[1:-1]
 
 def STR (args):
     if type(args)==list:
-        return "["+",".join([STR(a) for a in args])+"]"
+        if len(args)>1:
+            return "*["+",".join([STR(a) for a in args])+"]"
+        else:
+            return STR(args[0])
     elif type(args)==dict:
         if "type" in args.keys() and args["type"]=="expression":#表达式
             return f"{args['foo']}"
