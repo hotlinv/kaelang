@@ -8,7 +8,10 @@ import os, json, yaml, re
 def ka_load_urlmaps():
     '''加载路径对应文件'''
     from kae import ka_mount, ka_fext
-    f = open("urlmap.yml", 'r',encoding='utf-8')
+    if os.access("kappcnf.yml", os.F_OK):
+        f = open("kappcnf.yml", 'r',encoding='utf-8')
+    else:
+        f = open("urlmap.yml", 'r',encoding='utf-8')
     y = yaml.load(f, Loader=yaml.FullLoader)
     ka_mount.update(y)
     #把路径加入分词中
