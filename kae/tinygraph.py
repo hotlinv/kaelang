@@ -313,7 +313,7 @@ def parseTempl(g, comm):
     wordcs = [w["wordclass"] for w in wordlst]
     segoa = splitSentence(f"{tmpl}")[0] #先分词一遍，获取词性
     segks = [w.name for w in segoa]
-    keyts = {r"{args}":r"nm*+", r"{tarargs}":r"nmnznsnfs*", r"{src}":r"/"}   #需要修改此处
+    keyts = {r"{args}":r"nm*+", r"{tarargs}":r"nmnznsnfs*", r"{src}":r"ns*"}   #需要修改此处
     optionals = []
     vir = {}
     for it in carr[3:]: #对应参数
