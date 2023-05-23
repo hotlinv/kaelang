@@ -38,4 +38,5 @@ def getobj(name):
     return ka_vals[name]
 
 def multiply(a, b):
+    '''乘法'''
     return a*b

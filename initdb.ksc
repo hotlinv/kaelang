@@ -139,6 +139,10 @@ newnode Intention {"name":"计算公式", "foo":"cacl({{args}})", "model":"kae.l
 newnode Intention {"name":"计算表达式", "foo":"cacl({{args}})", "model":"kae.libs.sys", "target":"表达式", "action":"计算"}
 newnode Intention {"name":"获取变量的值", "foo":"getobj({{tarargs}})", "model":"kae.libs.sys", "target":"值", "action":"获取值"}
 newnode Intention {"name":"计算倍数的值", "foo":"multiply({{tarargs}},{{args}})", "model":"kae.libs.sys", "target":"值", "action":"取倍数"}
+newnode Intention {"name":"压缩视频", "foo":"compress('{{src}}', '{{tarargs}}', {{args}})", "model":"kae.libs.video", "target":"视频", "action":"压缩"}
+newnode Intention {"name":"设置视频帧率", "foo":"video_r({{args}})", "model":"kae.libs.video", "target":"帧率", "action":"设置"}
+newnode Intention {"name":"设置视频分辨率", "foo":"video_s({{args}})", "model":"kae.libs.video", "target":"分辨率", "action":"设置"}
+newnode Intention {"name":"设置视频码率", "foo":"video_bv({{args}})", "model":"kae.libs.video", "target":"码率", "action":"设置"}
 
 #parse sentence 把空调打开。 空调:{target} 打开:{action}
 #parse sentence 将图片进行旋转。 图片:{target} 旋转:{action}

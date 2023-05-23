@@ -283,7 +283,7 @@ def _newlist(comm):
     arr = [vars[vn] for vn in carr[2:]]
     vars[listname] = arr
 
-TAGMAP = {"动作":r"{action}", "目标":r"{target}", "内容":r"{args}", "目标名称":r"{tarargs}", "对象参数":r"{tarargs}", "可选":"~", "目标类型": r"{tartype}"}
+TAGMAP = {"动作":r"{action}", "目标":r"{target}", "源":r"{src}", "源路径":r"{src}", "内容":r"{args}", "目标名称":r"{tarargs}", "对象参数":r"{tarargs}", "可选":"~", "目标类型": r"{tartype}"}
 
 def parseTemplFile(g, comm):
     # 解析word来进行语料训练
@@ -313,7 +313,7 @@ def parseTempl(g, comm):
     wordcs = [w["wordclass"] for w in wordlst]
     segoa = splitSentence(f"{tmpl}")[0] #先分词一遍，获取词性
     segks = [w.name for w in segoa]
-    keyts = {r"{args}":r"nm*+", r"{tarargs}":r"nmnznsnfs*"}   #需要修改此处
+    keyts = {r"{args}":r"nm*+", r"{tarargs}":r"nmnznsnfs*", r"{src}":r"/"}   #需要修改此处
     optionals = []
     vir = {}
     for it in carr[3:]: #对应参数
