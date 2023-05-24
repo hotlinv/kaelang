@@ -25,8 +25,8 @@ loadkts()
 ka_vals_global={} #放变量
 ka_vals = ka_vals_global #指向变量，如果进入函数，则指向局部变量
 ka_call_stacks = [] #调用栈
-ka_sys = KaeLevMap() #放语言语法映射
-ka_res = KaeLevMap() #存放各种正则表达式
+# ka_sys = KaeLevMap() #放语言语法映射
+# ka_res = KaeLevMap() #存放各种正则表达式
 ka_types = {} #放数据类型
 ka_mount = {} #放数据目录
 ka_outputs = {} #存放输出设备
@@ -59,7 +59,7 @@ def initDict():
             if len(jlword)>1:
                 jieba.suggest_freq(jlword, tune=True)
 
-initDict()
+# initDict()
 
 # 通过jieba分词
 def cutWords(string1):
@@ -176,7 +176,7 @@ def loadkps():
         with open(kp, "r", encoding='UTF-8') as kpf:
             ka_parsePk(kpf)
     ka_scan_callable()
-loadkps()
+# loadkps()
 
 def ka_make_re_list():
     ka_res.lmap[0] = []#句法
@@ -185,11 +185,11 @@ def ka_make_re_list():
     for kri in range(3):
         for k,v in eval("ka_sys").list(kri):
             ka_res.lmap[kri].append([re.compile(k), v])
-ka_make_re_list()
+# ka_make_re_list()
 
 # print(ka_res.lmap)
 
-ka_load_urlmaps()
+# ka_load_urlmaps()
 # print(ka_mount)
 # 
 
