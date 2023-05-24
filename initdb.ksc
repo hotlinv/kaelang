@@ -37,6 +37,11 @@ newnode UserWord {"name":"变量", "wordclass":"n"}
 newnode UserWord {"name":"控制台", "wordclass":"n"}
 newnode UserWord {"name":"空列表", "wordclass":"n"}
 newnode UserWord {"name":"给老子", "wordclass":"y"}
+newnode UserWord {"name":"帧率", "wordclass":"n"}
+newnode UserWord {"name":"分辨率", "wordclass":"n"}
+newnode UserWord {"name":"码率", "wordclass":"n"}
+newnode UserWord {"name":"设置", "wordclass":"v"}
+newnode UserWord {"name":"另存为", "wordclass":"v"}
 
 newnode UserSpWord {"name":"计算/公式"}
 
@@ -139,10 +144,11 @@ newnode Intention {"name":"计算公式", "foo":"cacl({{args}})", "model":"kae.l
 newnode Intention {"name":"计算表达式", "foo":"cacl({{args}})", "model":"kae.libs.sys", "target":"表达式", "action":"计算"}
 newnode Intention {"name":"获取变量的值", "foo":"getobj({{tarargs}})", "model":"kae.libs.sys", "target":"值", "action":"获取值"}
 newnode Intention {"name":"计算倍数的值", "foo":"multiply({{tarargs}},{{args}})", "model":"kae.libs.sys", "target":"值", "action":"取倍数"}
-newnode Intention {"name":"压缩视频", "foo":"compress('{{src}}', '{{tarargs}}', {{args}})", "model":"kae.libs.video", "target":"视频", "action":"压缩"}
-newnode Intention {"name":"设置视频帧率", "foo":"video_r({{args}})", "model":"kae.libs.video", "target":"帧率", "action":"设置"}
-newnode Intention {"name":"设置视频分辨率", "foo":"video_s({{args}})", "model":"kae.libs.video", "target":"分辨率", "action":"设置"}
-newnode Intention {"name":"设置视频码率", "foo":"video_bv({{args}})", "model":"kae.libs.video", "target":"码率", "action":"设置"}
+newnode Intention {"name":"压缩视频", "foo":"VideoTransform().compress('{{src}}')", "model":"kae.libs.video", "target":"视频", "action":"压缩"}
+newnode Intention {"name":"设置视频帧率", "foo":"setr({{args}})", "model":"", "target":"帧率", "action":"设置"}
+newnode Intention {"name":"设置视频分辨率", "foo":"sets({{args}})", "model":"", "target":"分辨率", "action":"设置"}
+newnode Intention {"name":"设置视频码率", "foo":"setbv({{args}})", "model":"", "target":"码率", "action":"设置"}
+newnode Intention {"name":"另存为", "foo":"saveas('{{args}}')", "model":"", "action":"另存为"}
 
 #parse sentence 把空调打开。 空调:{target} 打开:{action}
 #parse sentence 将图片进行旋转。 图片:{target} 旋转:{action}

@@ -2,8 +2,7 @@ import jieba, sys
 import jieba.posseg as pseg
 
 import os, json, yaml, re
-
-
+import copy
 
 def ka_load_urlmaps():
     '''加载路径对应文件'''
@@ -37,7 +36,7 @@ KUOSTAR = '('
 KUOEND = ')'
 SHUSTAR = '《'
 SHUEND = '》'
-SPLIT = "、；;，,"
+SPLIT = "、；;"
 
 def prepareWordDict(g):
     '''修改词典'''
@@ -63,19 +62,19 @@ def joinPath(gdb, words): #把路径连成一整个
     for word in words:
         if not finded and word.wordclass=="ns":
             finded = True
-            paths.append(word)
+            paths.append([word])
         elif finded:
-            paths.append(word)
+            paths[-1].append(word)
         if finded and word.wordclass=="nfs":
             finded = False
-            break
-    path = ""
-    for p in paths:
-        path+=p.name
-    if len(paths)>0:
-        paths[0].name = path
-        for p in paths[1:]:
-            words.remove(p)
+    for pa in paths:     
+        path = ""
+        for p in pa:
+            path+=p.name
+        if len(pa)>0:
+            pa[0].name = path
+            for p in pa[1:]:
+                words.remove(p)
     
 
 def replaceSame(gdb, words):
@@ -210,6 +209,8 @@ def evalExpression(gdb, words):
     print("eee"*10, words)
     if len(words)==1 and words[0].wordclass in "*m": #单纯字符串或数字
         return str(words[0].name)
+    elif len(words)==1 and words[0].wordclass=="ns": # 纯路径
+        return str(words[0].name)
     
     # if len(words)==4 and words[0].name=="公式" and words[-2].name=="的" and words[-1].name=="值": #表达式的值
     #     return {"type":"foo" ,"op":"eval", "val":words[1].name}
@@ -217,7 +218,7 @@ def evalExpression(gdb, words):
     #     return {"type":"foo" ,"op":"kae.libs.sys.getobj", "val":words[0].name}
     es = []
     exps = gdb.getNodes("Expression")
-    print("eee"*5, exps)
+    # print("eee"*5, exps)
     for exp in exps:
         es.append({"name":exp.doc_id})
         lis = []
@@ -324,6 +325,10 @@ def _match(gdb, sid, o, wl, i):
     if len(sl)==0:
         if i==len(wl):#寻到底了
             return True
+        else: #说明是逗号，还要继续解析下去
+            o["__next"] = i
+            print(","*40)
+            return True
     # print("_", sl, "->", wl[i])
     for si, st in sl:
         s = gdb.di(si)
@@ -342,8 +347,10 @@ def _match(gdb, sid, o, wl, i):
                 # 复杂内容延续直至结束。
                 o["args"] = [[]]
                 while i<len(wl):
-                    if wl[i].name in ENDSENT:
+                    if wl[i].name in ENDSENT+"，,":
                         # args 结束了。
+                        if  wl[i].name in "，,":
+                            o["__next"] = i+1
                         return True
                     elif wl[i].name in SPLIT:
                         o["args"].append([])
@@ -355,8 +362,10 @@ def _match(gdb, sid, o, wl, i):
             exec(f"o['{s['name'][1:-1]}']=wl[i].name")
         elif type(wl[i])==list and s["name"].startswith("{") and s["name"].endswith("}"):
             exec(f"o['{s['name'][1:-1]}']=wl[i]")
-        elif wl[i].name in ENDSENT:
+        elif wl[i].name in ENDSENT+"，,":
             # 结束了。
+            if wl[i].name in "，,":
+                o["__next"] = i+1
             return True
         elif s["name"] != wl[i].name or wl[i].wordclass not in s['wordclass']: 
             print(" X", wl[i])
@@ -371,33 +380,55 @@ def _match(gdb, sid, o, wl, i):
     return False #isok>0 or len(sl)==0
     
 
-def match(ss, wl, gdb):
+def match(wl, gdb):
     '''匹配，找到最合适的句式'''
-    for s in ss:
-        # lines = s.next
-        if _match(gdb, None, s, wl, 0) and s["action"] is not None:
-            return s
+    session = []
+    hasnext = True
+    beg = 0
+    while hasnext:
+        ss = gdb.query(Sentence)
+        if not hasnext:
+            beg = 0
+        hasnext = False
+        for s in ss:
+            # lines = s.next
+            if _match(gdb, None, s, wl, beg) and s["action"] is not None: #找到匹配的语法了
+                if "__next" in s: #还没结束
+                    hasnext = True
+                    beg = s["__next"]
+                    del s["__next"]
+                # print("U"*50, session)
+                session.append(copy.deepcopy(s))
+                break
+    print("M"*50, session)
+    return session
 
-def understand(gdb, intes, sen):
+def understand(gdb, intes, session):
     '''从句式对应意图'''
     DEFARG = ["type", "nodetype", "name", "edges", "args"]
-    print(sen)
-    for inte in intes:
-        # print(inte["action"], sen["action"], inte["target"]==sen["target"] if "target" in sen else True)
-        if inte["action"]==sen["action"] and (inte["target"]==sen["target"] if "target" in sen else True):#带目标对象的最好目标对象也一致
-            for key in sen.keys():
-                if key not in DEFARG:
-                    inte[key] = sen[key]
-            if type(sen["args"])!=list:
-                # print("a"*10, sen["args"])
-                inte["args"] = sen["args"]
-            elif len(sen["args"])==1:
-                # print("b"*10, sen["args"])
-                inte["args"] = [evalExpression(gdb, sen["args"][0])]
-            else:
-                # print("c"*10, sen["args"])
-                inte["args"] = [evalExpression(gdb, w) for w in sen["args"]]
-            return inte
+    runers = []
+    for sen in session:
+        print(sen)
+        for inte in intes:
+            # print(inte["action"], sen["action"], inte["target"]==sen["target"] if "target" in sen else True)
+            if inte["action"]==sen["action"] and (inte["target"]==sen["target"] if "target" in sen else True):#带目标对象的最好目标对象也一致
+                for key in sen.keys():
+                    if key not in DEFARG:
+                        inte[key] = sen[key]
+                if "args" in sen and sen["args"] is not None:
+                    if type(sen["args"])!=list:
+                        # print("a"*10, sen["args"])
+                        inte["args"] = sen["args"]
+                    elif len(sen["args"])==1:
+                        # print("b"*10, sen["args"])
+                        inte["args"] = [evalExpression(gdb, sen["args"][0])]
+                    else:
+                        # print("c"*10, sen["args"])
+                        inte["args"] = [evalExpression(gdb, w) for w in sen["args"]]
+                runers.append(inte)
+                break
+    return runers
+
 
 
 
@@ -434,7 +465,7 @@ def splitSentence(paragraph):
             continue
         if word.wordclass=="x" and word.name in ENDSENT:
             sents.append([])
-        
+    print("!"*100, sents)
     return sents[:-1] if len(sents)>1 else sents
 
 remakeLine = lambda words: "".join([word.name for word in words])
@@ -468,7 +499,6 @@ def compile(paragraph=" ".join(sys.argv[1:])):
     # words = cut(name)
     sents = splitSentence(paragraph)
     
-    ss = g.query(Sentence)
     ress = []
     mods = ["kae.libs.sys"]
     for sent in sents:
@@ -486,25 +516,29 @@ def compile(paragraph=" ".join(sys.argv[1:])):
 
         parseSubSentence(g, sent)
 
-        s = match(ss, sent, g)
+        s = match(sent, g)
         
-        # print(s)
-        if s is not None:
+        print("sessions:",":"*50 ,s)
+        if s is not None and len(s)>0:
             intes = g.query(Intention)
-            inte = understand(g, intes, s)
-            if inte is not None:
+            uintes = understand(g, intes, s)
+            
+            if len(uintes)>0:
                 # s = Sentence(name=name, parts=sent)
                 res["errno"] = 0
                 regex = r"{{(\w+)}}"
-                foo = inte['foo'] #({'' if 'args' not in inte else ARGS(inte['args'])})
-                matches = re.findall(regex, foo)
-                if len(matches)>0:
-                    fooexec = re.sub(regex, lambda m: STR(inte[m.group()[2:-2]]), foo)
-                else:
-                    fooexec = foo
-                res["exec"] = f"{inte['model']}.{fooexec}"
-                if inte['model'] not in mods:
-                    mods.append(inte['model'])
+                execs = []
+                for inte in uintes:
+                    foo = inte['foo'] #({'' if 'args' not in inte else ARGS(inte['args'])})
+                    matches = re.findall(regex, foo)
+                    if len(matches)>0:
+                        fooexec = re.sub(regex, lambda m: STR(inte[m.group()[2:-2]]), foo)
+                    else:
+                        fooexec = foo
+                    execs.append(f"{inte['model']}.{fooexec}")
+                    if inte['model'] not in mods and inte['model']!="":
+                        mods.append(inte['model'])
+                res["exec"] = "".join(execs)
                 print("运行语句: ", res["exec"])
             else:
                 res["errno"] = 2

@@ -304,7 +304,8 @@ def parseTempl(g, comm):
     import jieba
     import jieba.posseg as pseg
     from kae.model import Word, Sentence
-    from kae.zhcompiler import replaceSame, cut, splitSentence
+    from kae.zhcompiler import replaceSame, cut, splitSentence, prepareWordDict
+    prepareWordDict(g)
     carr = comm.split()
     nodetype = carr[1]
     tmpl = f"{carr[2]}" #句式模板
