@@ -87,7 +87,7 @@ python -m kae.face
 
 会弹出浏览器界面，你可以在界面上输入并展示编译后的结果。
 
-[face模块-交互式编译](https://foruda.gitee.com/images/1685002006883230356/9b49b828_4988273.png)
+<img src=https://foruda.gitee.com/images/1685002006883230356/9b49b828_4988273.png width=80%>
 
 在线式编译可以验证编译成果是否正确（放心并不会运行）。
 
