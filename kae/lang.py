@@ -489,6 +489,9 @@ def doo(foo=None, file=None):
         foo = "main"
     if file is None:
         file = sys.argv[-1]
+    from kae.zhcompiler import ka_load_urlmaps
+    # global ka_mount
+    ka_load_urlmaps()
     with open(file, "r", encoding='UTF-8') as kf:
         lines = [l.strip() for l in kf.readlines()]
         #判断是否有生成过kc文件，如果有，就不重新解析了
@@ -524,8 +527,12 @@ def doo(foo=None, file=None):
             import urllib.parse
             import json
 
+            serv = "localhost:19831"
+            from kae import ka_mount
+            if "运行时" in ka_mount and "服务器" in ka_mount["运行时"]:
+                serv = ka_mount["运行时"]["服务器"]
             # 定义请求的URL
-            url = "http://localhost:19831/kaeear"
+            url = f"http://{serv}/kaeear"
 
             # 定义请求头和数据
             headers = {"Content-Type": "application/x-www-form-urlencoded"}
@@ -549,9 +556,7 @@ def doo(foo=None, file=None):
             
             # print2kb("\n".join(codes))
             
-        from kae.zhcompiler import ka_load_urlmaps
-        # global ka_mount
-        ka_load_urlmaps()
+        
         # print(ka_mount)
         # kac = open("kae.kc", 'w+', encoding='utf-8')
         # print("".join(ka_fragments["foo"]), file=kac)    
