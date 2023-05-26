@@ -12,4 +12,4 @@ def fprint(filezname, *args):
 
 def speakprint(*args):
     import pyttsx3 as tts
-    tts.speak(*args)
+    tts.speak(",".join(args))
