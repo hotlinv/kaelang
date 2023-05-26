@@ -9,3 +9,7 @@ def fprint(filezname, *args):
     kb = open(fpath(filezname), "w", encoding='utf-8')
     print(*args, file=kb)
     kb.close()
+
+def speakprint(*args):
+    import pyttsx3 as tts
+    tts.speak(*args)

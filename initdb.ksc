@@ -42,6 +42,7 @@ newnode UserWord {"name":"分辨率", "wordclass":"n"}
 newnode UserWord {"name":"码率", "wordclass":"n"}
 newnode UserWord {"name":"设置", "wordclass":"v"}
 newnode UserWord {"name":"另存为", "wordclass":"v"}
+newnode UserWord {"name":"说出", "wordclass":"v"}
 
 newnode UserSpWord {"name":"计算/公式"}
 
@@ -136,6 +137,8 @@ newnode Intention {"name":"打开图像", "foo":"open()", "model":"img", "target
 newnode Intention {"name":"旋转图像", "foo":"ra()", "model":"img", "target":"图像", "action":"旋转"}
 newnode Intention {"name":"终端输出文本", "foo":"stdprint({{args}})", "model":"kae.libs.io", "target":"终端", "action":"输出"}
 newnode Intention {"name":"文件输出文本", "foo":"fprint('{{tarargs}}', {{args}})", "model":"kae.libs.io", "target":"文件", "action":"输出"}
+newnode Intention {"name":"语音输出", "foo":"speakprint({{args}})", "model":"kae.libs.io", "target":"语音", "action":"输出"}
+newnode Intention {"name":"语音说出", "foo":"speakprint({{args}})", "model":"kae.libs.io", "target":"语音", "action":"说出"}
 newnode Intention {"name":"新建变量", "foo":"newobj('{{tartype}}',{{tarargs}},{{args}})", "model":"kae.libs.sys", "action":"创建"}
 newnode Intention {"name":"定义变量", "foo":"newobj('{{tartype}}',{{tarargs}},{{args}})", "model":"kae.libs.sys", "action":"有"}
 newnode Intention {"name":"新建变量2", "foo":"newobj('{{tartype}}',{{tarargs}},{{args}})", "model":"kae.libs.sys", "target":"变量", "action":"创建"}

@@ -42,7 +42,7 @@ def prepareWordDict(g):
     '''修改词典'''
     dicts = g.getNodes("UserWord")
     for d in dicts:
-        jieba.add_word(d["name"], 100, d["wordclass"])
+        jieba.add_word(d["name"], 1000, d["wordclass"])
     sdicts = g.getNodes("UserSpWord")
     for sd in sdicts:
         jieba.suggest_freq(sd["name"].split("/"), tune=True)
@@ -446,6 +446,7 @@ def splitSentence(paragraph):
     '''拆分句子（顺带划分整体语素：括弧，引号等）'''
     sents =[[]]
     words = cut(paragraph)
+    print("w"*100, words)
     yh = 0
     for word in words:
         if word.wordclass=="x" and word.name in YH:
