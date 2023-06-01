@@ -23,8 +23,8 @@ class VideoTransform:
         from kae.libs.sys import fpath
         self.ofile = fpath(ofile)
         r = self.r if hasattr(self, "r") else ""
-        s = self.r if hasattr(self, "s") else ""
-        bv = self.r if hasattr(self, "bv") else ""
+        s = self.s if hasattr(self, "s") else ""
+        bv = self.bv if hasattr(self, "bv") else ""
         cmd = f"ffmpeg -i {self.infile} {r} {s} {bv} {self.ofile}"
         print(cmd)
         os.system(cmd)

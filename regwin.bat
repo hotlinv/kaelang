@@ -1,30 +1,30 @@
 @echo off
-echo BAT½Å±¾£ºwindowsÏµÍ³ÓÒÏÂ½ÇÈÎÎñÀ¸Ê±¼äÏÔÊ¾ÃëÊý
+echo BATï¿½Å±ï¿½ï¿½ï¿½windowsÏµÍ³ï¿½ï¿½ï¿½Â½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½
 echo --------------------------------------
-echo Ö´ÐÐ¹ý³Ì¼à¿Ø£º
+echo Ö´ï¿½Ð¹ï¿½ï¿½Ì¼ï¿½Ø£ï¿½
 echo.
-echo 1¡¢ÐÞ¸Ä×¢²á±íÏîÖÐ...
+echo 1ï¿½ï¿½ï¿½Þ¸ï¿½×¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½...
 
 for %%i in (python.exe) do @set py=%%~$PATH:i
 for %%i in ( %py%) do @set py=%%~dpi
 echo %py%
 
 reg add "HKEY_CLASSES_ROOT\.ae" /t REG_SZ /d kaelang
-reg add "HKEY_CLASSES_ROOT\kaelang" /t REG_SZ /d Kae½Å±¾ÎÄ¼þ
+reg add "HKEY_CLASSES_ROOT\kaelang" /t REG_SZ /d Kaeï¿½Å±ï¿½ï¿½Ä¼ï¿½
 reg add "HKEY_CLASSES_ROOT\kaelang\DefaultIcon" /t REG_SZ /d %~dp0.asserts\favicon64.ico
-reg add "HKEY_CLASSES_ROOT\kaelang\shell\open\command" /t REG_SZ /d "%py%python.exe \"%~dp0ka.py\" \"%%1\""
-echo ×¢²á±íÐÞ¸ÄÍê³É.
+reg add "HKEY_CLASSES_ROOT\kaelang\shell\open\command" /t REG_SZ /d "kae.exe \"%%1\""
+echo ×¢ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½.
 
 echo.
-echo 2¡¢ÖØÆô×ÊÔ´¹ÜÀíÆ÷...
+echo 2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½...
 taskkill /f /im explorer.exe & start explorer.exe
-::ÅÐ¶Ï×ÊÔ´¹ÜÀíÆ÷ÊÇ·ñÖØÆô³É¹¦
+::ï¿½Ð¶ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¹ï¿½
 if %errorlevel%==0 (
-echo ×ÊÔ´¹ÜÀíÆ÷ÖØÆôÍê³É.
+echo ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
 ) else (
-echo ×ÊÔ´¹ÜÀíÆ÷ÖØÆôÊ§°Ü.
+echo ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½.
 )
 echo.
-echo 3¡¢ÈÎÎñÖ´ÐÐÍê±Ï.
+echo 3ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ï¿½ï¿½ï¿½.
 echo --------------------------------------
 pause
