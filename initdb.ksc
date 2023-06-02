@@ -133,8 +133,8 @@ newnode SameWord {"name":"！", "wordclass":"x", "sameas":"!"}
 #newnode Sentence {"name":"创建一个变量", "$edges":"creats"}
 
 newnode Intention {"name":"打开空调", "foo":"openf()", "model":"devs", "target":"空调", "action":"打开"}
-newnode Intention {"name":"打开图像", "foo":"open()", "model":"img", "target":"图像", "action":"打开"}
-newnode Intention {"name":"旋转图像", "foo":"ra()", "model":"img", "target":"图像", "action":"旋转"}
+newnode Intention {"name":"打开图像", "foo":"open()", "model":"kae.libs.img", "target":"图像", "action":"打开"}
+newnode Intention {"name":"旋转图像", "foo":"ra()", "model":"kae.libs.img", "target":"图像", "action":"旋转"}
 newnode Intention {"name":"终端输出文本", "foo":"stdprint({{args}})", "model":"kae.libs.io", "target":"终端", "action":"输出"}
 newnode Intention {"name":"文件输出文本", "foo":"fprint('{{tarargs}}', {{args}})", "model":"kae.libs.io", "target":"文件", "action":"输出"}
 newnode Intention {"name":"语音输出", "foo":"speakprint({{args}})", "model":"kae.libs.io", "target":"语音", "action":"输出"}
@@ -152,6 +152,7 @@ newnode Intention {"name":"设置视频帧率", "foo":"setr({{args}})", "model":
 newnode Intention {"name":"设置视频分辨率", "foo":"sets({{args}})", "model":"", "target":"分辨率", "action":"设置"}
 newnode Intention {"name":"设置视频码率", "foo":"setbv({{args}})", "model":"", "target":"码率", "action":"设置"}
 newnode Intention {"name":"另存为", "foo":"saveas('{{args}}')", "model":"", "action":"另存为"}
+newnode Intention {"name":"打开表格", "foo":"opentable()", "model":"kae.libs.db", "target":"表格", "action":"打开"}
 
 #parse sentence 把空调打开。 空调:{target} 打开:{action}
 #parse sentence 将图片进行旋转。 图片:{target} 旋转:{action}
