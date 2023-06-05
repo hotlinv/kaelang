@@ -283,6 +283,16 @@ def _newlist(comm):
     arr = [vars[vn] for vn in carr[2:]]
     vars[listname] = arr
 
+def parseUserWords(g, comm):
+    # 分析分词词典
+    carr = comm.split()
+    with open(carr[1]) as f:
+        lines = f.readlines()
+        for line in lines:
+            word, weight, wordtype = line.split()
+            cmd = f'newnode UserWord {{"name":"{word}", "wordclass":"{wordtype}"}}'
+            _newnode(g, cmd)
+
 TAGMAP = {"动作":r"{action}", "目标":r"{target}", "源":r"{src}", "源路径":r"{src}", "内容":r"{args}", "目标名称":r"{tarargs}", "对象参数":r"{tarargs}", "可选":"~", "目标类型": r"{tartype}"}
 
 def parseTemplFile(g, comm):
@@ -428,6 +438,8 @@ def graphcli(db, script):
                         parseTempl(g, line)
                     elif line.startswith("train"):
                         parseTemplFile(g, line)
+                    elif line.startswith("userwords"):
+                        parseUserWords(g, line)
         return 
     comm = click.prompt('~~> ')
     while comm!="quit" and comm!="exit":

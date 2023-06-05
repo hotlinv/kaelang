@@ -32,17 +32,20 @@ newref kae.model.NextRef
 #newnode Word {"name":":", "wordclass":"x"}
 #newnode Word {"name":"：", "wordclass":"x"}
 
-newnode UserWord {"name":"新建", "wordclass":"v"}
-newnode UserWord {"name":"变量", "wordclass":"n"}
-newnode UserWord {"name":"控制台", "wordclass":"n"}
-newnode UserWord {"name":"空列表", "wordclass":"n"}
-newnode UserWord {"name":"给老子", "wordclass":"y"}
-newnode UserWord {"name":"帧率", "wordclass":"n"}
-newnode UserWord {"name":"分辨率", "wordclass":"n"}
-newnode UserWord {"name":"码率", "wordclass":"n"}
-newnode UserWord {"name":"设置", "wordclass":"v"}
-newnode UserWord {"name":"另存为", "wordclass":"v"}
-newnode UserWord {"name":"说出", "wordclass":"v"}
+#newnode UserWord {"name":"新建", "wordclass":"v"}
+#newnode UserWord {"name":"变量", "wordclass":"n"}
+#newnode UserWord {"name":"控制台", "wordclass":"n"}
+#newnode UserWord {"name":"空列表", "wordclass":"n"}
+#newnode UserWord {"name":"给老子", "wordclass":"y"}
+#newnode UserWord {"name":"帧率", "wordclass":"n"}
+#newnode UserWord {"name":"分辨率", "wordclass":"n"}
+#newnode UserWord {"name":"码率", "wordclass":"n"}
+#newnode UserWord {"name":"设置", "wordclass":"v"}
+#newnode UserWord {"name":"另存为", "wordclass":"v"}
+#newnode UserWord {"name":"说出", "wordclass":"v"}
+#newnode UserWord {"name":"命名为", "wordclass":"v"}
+
+userwords dict/分词词典.txt
 
 newnode UserSpWord {"name":"计算/公式"}
 
@@ -152,6 +155,7 @@ newnode Intention {"name":"设置视频帧率", "foo":"setr({{args}})", "model":
 newnode Intention {"name":"设置视频分辨率", "foo":"sets({{args}})", "model":"", "target":"分辨率", "action":"设置"}
 newnode Intention {"name":"设置视频码率", "foo":"setbv({{args}})", "model":"", "target":"码率", "action":"设置"}
 newnode Intention {"name":"另存为", "foo":"saveas('{{args}}')", "model":"", "action":"另存为"}
+newnode Intention {"name":"命名为", "foo":"rename('{{args}}')", "model":"", "action":"命名为"}
 newnode Intention {"name":"打开表格", "foo":"AnyDB('{{tarargs}}')", "model":"kae.libs.db", "target":"表格", "action":"打开"}
 newnode Intention {"name":"表格查询", "foo":"query('{{tarargs}}')", "model":"", "action":"查询"}
 
