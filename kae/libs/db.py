@@ -1,4 +1,6 @@
+from kae.annotations import ka_setobj_rename
 
+@ka_setobj_rename
 class AnyDB:
     def open(self, filename):
         self.filename = filename
@@ -16,3 +18,5 @@ class AnyDB:
             return eval(f"pd.read_{fex[0]}('{filename}')")
         else:
             print("未知的数据表格格式")
+    def query(self, q):
+        print(q)

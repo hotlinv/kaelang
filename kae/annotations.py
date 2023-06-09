@@ -75,3 +75,16 @@ def lastit(fn):#内部有产生新数据，会返回新数据名字。
         ka_lastit = newname
         return newname
     return inner
+
+def ka_reset_object_name(self, name):
+    from kae import ka_vals
+    ka_vals[name] = self
+
+import types
+def ka_setobj_rename(cls):
+    '''为对象注入rename方法'''
+    def setrename(*args, **kw):
+        obj = cls(*args, **kw)
+        obj.renameme = types.MethodType(ka_reset_object_name, obj)
+        return obj
+    return setrename

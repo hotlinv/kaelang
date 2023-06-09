@@ -362,12 +362,12 @@ def _match(gdb, sid, o, wl, i):
             exec(f"o['{s['name'][1:-1]}']=wl[i].name")
         elif type(wl[i])==list and s["name"].startswith("{") and s["name"].endswith("}"):
             exec(f"o['{s['name'][1:-1]}']=wl[i]")
-        elif wl[i].name in ENDSENT+"，,":
+        elif type(wl[i])!=list and wl[i].name in ENDSENT+"，,":
             # 结束了。
             if wl[i].name in "，,":
                 o["__next"] = i+1
             return True
-        elif s["name"] != wl[i].name or wl[i].wordclass not in s['wordclass']: 
+        elif type(wl[i])!=list and (s["name"] != wl[i].name or wl[i].wordclass not in s['wordclass']): 
             print(" X", wl[i])
             continue
         # el
