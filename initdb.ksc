@@ -149,11 +149,13 @@ newnode Intention {"name":"定义变量2", "foo":"newobj('{{tartype}}',{{tarargs
 newnode Intention {"name":"计算公式", "foo":"cacl({{args}})", "model":"kae.libs.sys", "target":"公式", "action":"计算"}
 newnode Intention {"name":"计算表达式", "foo":"cacl({{args}})", "model":"kae.libs.sys", "target":"表达式", "action":"计算"}
 newnode Intention {"name":"获取变量的值", "foo":"getobj({{tarargs}})", "model":"kae.libs.sys", "target":"值", "action":"获取值"}
-newnode Intention {"name":"计算倍数的值", "foo":"multiply({{tarargs}},{{args}})", "model":"kae.libs.sys", "target":"值", "action":"取倍数"}
+newnode Intention {"name":"计算倍数的值", "foo":"multiply({{tarargs}},{{args}})", "model":"kae.libs.sys", "target":"倍", "action":"取倍数"}
 newnode Intention {"name":"压缩视频", "foo":"VideoTransform().compress('{{src}}')", "model":"kae.libs.video", "target":"视频", "action":"压缩"}
 newnode Intention {"name":"设置视频帧率", "foo":"setr({{args}})", "model":"", "target":"帧率", "action":"设置"}
 newnode Intention {"name":"设置视频分辨率", "foo":"sets({{args}})", "model":"", "target":"分辨率", "action":"设置"}
 newnode Intention {"name":"设置视频码率", "foo":"setbv({{args}})", "model":"", "target":"码率", "action":"设置"}
+newnode Intention {"name":"设置值", "foo":"set({{args}})", "model":"", "target":"值", "action":"设置"}
+newnode Intention {"name":"它的值是", "foo":"set({{args}})", "model":"", "target":"值", "action":"是"}
 newnode Intention {"name":"另存为", "foo":"saveas('{{args}}')", "model":"", "action":"另存为"}
 newnode Intention {"name":"命名为", "foo":"renameme('{{args}}')", "model":"", "action":"命名为"}
 newnode Intention {"name":"打开表格", "foo":"AnyDB('{{tarargs}}')", "model":"kae.libs.db", "target":"表格", "action":"打开"}
@@ -163,10 +165,12 @@ newnode Intention {"name":"表格查询", "foo":"getobj('{{tarargs}}').query('{{
 #parse sentence 将图片进行旋转。 图片:{target} 旋转:{action}
 #parse sentence 在控制台上输出：“你好世界”。 控制台:{target} 输出:{action} “你好世界”:{args}
 
-parse expression 公式“100”的值 “100”:{args} @计算:{action} 公式:{target}
-parse expression “空调”的值 “空调”:{tarargs} @获取值:{action} 值:{target}
-parse expression 空调的2倍 空调:{tarargs} @取倍数:{action} 值:{target} 2:{args}
+#parse expression 公式“100”的值 “100”:{args} @计算:{action} 公式:{target}
+#parse expression “空调”的值 “空调”:{tarargs} @获取值:{action} 值:{target}
+#parse expression 空调的2倍 空调:{tarargs} @取倍数:{action} 值:{target} 2:{args}
 
-
+train 训练语料/表达式.docx
 
 train 训练语料/句式.docx
+
+

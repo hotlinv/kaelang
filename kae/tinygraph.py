@@ -286,7 +286,7 @@ def _newlist(comm):
 def parseUserWords(g, comm):
     # 分析分词词典
     carr = comm.split()
-    with open(carr[1]) as f:
+    with open(carr[1], "r", encoding="utf-8") as f:
         lines = f.readlines()
         for line in lines:
             word, weight, wordtype = line.split()
@@ -304,10 +304,20 @@ def parseTemplFile(g, comm):
     for p in document.paragraphs:
         if p.text!="":
             # print( [ r.comments for r in p.runs])
-            iis = [ix for ix, e in enumerate( [len(r.comments) for r in p.runs]) if e !=0]
-            props = [p.runs[i-1].text+":"+TAGMAP[p.runs[i].comments[0].text] for i in iis]
-            line = f"parse sentence {p.text} {' '.join(props)}"
-            parseTempl(g, line)
+            senline = p.text
+            if senline.startswith("@"):
+                op = senline.find(":")
+                actname, expline = senline[0:op], senline[op+1:]
+                iis = [ix for ix, e in enumerate( [len(r.comments) for r in p.runs]) if e !=0]
+                props = [p.runs[i-1].text+":"+TAGMAP[p.runs[i].comments[0].text] for i in iis]
+                props.append(f"{actname}:{{action}}")
+                line = f"parse expression {expline} {' '.join(props)}"
+                parseTempl(g, line)
+            else:
+                iis = [ix for ix, e in enumerate( [len(r.comments) for r in p.runs]) if e !=0]
+                props = [p.runs[i-1].text+":"+TAGMAP[p.runs[i].comments[0].text] for i in iis]
+                line = f"parse sentence {p.text} {' '.join(props)}"
+                parseTempl(g, line)
     
 def parseTempl(g, comm):
     # 自动分析语句，进行图谱构建。

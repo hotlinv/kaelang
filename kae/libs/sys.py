@@ -22,15 +22,27 @@ def fpath(path):
     # print("##", mf, ospath, os.path.join(*ospath))
     return os.path.expanduser(os.path.join(*ospath))
 
+class KObj:
+    def __init__(self, type, name, val):
+        self.type = type
+        self.name = name
+        self.val = val
+        if type=="整数":
+            self.type = int
+            if val is not None:
+                self.val = int(val)
+        elif type=="数字" or type=="浮点数":
+            self.type = float
+            if val is not None:
+                self.val = float(val)
+    def __str__(self) -> str:
+        return str(self.val)
+
 def newobj(type, name, val):
     '''新建变量'''
     from kae import ka_vals
-    if type=="整数":
-        val = int(val)
-    elif type=="数字" or type=="浮点数":
-        val = float(val)
-    ka_vals[name] = val
-    return name
+    ka_vals[name] = KObj(type, name, val)
+    return ka_vals[name]
 
 def getobj(name):
     '''获取变量'''

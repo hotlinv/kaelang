@@ -261,7 +261,7 @@ argregex = r"{{(\w+)}}"
 def _understandexp(intes, expm):
     res = {"type":"expression" ,"foo":""}
     print(intes, expm)
-    intefs = [i for i in intes if i["action"]==expm["action"]]
+    intefs = [i for i in intes if type(i)==dict and i["action"]==expm["action"]]
     if len(intefs)>0:
         intef = intefs[0] #意图
         # print("i"*30, intef)
