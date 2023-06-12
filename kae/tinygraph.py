@@ -293,7 +293,7 @@ def parseUserWords(g, comm):
             cmd = f'newnode UserWord {{"name":"{word}", "wordclass":"{wordtype}"}}'
             _newnode(g, cmd)
 
-TAGMAP = {"动作":r"{action}", "目标":r"{target}", "源":r"{src}", "源路径":r"{src}", "内容":r"{args}", "目标名称":r"{tarargs}", "对象参数":r"{tarargs}", "可选":"~", "目标类型": r"{tartype}"}
+TAGMAP = {"动作":r"{action}", "[目标]":r"[target]", "目标":r"{target}", "源":r"{src}", "源路径":r"{src}", "内容":r"{args}", "目标名称":r"{tarargs}", "对象参数":r"{tarargs}", "可选":"~", "目标类型": r"{tartype}"}
 
 def parseTemplFile(g, comm):
     # 解析word来进行语料训练
@@ -347,10 +347,15 @@ def parseTempl(g, comm):
         if v.startswith("{") and v.endswith("}") :
             if v not in wordls:
                 jieba.add_word(k)
+        elif v.startswith("[") and v.endswith("]") :
+            # 这是一个不需要替换的关键字。
+            vir[v] = k
         elif v=="~":#可选
             optionals.append(k)
             continue
-        tmpl = tmpl.replace(k, v)
+        
+        if not (v.startswith("[") and v.endswith("]")):
+            tmpl = tmpl.replace(k, v)
     
     print(segoa, keyts, optionals)
     

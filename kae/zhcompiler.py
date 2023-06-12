@@ -145,7 +145,7 @@ def delUseless(gdb, words):
 def _expre(regx, nowre, words, wi, begend, args):
     r = regx if nowre is None else nowre
     w = words[wi]
-    print(wi, words, w , r["name"], r["wordclass"])
+    print(wi, words, w , r["name"], "*"*10, r, r["wordclass"])
     if (r["name"][0]=="{" and r["name"][-1]=="}" and "expid" in w) \
         or ("expid" not in w and w.name==r["name"] and w.wordclass in r["wordclass"]) \
         or ("expid" not in w and r["name"][0]=="{" and r["name"][-1]=="}" and w.wordclass in r["wordclass"]) \
@@ -186,7 +186,7 @@ def expre(gdb, regx, words):
     begend = []
     args = []
     _expre(regx["next"], None, words, 0, begend, args)
-    print("*"*10, begend)
+    print("*"*10, begend, regx["name"])
     if len(begend)>0 and len(begend[-1])==1: #去除不完整的匹配
         begend.pop(-1)
     
@@ -242,7 +242,7 @@ def evalExpression(gdb, words):
         count = 0
         for exp in es:
             reword = expre(gdb, exp, res)
-            # print("reword!", reword)
+            print("reword!", reword)
             if reword is not None:
                 res = reword
                 count+=1
@@ -260,11 +260,13 @@ argregex = r"{{(\w+)}}"
 
 def _understandexp(intes, expm):
     res = {"type":"expression" ,"foo":""}
-    print(intes, expm)
-    intefs = [i for i in intes if type(i)==dict and i["action"]==expm["action"]]
+    # print(intes, expm)
+    
+    intefs = [i for i in intes if type(i)!=list and i["target"]==expm["target"]]
+    print("E"*30, expm["target"], expm, [type(i) for i in intes], [i["target"] for i in intes])
     if len(intefs)>0:
         intef = intefs[0] #意图
-        # print("i"*30, intef)
+        print("i"*30, intef)
         
         res["foo"] = intef['foo'] 
         matches = re.findall(argregex, res["foo"])
