@@ -32,3 +32,15 @@ class AnyDB:
             self.fieldconf = yaml.load(yf, Loader=yaml.FullLoader)
     def query(self, q):
         print(q)
+        import re
+        ret = self.db
+        regexall = r"所有(.+)的((?:[^、]+(?:、|等)?)*)记录"
+        regex = r"([^、等]+)(?:、|等){0,1}"
+
+        matches = re.findall(regexall, q)
+        matches2 = re.findall(regex, matches[0][1])
+
+        res = [matches[0][0]]
+        res.extend(matches2)
+        
+        return ret
