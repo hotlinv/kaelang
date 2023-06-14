@@ -18,5 +18,17 @@ class AnyDB:
             return eval(f"pd.read_{fex[0]}('{filename}')")
         else:
             print("未知的数据表格格式")
+    def kacb_setobjNameOK(self):
+        # 设置变量名的回调
+        from kae import ka_mount
+        import os, yaml
+        confpath = "./"
+        if "磁颐国" in ka_mount:
+            if "构申省" in ka_mount["磁颐国"]:
+                confpath = ka_mount["磁颐国"]["构申省"]
+        conffile = os.path.join(confpath, self.objname+".yml")
+        #解析字段对应 
+        with open(conffile, 'r',encoding='utf-8') as yf:
+            self.fieldconf = yaml.load(yf, Loader=yaml.FullLoader)
     def query(self, q):
         print(q)

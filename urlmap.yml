@@ -1,6 +1,7 @@
 磁颐国 :
  工根省: .
  输目省: ~/output
+ 构申省: ./数据描述
 星辰国 :
  百度省: https://www.baidu.com
  位处省: http://pv.sohu.com/cityjson?ie=utf-8
@@ -25,4 +26,3 @@
 
 运行时:
  服务器: localhost:19831
- 

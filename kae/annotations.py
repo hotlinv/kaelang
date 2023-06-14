@@ -79,6 +79,9 @@ def lastit(fn):#内部有产生新数据，会返回新数据名字。
 def ka_reset_object_name(self, name):
     from kae import ka_vals
     ka_vals[name] = self
+    self.objname = name # 对象可知自己叫什么变量名
+    if hasattr(self, "kacb_setobjNameOK"):
+        self.kacb_setobjNameOK()
 
 import types
 def ka_setobj_rename(cls):
