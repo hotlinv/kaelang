@@ -29,7 +29,8 @@ class AnyDB:
         conffile = os.path.join(confpath, self.objname+".yml")
         #解析字段对应 
         with open(conffile, 'r',encoding='utf-8') as yf:
-            self.fieldconf = yaml.load(yf, Loader=yaml.FullLoader)
+            self.fieldconf = yaml.load(yf, Loader=yaml.FullLoader) # 字段 英文:中文
+            self.rfieldconf = {v:k for k,v in self.fieldconf.items()} # 字段 中文:英文
     def query(self, q):
         print(q)
         import re
@@ -42,5 +43,6 @@ class AnyDB:
 
         res = [matches[0][0]]
         res.extend(matches2)
-        
+        if len(res)>0:
+            ret = self.db[[self.rfieldconf[f] for f in res]]
         return ret
