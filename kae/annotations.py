@@ -77,6 +77,8 @@ def lastit(fn):#内部有产生新数据，会返回新数据名字。
     return inner
 
 def ka_reset_object_name(self, name):
+    if name.startswith('"') and name.endswith('"'):#如果有双引号，就去掉
+        name = name[1:-1]
     from kae import ka_vals
     ka_vals[name] = self
     self.objname = name # 对象可知自己叫什么变量名
