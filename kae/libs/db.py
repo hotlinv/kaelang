@@ -44,14 +44,25 @@ class AnyDB:
         # print(q)
         import re
         ret = self.db
-        regexall = r"所有(.+)的((?:[^、]+(?:、|等)?)*)记录"
+        regexall = r"(?:所有)?(.+)的((?:[^、]+(?:、|等)?)*)记录"
         regex = r"([^、等]+)(?:、|等){0,1}"
 
         matches = re.findall(regexall, q)
         matches2 = re.findall(regex, matches[0][1])
 
-        res = [matches[0][0]]
-        res.extend(matches2)
-        if len(res)>0:
-            ret = self.db[[self.rfieldconf[f] for f in res]]
+        con = matches[0][0]
+        if con in self.rfieldconf.keys(): #不含条件
+            res = [matches[0][0]]
+            res.extend(matches2)
+            if len(res)>0:
+                ret = self.db[[self.rfieldconf[f] for f in res]]
+        else:# 条件表达式
+            tab = self.db
+            for key, val in self.rfieldconf.items():
+                con = con.replace(key, f"tab.{val}")
+            # print(con)
+            res = eval(con)
+            # print(res)
+            ret = tab[res]
+        
         return TableResultSet(ret)
