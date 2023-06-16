@@ -1,6 +1,6 @@
 from kae.annotations import ka_setobj_rename
 
-@ka_setobj_rename
+@ka_setobj_rename("记录集")
 class TableResultSet:
     def __init__(self, rs):
         self.db = rs
@@ -19,7 +19,7 @@ class TableResultSet:
         else:
             print("未知的数据表格格式")
 
-@ka_setobj_rename
+@ka_setobj_rename("表格")
 class AnyDB:
     def __init__(self, filename):
         self.filename = filename
