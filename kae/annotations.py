@@ -86,11 +86,15 @@ def ka_reset_object_name(self, name):
         self.kacb_setobjNameOK()
 
 import types
-def ka_setobj_rename(cls, cntype):
+from functools import wraps
+def ka_setobj_rename(cntype=""):
     '''为对象注入rename方法'''
-    def setrename(*args, **kw):
-        obj = cls(*args, **kw)
-        obj.cntype=cntype
-        obj.renameme = types.MethodType(ka_reset_object_name, obj)
-        return obj
-    return setrename
+    def decorate(cls):
+        @wraps(cls)
+        def setrename(*args, **kw):
+            obj = cls(*args, **kw)
+            obj.cntype=cntype
+            obj.renameme = types.MethodType(ka_reset_object_name, obj)
+            return obj
+        return setrename
+    return decorate
