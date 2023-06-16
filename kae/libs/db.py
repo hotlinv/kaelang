@@ -6,6 +6,18 @@ class TableResultSet:
         self.db = rs
     def __str__(self):
         return str(self.db)
+    def saveas(self, path):
+        from kae.libs.sys import fpath
+        from kae import ka_fext
+        outfile = fpath(path)
+        fexts = ka_fext.values()
+        # print(fexts)
+        fex = [ex for ex in fexts if ex is not None and outfile.endswith("."+ex)]
+        if len(fex)>0: 
+            #pd.read_sql
+            eval(f"self.db.to_{fex[0]}('{outfile}')")
+        else:
+            print("未知的数据表格格式")
 
 @ka_setobj_rename
 class AnyDB:
@@ -66,3 +78,15 @@ class AnyDB:
             ret = tab[res]
         
         return TableResultSet(ret)
+    def saveas(self, path):
+        from kae.libs.sys import fpath
+        from kae import ka_fext
+        outfile = fpath(path)
+        fexts = ka_fext.values()
+        # print(fexts)
+        fex = [ex for ex in fexts if ex is not None and outfile.endswith("."+ex)]
+        if len(fex)>0: 
+            #pd.read_sql
+            eval(f"self.db.to_{fex[0]}('{outfile}')")
+        else:
+            print("未知的数据表格格式")
