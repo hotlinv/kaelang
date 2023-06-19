@@ -19,7 +19,7 @@ class TableResultSet:
         else:
             print("未知的数据表格格式")
 
-@ka_setobj_rename(cntype="表格")
+@ka_setobj_rename(cntype="表格", entype="pandas")
 class AnyDB:
     def __init__(self, filename):
         self.filename = filename

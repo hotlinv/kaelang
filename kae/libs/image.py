@@ -22,7 +22,7 @@ def img_getmode(name):
     else:
         return name
 
-@ka_setobj_rename(cntype="图像")
+@ka_setobj_rename(cntype="图像", entype="pil")
 class Picture:
     def __init__(self, img):
         self.img = img

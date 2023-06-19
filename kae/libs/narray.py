@@ -10,7 +10,7 @@ def mat_getmode(name):
     else:
         return name
 
-@ka_setobj_rename(cntype="矩阵")
+@ka_setobj_rename(cntype="矩阵", entype="numpy")
 class NArray:
     def __init__(self, arr):
         self.arr = arr
