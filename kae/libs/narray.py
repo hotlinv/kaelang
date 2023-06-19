@@ -10,16 +10,33 @@ def mat_getmode(name):
     else:
         return name
 
+
 @ka_setobj_rename(cntype="矩阵", entype="numpy")
 class NArray:
     def __init__(self, arr):
-        self.arr = arr
+        if arr is not None:
+            import numpy as np
+            self.val = np.array(arr)
+    def setshape(self, shape):
+        import re
+        yc = re.findall("(\d+)行", shape) 
+        xc = re.findall("(\d+)列", shape) 
+        self.shape = (yc[0], xc[0])
+        return self
+    def setmode(self, mode):
+        self.mode = mat_getmode(mode)
+        return self
+    def set(self, val):
+        import numpy as np
+        if type(val) == int:
+            self.val = np.zeros(self.shape, dtype=self.mode)+val
+        return self
     def saveas(self, path):
         from kae.libs.sys import fpath
         from kae import ka_fext
         import numpy as np
         outfile = fpath(path)
-        np.savetxt(outfile, self.arr)
+        np.savetxt(outfile, self.val)
 
 
 def create_zeros(size, mode):
