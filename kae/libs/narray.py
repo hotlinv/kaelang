@@ -2,7 +2,7 @@
 
 from kae.annotations import ka_setobj_rename
 
-_mat_modes = {"整形":"int", "正整形":"uint", "浮点型":"float"}
+_mat_modes = {"整数":"int", "正整数":"uint", "浮点数":"float"}
 
 def mat_getmode(name):
     if name in _mat_modes:
@@ -21,7 +21,7 @@ class KNarray:
         import re
         yc = re.findall("(\d+)行", shape) 
         xc = re.findall("(\d+)列", shape) 
-        self.shape = (yc[0], xc[0])
+        self.shape = (int(yc[0]), int(xc[0]))
         return self
     def setmode(self, mode):
         self.mode = mat_getmode(mode)

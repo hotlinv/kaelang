@@ -165,8 +165,8 @@ newnode Intention {"name":"打开表格", "foo":"AnyDB('{{tarargs}}')", "model":
 newnode Intention {"name":"表格查询", "foo":"getobj({{tarargs}}).query({{args}})", "model":"kae.libs.sys", "target":"表格", "action":"查询"}
 newnode Intention {"name":"引用模块", "foo":"importmod({{tarargs}})", "model":"kae.libs.sys", "target":"模块", "action":"引用"}
 
-newnode Module {"name":"矩阵", "mod":"kae.libs.narray"}
-newnode Module {"name":"图像", "mod":"kae.libs.image"}
+#newnode Module {"name":"矩阵", "mod":"kae.libs.narray"}
+#newnode Module {"name":"图像", "mod":"kae.libs.image"}
 
 #parse sentence 把空调打开。 空调:{target} 打开:{action}
 #parse sentence 将图片进行旋转。 图片:{target} 旋转:{action}

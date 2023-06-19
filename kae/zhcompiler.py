@@ -6,7 +6,7 @@ import copy
 
 def ka_load_urlmaps():
     '''加载路径对应文件'''
-    from kae import ka_mount, ka_fext
+    from kae import ka_mount, ka_fext, ka_modules
     if os.access("kappcnf.yml", os.F_OK):
         f = open("kappcnf.yml", 'r',encoding='utf-8')
     else:
@@ -25,6 +25,10 @@ def ka_load_urlmaps():
             for sk, sv in val.items():
                 jieba.add_word(sk, 100, "nfs")
                 ka_fext[sk] = sv
+    
+    ms = ka_mount["模块"]
+    for k,v in ms.items():
+        ka_modules[k] = v
 
 from kae.model import *
 from kae.tinygraph import *
@@ -498,10 +502,6 @@ def compile(paragraph=" ".join(sys.argv[1:])):
     dbf = os.path.join(os.path.split(os.path.split(kae.__file__)[0])[0], "kae.db")
     # print(kae.__file__) #需要考虑在某个特别目录下放db文件
     g = Graph(dbf)
-    from kae import ka_modules
-    ms = g.getNodes("Module")
-    for m in ms:
-        ka_modules[m["name"]] = m["mod"]
 
     prepareWordDict(g)
     # name = " ".join(sys.argv[1:])

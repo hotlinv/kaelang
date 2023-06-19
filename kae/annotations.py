@@ -90,6 +90,8 @@ from functools import wraps
 def ka_setobj_rename(cntype="", entype=""):
     '''为对象注入rename方法'''
     def decorate(cls):
+        from kae import ka_valtypes
+        ka_valtypes[cntype] = cls.__module__+".K"+entype.capitalize() #注册中文和英文名
         @wraps(cls)
         def wapperfoo(*args, **kw):
             obj = cls(*args, **kw)
@@ -97,6 +99,4 @@ def ka_setobj_rename(cntype="", entype=""):
             obj.renameme = types.MethodType(ka_reset_object_name, obj)
             return obj
         return wapperfoo
-    from kae import ka_valtypes
-    ka_valtypes[cntype] = entype #注册中文和英文名
     return decorate

@@ -27,7 +27,14 @@ def fpath(path):
 def importmod(modename):
     '''导入模块'''
     from kae import ka_modules
-    __import__(ka_modules[modename])
+    print(ka_modules)
+    impm = compile(f"import {ka_modules[modename]}", "导入", "exec")
+    try:
+        exec(impm, globals())
+    except:
+        raise Exception(f"导入依赖库{ka_modules[modename]}失败")
+    # exec(f"import {}", globals())
+    print(kae.libs.narray)
 
 @ka_setobj_rename("整数", "int")
 class KInt:
@@ -59,7 +66,9 @@ def newobj(type, name, val):
     objtype = type
     if objtype in ka_valtypes.keys():
         objtype = ka_valtypes[objtype]
-    ka_vals[name] = eval(f"K{objtype.capitalize()}({val})")
+    # print(globals())
+    # print(kae.libs.narray)
+    ka_vals[name] = eval(f"{objtype}({val})")
     return ka_vals[name]
 
 def getobj(name):
