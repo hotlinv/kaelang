@@ -498,6 +498,11 @@ def compile(paragraph=" ".join(sys.argv[1:])):
     dbf = os.path.join(os.path.split(os.path.split(kae.__file__)[0])[0], "kae.db")
     # print(kae.__file__) #需要考虑在某个特别目录下放db文件
     g = Graph(dbf)
+    from kae import ka_modules
+    ms = g.getNodes("Module")
+    for m in ms:
+        ka_modules[m["name"]] = m["mod"]
+
     prepareWordDict(g)
     # name = " ".join(sys.argv[1:])
     # words = cut(name)

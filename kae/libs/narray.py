@@ -11,8 +11,8 @@ def mat_getmode(name):
         return name
 
 
-@ka_setobj_rename(cntype="矩阵", entype="numpy")
-class NArray:
+@ka_setobj_rename(cntype="矩阵", entype="narray")
+class KNarray:
     def __init__(self, arr):
         if arr is not None:
             import numpy as np

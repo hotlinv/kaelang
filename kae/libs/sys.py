@@ -23,6 +23,12 @@ def fpath(path):
     # print("##", mf, ospath, os.path.join(*ospath))
     return os.path.expanduser(os.path.join(*ospath))
 
+
+def importmod(modename):
+    '''导入模块'''
+    from kae import ka_modules
+    __import__(ka_modules[modename])
+
 @ka_setobj_rename("整数", "int")
 class KInt:
     def __init__(self, val):

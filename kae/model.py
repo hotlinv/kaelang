@@ -82,5 +82,7 @@ class Intention(BaseModel):
     action: Optional[str] = Field(title="动作")
     args: Optional[str] = Field(title="参数")
 
-
-
+class Module(BaseModel):
+    '''模块'''
+    name : str = Field(title="中文名")
+    mod : str = Field(title="模块路径")
