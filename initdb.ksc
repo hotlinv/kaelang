@@ -154,6 +154,8 @@ newnode Intention {"name":"压缩视频", "foo":"VideoTransform().compress('{{sr
 newnode Intention {"name":"设置视频帧率", "foo":"setr({{args}})", "model":"", "target":"帧率", "action":"设置"}
 newnode Intention {"name":"设置视频分辨率", "foo":"sets({{args}})", "model":"", "target":"分辨率", "action":"设置"}
 newnode Intention {"name":"设置视频码率", "foo":"setbv({{args}})", "model":"", "target":"码率", "action":"设置"}
+newnode Intention {"name":"设置形状", "foo":"setshape({{args}})", "model":"", "target":"形状", "action":"设置"}
+newnode Intention {"name":"设置模式", "foo":"setmode({{args}})", "model":"", "target":"模式", "action":"设置"}
 newnode Intention {"name":"设置值", "foo":"set({{args}})", "model":"", "target":"值", "action":"设置"}
 newnode Intention {"name":"它的值是", "foo":"set({{args}})", "model":"", "target":"值", "action":"是"}
 newnode Intention {"name":"另存为", "foo":"saveas('{{args}}')", "model":"", "action":"另存为"}
