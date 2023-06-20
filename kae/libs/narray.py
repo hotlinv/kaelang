@@ -28,7 +28,7 @@ class KNarray:
         return self
     def set(self, val):
         import numpy as np
-        if type(val) == int:
+        if type(val) == int or type(val)==float:
             self.val = np.zeros(self.shape, dtype=self.mode)+val
         return self
     def saveas(self, path):
