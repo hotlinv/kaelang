@@ -519,7 +519,9 @@ def compile(paragraph=" ".join(sys.argv[1:])):
             ress.append(res)
             continue
 
+        print("原始"*10, sent)
         joinPath(g, sent)
+        
         replaceSame(g, sent) #替换同义词
         delUseless(g, sent) #去除无用词
 
