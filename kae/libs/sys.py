@@ -60,6 +60,32 @@ class KFloat:
     def __str__(self) -> str:
         return str(self.val)
 
+@ka_setobj_rename("字符串", "str")
+class KStr:
+    def __init__(self, val):
+        self.val = val
+        self.type = str
+        if val is not None:
+            self.val = str(val)
+    def set(self, val):
+        self.val = val
+    def __str__(self) -> str:
+        return self.val
+
+@ka_setobj_rename("数组", "list")
+class KList:
+    def __init__(self, val):
+        self.val = val
+        self.type = str
+        if val is not None:
+            self.val = list(val)
+        else:
+            self.val = []
+    def set(self, val):
+        self.val = val
+    def __str__(self) -> str:
+        return str(self.val)
+
 def newobj(type, name, val):
     '''新建变量'''
     from kae import ka_vals, ka_valtypes
