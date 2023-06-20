@@ -5,7 +5,7 @@ def cacl(ev):
     return eval(ev)
 
 import re, os
-_ka_path_m=re.compile(u"(?:(.[^国]+)国)?(?:(.[^省]+)省)?(?:(.[^市]+)市)?(?:(.[^区县]+)[县|区])?(?:(.+)(?:乡|镇|街道))?(?:(.+)(?:村|社区))?(?:(.+)路)?(?:(.+)号)?(?:(.+)楼)?(?:(.+)(?:室|单元))?(?:(.+)间)?")
+from kae import ka_path_m as _ka_path_m
 
 def fpath(path):
     '''路径分析'''
