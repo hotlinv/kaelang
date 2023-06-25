@@ -1,12 +1,14 @@
-from kae.annotations import ka_setobj_rename
+from kae.annotations import ka_setobj_rename, ka_datasource
 from kae import ka_path_m as _ka_path_m
 from kae import ka_mount, ka_vals
 
-@ka_setobj_rename(cntype="爬虫", entype="netbug")
+@ka_setobj_rename(cntype="爬虫")
+@ka_datasource("星辰国") 
 class KNetbug:
     def __init__(self, urlpath):
-        
-        self.parseurl(urlpath)
+        self.url = self.parseurl(urlpath)
+        self.mt = self.urlmimetype(urlpath)
+        self.method = self.urlmethod(urlpath)
     def parseurl(self, path):
         '''网络路径解析'''
         mf = [p for p in _ka_path_m.findall(path)[0]]
@@ -18,19 +20,19 @@ class KNetbug:
         # print("##", mf, ospath, os.path.join(*ospath))
         return "/".join(upath)
 
-    def mimetype(self, path):
+    def urlmimetype(self, path):
         '''网络数据mimetype解析'''
         mf = [p for p in _ka_path_m.findall(path)[0]]
         return mf[-1]
 
-    def method(self, path):
+    def urlmethod(self, path):
         '''网络数据请求方法解析'''
         # print(path)
         METHODS = {"查询":"GET", "更新":"PUT", "新建":"POST", "删除":"DELETE"}
         mf = [p for p in _ka_path_m.findall(path)[0]]
         return METHODS[mf[-2]]
 
-    def mimetype(self, mimetype, txt):
+    def frommimetype(self, mimetype, txt):
         """根据mimetype建立对应对象"""
         if mimetype=="文本":
             return txt, mimetype
@@ -42,30 +44,31 @@ class KNetbug:
             return xmltodict.parse(txt), "对象"
         return txt, mimetype
 
-    def call(self, url, vname, method, mimetype, dataname):
+    def readdata(self, dataname):
         """发送网络请求
         """
         import urllib.request as urlreq
         import urllib.parse as urlpar
+        from kae import ka_vals
         headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
         #dict = {'name':'Germey'}
-        if dataname:
+        if dataname is not None:
             dic = ka_vals[dataname]
             dargs = urlpar.urlencode(dic).encode('utf-8')
         # #data参数如果要传必须传bytes（字节流）类型的，如果是一个字典，先用urllib.parse.urlencode()编码。
         #request = urllib.request.Request(url = url,data = data,headers = headers,method = 'POST')
-        reqdic = {"url": url}
+        reqdic = {"url": self.url}
         if dataname:
             reqdic["data"] = dargs
-        if method!="GET":
-            reqdic["method"]=method
+        if self.method!="GET":
+            reqdic["method"]=self.method
         # print("get==>", reqdic)
         request = urlreq.Request(**reqdic)
         response = urlreq.urlopen(request)
         ht = response.read().decode('utf-8')
-        nht,mt = self.ka_mimetype(mimetype, ht)
-        ka_vals[vname] = nht
-        ka_vals[vname+"_type"] = mt
+        return self.frommimetype(self.mt, ht)
+        # ka_vals[vname] = nht
+        # ka_vals[vname+"_type"] = mt
 
     def txt2obj(self, txtname, objname):
         """将txt里的json解析成对象"""

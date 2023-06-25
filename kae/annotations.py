@@ -86,17 +86,34 @@ def ka_reset_object_name(self, name):
         self.kacb_setobjNameOK()
 
 import types
-from functools import wraps
+# from functools import wraps
 def ka_setobj_rename(cntype="", entype=""):
-    '''为对象注入rename方法'''
+    '''为对象注入renameme方法'''
     def decorate(cls):
         from kae import ka_valtypes
-        ka_valtypes[cntype] = cls.__module__+".K"+entype.capitalize() #注册中文和英文名
-        @wraps(cls)
+        if entype is not None and entype!="":
+            ka_valtypes[cntype] = cls.__module__+".K"+entype.capitalize() #注册中文和英文名
+        # print("c"*10, cntype)
+        # cls.cntype = cntype
+        @functools.wraps(cls)
         def wapperfoo(*args, **kw):
             obj = cls(*args, **kw)
             obj.cntype=cntype
             obj.renameme = types.MethodType(ka_reset_object_name, obj)
+            return obj
+        return wapperfoo
+    return decorate
+
+import types
+# from functools import wraps
+def ka_datasource(pathname):
+    '''注册数据格式'''
+    def decorate(cls):
+        from kae import ka_dataname_class_map
+        ka_dataname_class_map[pathname] = cls.__module__+"."+cls.__name__ #注册中文和对应函数
+        @functools.wraps(cls)
+        def wapperfoo(*args, **kw):
+            obj = cls(*args, **kw)
             return obj
         return wapperfoo
     return decorate

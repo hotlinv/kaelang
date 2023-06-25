@@ -1,5 +1,5 @@
 from math import *
-from kae.annotations import ka_setobj_rename
+from kae.annotations import ka_setobj_rename, ka_datasource
 
 def cacl(ev):
     return eval(ev)
@@ -34,7 +34,7 @@ def importmod(modename):
     except:
         raise Exception(f"导入依赖库{ka_modules[modename]}失败")
     # exec(f"import {}", globals())
-    print(kae.libs.narray)
+    # print(kae.libs.narray)
 
 @ka_setobj_rename("整数", "int")
 class KInt:
@@ -103,6 +103,29 @@ def getobj(name):
     if hasattr(ka_vals[name], "val"):
         return ka_vals[name].val
     return ka_vals[name]
+
+
+@ka_setobj_rename(cntype="结构化数据", entype="anyStream")
+def StructuredData(path,  varname, queryname=None):
+    '''可以打开任何流，包括文件，网络'''
+    # self.varname= varname
+    from kae import ka_path_m , ka_dataname_class_map
+    mf = [p for p in ka_path_m.findall(path)[0]]
+    # print(">>>", mf)
+    t = mf[0]
+    cls = ka_dataname_class_map[t+"国"]
+    print(cls, path, varname)
+    obj = eval(f"{cls}('{path}')")
+    data, dt = obj.readdata(queryname)
+    from kae import ka_vals
+    ka_vals[varname] = data
+    # if varname is not None:
+    #     obj.renameme(varname)
+    # print("c"*10, cls)
+
+    # def setmeta(self, meta):
+    #     self.meta = meta
+    return obj
 
 def multiply(a, b):
     '''乘法'''

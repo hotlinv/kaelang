@@ -1,7 +1,7 @@
-from kae.annotations import ka_setobj_rename
+from kae.annotations import ka_setobj_rename, ka_datasource
 
 @ka_setobj_rename(cntype="记录集")
-class TableResultSet:
+class KTableResultSet:
     def __init__(self, rs):
         self.db = rs
     def __str__(self):
@@ -19,8 +19,9 @@ class TableResultSet:
         else:
             print("未知的数据表格格式")
 
-@ka_setobj_rename(cntype="表格", entype="pandas")
-class AnyDB:
+@ka_setobj_rename(cntype="表格")
+@ka_datasource("库源国")
+class KAnyDB:
     def __init__(self, filename):
         self.filename = filename
         from kae.libs.sys import fpath
@@ -77,7 +78,7 @@ class AnyDB:
             # print(res)
             ret = tab[res]
         
-        return TableResultSet(ret)
+        return KTableResultSet(ret)
     def saveas(self, path):
         from kae.libs.sys import fpath
         from kae import ka_fext
