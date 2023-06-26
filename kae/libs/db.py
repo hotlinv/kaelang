@@ -19,6 +19,8 @@ class KTableResultSet:
         else:
             print("未知的数据表格格式")
 
+ka_pandas_foo = {"xlsx":"excel", "xls":"excel"}
+
 @ka_setobj_rename(cntype="表格")
 @ka_datasource("库源国")
 class KAnyDB:
@@ -34,8 +36,11 @@ class KAnyDB:
         # print(fexts)
         fex = [ex for ex in fexts if ex is not None and filename.endswith("."+ex)]
         if len(fex)>0: 
+            readfoo = fex[0]
+            if readfoo in ka_pandas_foo:
+                readfoo = ka_pandas_foo[readfoo]
             #pd.read_sql
-            return eval(f"pd.read_{fex[0]}('{filename}')")
+            return eval(f"pd.read_{readfoo}('{filename}')")
         else:
             print("未知的数据表格格式")
     def __str__(self):
@@ -72,7 +77,7 @@ class KAnyDB:
         else:# 条件表达式
             tab = self.db
             for key, val in self.rfieldconf.items():
-                con = con.replace(key, f"tab.{val}")
+                con = con.replace(key, f"tab['{val}']")
             # print(con)
             res = eval(con)
             # print(res)
