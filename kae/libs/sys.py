@@ -118,6 +118,16 @@ def getattr(name, attr):
     else: 
         print(obj)
         return eval(f"obj.{attr}")
+    
+def convert2str(name):
+    from kae import ka_vals
+    obj = ka_vals[name]
+    if hasattr(obj, "val"):
+        obj = obj.val
+    s = obj
+    if hasattr(obj, "tostr"):
+        s = obj.tostr()
+    return KStr(str(s))
 
 from kae.common import dict2obj
 
