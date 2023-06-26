@@ -105,12 +105,19 @@ def getobj(name):
     return ka_vals[name]
 
 def getattr(name, attr):
-    '''获取变量'''
+    '''获取变量属性'''
     from kae import ka_vals
+    obj = ka_vals[name]
+    if "val" in ka_vals[name]:
+        obj = ka_vals[name]["val"]
     if hasattr(ka_vals[name], "val"):
         obj = ka_vals[name].val
-    obj = ka_vals[name]
-    return eval("obj.{attr}")
+    
+    if type(obj)==dict:
+        return obj[attr]
+    else: 
+        print(obj)
+        return eval(f"obj.{attr}")
 
 from kae.common import dict2obj
 

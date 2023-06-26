@@ -150,6 +150,7 @@ newnode Intention {"name":"定义变量2", "foo":"newobj('{{tartype}}',{{tarargs
 newnode Intention {"name":"计算公式", "foo":"cacl({{args}})", "model":"kae.libs.sys", "target":"公式", "action":"计算"}
 newnode Intention {"name":"计算表达式", "foo":"cacl({{args}})", "model":"kae.libs.sys", "target":"表达式", "action":"计算"}
 newnode Intention {"name":"获取变量的值", "foo":"getobj({{tarargs}})", "model":"kae.libs.sys", "target":"值", "action":"获取值"}
+newnode Intention {"name":"获取变量的属性", "foo":"getattr({{src}}, {{tarargs}})", "model":"kae.libs.sys", "target":"属性", "action":"获取属性"}
 newnode Intention {"name":"计算倍数的值", "foo":"multiply({{tarargs}},{{args}})", "model":"kae.libs.sys", "target":"倍", "action":"取倍数"}
 newnode Intention {"name":"压缩视频", "foo":"VideoTransform().compress('{{src}}')", "model":"kae.libs.video", "target":"视频", "action":"压缩"}
 newnode Intention {"name":"设置视频帧率", "foo":"setr({{args}})", "model":"", "target":"帧率", "action":"设置"}

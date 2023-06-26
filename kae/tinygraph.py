@@ -310,6 +310,7 @@ def parseTemplFile(g, comm):
                 actname, expline = senline[0:op], senline[op+1:]
                 iis = [ix for ix, e in enumerate( [len(r.comments) for r in p.runs]) if e !=0]
                 props = [p.runs[i-1].text+":"+TAGMAP[p.runs[i].comments[0].text] for i in iis]
+                print("k"*20, [pi.text for pi in p.runs], iis)
                 props.append(f"{actname}:{{action}}")
                 line = f"parse expression {expline} {' '.join(props)}"
                 parseTempl(g, line)
@@ -333,6 +334,7 @@ def parseTempl(g, comm):
     wordls = [w["name"] for w in wordlst]
     wordcs = [w["wordclass"] for w in wordlst]
     segoa = splitSentence(f"{tmpl}")[0] #先分词一遍，获取词性
+    print(tmpl, carr[3:])
     segks = [w.name for w in segoa]
     keyts = {r"{args}":r"nm*+", r"{tarargs}":r"nmnznsnfs*", r"{src}":r"ns*"}   #需要修改此处
     optionals = []
@@ -357,9 +359,9 @@ def parseTempl(g, comm):
         if not (v.startswith("[") and v.endswith("]")):
             tmpl = tmpl.replace(k, v)
     
-    print(segoa, keyts, optionals)
+    print(tmpl, segoa, keyts, optionals)
     
-    seg_list = splitSentence(tmpl)[0]#pseg.lcut(tmpl)
+    seg_list = splitSentence(f"{tmpl}")[0]#pseg.lcut(tmpl)
     replaceSame(g, seg_list)
     print("XX"*5, seg_list)
     # print(tmpl, [s for s in seg_list])

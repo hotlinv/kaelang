@@ -282,8 +282,9 @@ def _understandexp(intes, expm):
                     res["foo"] = re.sub(r"{{("+ma+r")}}", lambda m: _understandexp(intes, expm["subexp"][0])["foo"], res["foo"])
                 else:
                     # print("now", ma, res["foo"])
-                    res["foo"] = intef["model"]+"."+re.sub(argregex, lambda m: expm[m.group()[2:-2]], res["foo"])
+                    res["foo"] = re.sub(argregex, lambda m: expm[m.group()[2:-2]], res["foo"])
         print(res)
+        res["foo"] = intef["model"]+"."+res["foo"]
         return res
     
 
