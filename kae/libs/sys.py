@@ -104,6 +104,15 @@ def getobj(name):
         return ka_vals[name].val
     return ka_vals[name]
 
+def getattr(name, attr):
+    '''获取变量'''
+    from kae import ka_vals
+    if hasattr(ka_vals[name], "val"):
+        obj = ka_vals[name].val
+    obj = ka_vals[name]
+    return eval("obj.{attr}")
+
+from kae.common import dict2obj
 
 @ka_setobj_rename(cntype="结构化数据", entype="anyStream")
 def StructuredData(path,  varname, queryname=None):
@@ -118,7 +127,7 @@ def StructuredData(path,  varname, queryname=None):
     obj = eval(f"{cls}('{path}')")
     data, dt = obj.readdata(queryname)
     from kae import ka_vals
-    ka_vals[varname] = data
+    ka_vals[varname] = dict2obj({"val":data, "type":dt})
     # if varname is not None:
     #     obj.renameme(varname)
     # print("c"*10, cls)

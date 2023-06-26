@@ -36,6 +36,10 @@ class KNetbug:
         """根据mimetype建立对应对象"""
         if mimetype=="文本":
             return txt, mimetype
+        elif mimetype=="另类标记":
+            import yaml
+            y = yaml.load(txt, Loader=yaml.FullLoader)
+            return y, "对象"
         elif mimetype.lower()=="json":
             import json
             return json.loads(txt), "对象"
