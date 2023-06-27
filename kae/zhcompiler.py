@@ -208,6 +208,8 @@ def expre(gdb, regx, words):
     sl.extend(words[laste:])
     return sl if len(begend)>0 else None
 
+import re
+
 def evalExpression(gdb, words):
     # 把子句转换成表达式
     print("e"*10, words)
@@ -217,7 +219,10 @@ def evalExpression(gdb, words):
         return str(words[0].name)
     # 要重做一次分词，不然可能有词性错误的问题。
     full = "".join([w.name for w in words])
+    # 对数字可能会分词错误，比如“前8位”，需要在数字前后加一个空格，然后在数字前补0，变为“前 08 位”才能正确分词
+    full = re.sub(r"(\d+)", lambda i: f" 0{i.group(0)} ", full)
     words = cut(full)
+    words = [w for w in words if w.name!=" "]
     print("n"*10, words)
     # if len(words)==4 and words[0].name=="公式" and words[-2].name=="的" and words[-1].name=="值": #表达式的值
     #     return {"type":"foo" ,"op":"eval", "val":words[1].name}
@@ -269,8 +274,8 @@ def _understandexp(intes, expm):
     res = {"type":"expression" ,"foo":""}
     # print(intes, expm)
     
-    intefs = [i for i in intes if type(i)!=list and i["target"]==expm["target"]]
-    print("E"*30, expm["target"], expm, [type(i) for i in intes], [i["target"] for i in intes])
+    intefs = [i for i in intes if type(i)!=list and i["target"]==expm["target"] and i["action"]==expm["action"]]
+    # print("E"*30, expm["target"], expm, [type(i) for i in intes], [i["target"] for i in intes])
     if len(intefs)>0:
         intef = intefs[0] #意图
         print("i"*30, intef)

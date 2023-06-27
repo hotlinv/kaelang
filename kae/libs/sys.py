@@ -120,8 +120,7 @@ def getattr(name, attr):
         return eval(f"obj.{attr}")
     
 def convert2str(name):
-    from kae import ka_vals
-    obj = ka_vals[name]
+    obj = getobj(name)
     if hasattr(obj, "val"):
         obj = obj.val
     s = obj
@@ -129,9 +128,15 @@ def convert2str(name):
         s = obj.tostr()
     return KStr(str(s))
 
-def slice(name, posstr):
-    from kae import ka_vals
-    obj = ka_vals[name]
+def slice(name, posarr):
+    obj = getobj(name)
+    return eval(f"obj[{posarr[0]}:{posarr[1] if posarr[1] is not None else ''}]")
+
+def lslicepos(num):
+    return (0, num)
+
+def rslicepos(num):
+    return (num, None)
 
 from kae.common import dict2obj
 
