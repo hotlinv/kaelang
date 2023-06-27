@@ -210,12 +210,15 @@ def expre(gdb, regx, words):
 
 def evalExpression(gdb, words):
     # 把子句转换成表达式
-    print("eee"*10, words)
+    print("e"*10, words)
     if len(words)==1 and words[0].wordclass in "*m": #单纯字符串或数字
         return str(words[0].name)
     elif len(words)==1 and words[0].wordclass=="ns": # 纯路径
         return str(words[0].name)
-    
+    # 要重做一次分词，不然可能有词性错误的问题。
+    full = "".join([w.name for w in words])
+    words = cut(full)
+    print("n"*10, words)
     # if len(words)==4 and words[0].name=="公式" and words[-2].name=="的" and words[-1].name=="值": #表达式的值
     #     return {"type":"foo" ,"op":"eval", "val":words[1].name}
     # if len(words)==3 and words[-2].name=="的" and words[-1].name=="值": #变量的值

@@ -129,6 +129,10 @@ def convert2str(name):
         s = obj.tostr()
     return KStr(str(s))
 
+def slice(name, posstr):
+    from kae import ka_vals
+    obj = ka_vals[name]
+
 from kae.common import dict2obj
 
 @ka_setobj_rename(cntype="结构化数据", entype="anyStream")

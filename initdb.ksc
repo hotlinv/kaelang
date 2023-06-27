@@ -168,6 +168,7 @@ newnode Intention {"name":"引用模块", "foo":"importmod({{tarargs}})", "model
 newnode Intention {"name":"获取内容", "foo":"StructuredData('{{src}}',{{tarargs}})", "model":"kae.libs.sys", "target":"数据", "action":"获取"}
 newnode Intention {"name":"读取内容", "foo":"StructuredData('{{src}}',{{tarargs}})", "model":"kae.libs.sys", "target":"数据", "action":"读取"}
 newnode Intention {"name":"转化字符串", "foo":"convert2str({{tarargs}})", "model":"kae.libs.sys", "target":"字符串", "action":"转化"}
+newnode Intention {"name":"截取串", "foo":"slice({{tarargs}}, '{{args}}')", "model":"kae.libs.sys", "target":"变量", "action":"截取"}
 
 #newnode Module {"name":"矩阵", "mod":"kae.libs.narray"}
 #newnode Module {"name":"图像", "mod":"kae.libs.image"}
