@@ -1,5 +1,6 @@
 from math import *
 from kae.annotations import ka_setobj_rename, ka_datasource
+from kae.common import Dict as KDict
 
 def cacl(ev):
     return eval(ev)
@@ -139,11 +140,35 @@ def getattr(name, attr):
     if hasattr(ka_vals[name], "val"):
         obj = ka_vals[name].val
     
-    if type(obj)==dict:
+    # print(obj, ka_vals[name], attr)
+    if "__desc__" in ka_vals[name]:
+        if attr in ka_vals[name]["__desc__"].keys():
+            attr = ka_vals[name]["__desc__"][attr]
+
+    # print(obj, attr)
+    # print("XX"*10, attr, type(attr))
+    
+    if type(attr) == str:
+        if type(obj)==dict:
+            return obj[attr]
+        else: 
+            # print(obj)
+            return eval(f"obj.{attr}")
+    elif type(attr) == dict or type(attr)==KDict:
+        #那么这个obj肯定也是一个dict了
+        return _loopattr(obj, attr)
+    
+def _loopattr(obj, attr):
+    if type(attr)==str:
         return obj[attr]
-    else: 
-        print(obj)
-        return eval(f"obj.{attr}")
+    key = list(attr.keys())[0]
+    val = obj[key]
+    # print(key, val)
+    if type(attr[key])==dict or type(attr)==KDict:
+        return _loopattr(val, attr[key])
+    else:
+        # print(val[attr[key]])
+        return val[attr[key]]
     
 def convert2str(name):
     obj = getobj(name)

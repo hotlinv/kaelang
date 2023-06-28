@@ -1,13 +1,13 @@
 from kae.annotations import ka_setobj_rename, ka_datasource
 from kae import ka_path_m as _ka_path_m
-from kae import ka_mount, ka_vals
+from kae import ka_mount, ka_vals, ka_fext
 
 @ka_setobj_rename(cntype="爬虫")
 @ka_datasource("星辰国") 
 class KNetbug:
     def __init__(self, urlpath):
         self.url = self.parseurl(urlpath)
-        self.mt = self.urlmimetype(urlpath)
+        self.mt = ka_fext[self.urlmimetype(urlpath)+"间"]
         self.method = self.urlmethod(urlpath)
     def parseurl(self, path):
         '''网络路径解析'''
@@ -34,16 +34,16 @@ class KNetbug:
 
     def frommimetype(self, mimetype, txt):
         """根据mimetype建立对应对象"""
-        if mimetype=="文本":
+        if mimetype=="txt":
             return txt, mimetype
-        elif mimetype=="另类标记":
+        elif mimetype=="yml":
             import yaml
             y = yaml.load(txt, Loader=yaml.FullLoader)
             return y, "对象"
-        elif mimetype.lower()=="json":
+        elif mimetype=="json":
             import json
             return json.loads(txt), "对象"
-        elif mimetype.lower()=="xml":
+        elif mimetype=="xml":
             import xmltodict
             return xmltodict.parse(txt), "对象"
         return txt, mimetype
