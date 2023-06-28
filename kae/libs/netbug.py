@@ -57,7 +57,7 @@ class KNetbug:
         headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
         #dict = {'name':'Germey'}
         if dataname is not None:
-            dic = ka_vals[dataname]
+            dic = ka_vals[dataname].val
             dargs = urlpar.urlencode(dic).encode('utf-8')
         # #data参数如果要传必须传bytes（字节流）类型的，如果是一个字典，先用urllib.parse.urlencode()编码。
         #request = urllib.request.Request(url = url,data = data,headers = headers,method = 'POST')
@@ -66,7 +66,7 @@ class KNetbug:
             reqdic["data"] = dargs
         if self.method!="GET":
             reqdic["method"]=self.method
-        # print("get==>", reqdic)
+        print("get==>", reqdic)
         request = urlreq.Request(**reqdic)
         response = urlreq.urlopen(request)
         ht = response.read().decode('utf-8')

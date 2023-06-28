@@ -113,12 +113,14 @@ def setattr(objname, attrname, obj):
     # elif re.match(r"^\d+", obj):
     #     ka_vals[objname][attrname] = re.findall(r"\d+",obj)[0]
     # else:
-    ka_vals[objname][attrname] = obj
+    ka_vals[objname]["val"][attrname] = obj
+    print(ka_vals[objname])
 
-def createobj(desc, name):
+def createobj(descname, name):
     '''新建变量'''
     from kae import ka_vals
-    ka_vals[name] = {"__desc__": desc}
+    desc = ka_vals[descname]
+    ka_vals[name] = dict2obj({"__desc__": desc.val, "val":{}})
     return ka_vals[name]
 
 def getobj(name):

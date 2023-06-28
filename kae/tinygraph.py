@@ -293,7 +293,7 @@ def parseUserWords(g, comm):
             cmd = f'newnode UserWord {{"name":"{word}", "wordclass":"{wordtype}"}}'
             _newnode(g, cmd)
 
-TAGMAP = {"动作":r"{action}", "[目标]":r"[target]", "目标":r"{target}", "源":r"{src}", "源路径":r"{src}", "内容":r"{args}", "目标名称":r"{tarargs}", "对象参数":r"{tarargs}", "可选":"~", "目标类型": r"{tartype}"}
+TAGMAP = {"动作":r"{action}", "[目标]":r"[target]", "目标":r"{target}", "源":r"{src}", "源参数":r"{srcargs}", "源路径":r"{src}", "内容":r"{args}", "目标名称":r"{tarargs}", "对象参数":r"{tarargs}", "可选":"~", "目标类型": r"{tartype}"}
 
 def parseTemplFile(g, comm):
     # 解析word来进行语料训练
@@ -313,11 +313,13 @@ def parseTemplFile(g, comm):
                 print("k"*20, [pi.text for pi in p.runs], iis)
                 props.append(f"{actname}:{{action}}")
                 line = f"parse expression {expline} {' '.join(props)}"
+                print("@"*20, line)
                 parseTempl(g, line)
             else:
                 iis = [ix for ix, e in enumerate( [len(r.comments) for r in p.runs]) if e !=0]
                 props = [p.runs[i-1].text+":"+TAGMAP[p.runs[i].comments[0].text] for i in iis]
                 line = f"parse sentence {p.text} {' '.join(props)}"
+                print(">"*20, line)
                 parseTempl(g, line)
     
 def parseTempl(g, comm):
@@ -336,7 +338,7 @@ def parseTempl(g, comm):
     segoa = splitSentence(f"{tmpl}")[0] #先分词一遍，获取词性
     print(tmpl, carr[3:])
     segks = [w.name for w in segoa]
-    keyts = {r"{args}":r"nm*+", r"{tarargs}":r"nmnznsnfs*", r"{src}":r"ns*"}   #需要修改此处
+    keyts = {r"{args}":r"nm*+", r"{tarargs}":r"nmnznsnfs*", r"{srcargs}":r"nmnznsnfs*", r"{src}":r"ns*"}   #需要修改此处
     optionals = []
     vir = {}
     for it in carr[3:]: #对应参数
