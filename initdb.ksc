@@ -162,6 +162,7 @@ newnode Intention {"name":"设置值", "foo":"set({{args}})", "model":"", "targe
 newnode Intention {"name":"它的值是", "foo":"set({{args}})", "model":"", "target":"值", "action":"是"}
 newnode Intention {"name":"另存为", "foo":"saveas('{{args}}')", "model":"", "action":"另存为"}
 newnode Intention {"name":"命名为", "foo":"renameme('{{args}}')", "model":"", "action":"命名为"}
+newnode Intention {"name":"描述构建对象", "foo":"createobj({{src}}, {{tarargs}})", "model":"kae.libs.sys", "target":"对象", "action":"构建"}
 newnode Intention {"name":"打开表格", "foo":"KAnyDB('{{tarargs}}')", "model":"kae.libs.db", "target":"表格", "action":"打开"}
 newnode Intention {"name":"表格查询", "foo":"getobj({{tarargs}}).query({{args}})", "model":"kae.libs.sys", "target":"表格", "action":"查询"}
 newnode Intention {"name":"引用模块", "foo":"importmod({{tarargs}})", "model":"kae.libs.sys", "target":"模块", "action":"引用"}

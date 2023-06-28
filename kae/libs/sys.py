@@ -97,6 +97,30 @@ def newobj(type, name, val):
     ka_vals[name] = eval(f"{objtype}({val})")
     return ka_vals[name]
 
+def wapperobj(clsname, dataname):
+    """把变量的属性名进行对应（英转中）"""
+    from kae import ka_vals
+    ka_vals[dataname]["__desc__"] = ka_vals[clsname].val
+
+def setattr(objname, attrname, obj):
+    """设置对象属性"""
+    from kae import ka_vals
+    if "__desc__" in ka_vals[objname]:
+        attrname = ka_vals[objname]["__desc__"][attrname]
+    # print("set_attr", objname, ".", attrname, "=>", obj)
+    # if re.match(r"^ka_\w+(.+)$", obj):
+    #     ka_vals[objname][attrname] = eval(obj)
+    # elif re.match(r"^\d+", obj):
+    #     ka_vals[objname][attrname] = re.findall(r"\d+",obj)[0]
+    # else:
+    ka_vals[objname][attrname] = obj
+
+def createobj(desc, name):
+    '''新建变量'''
+    from kae import ka_vals
+    ka_vals[name] = {"__desc__": desc}
+    return ka_vals[name]
+
 def getobj(name):
     '''获取变量'''
     from kae import ka_vals
@@ -130,13 +154,13 @@ def convert2str(name):
 
 def slice(name, posarr):
     obj = getobj(name)
-    return eval(f"obj[{posarr[0]}:{posarr[1] if posarr[1] is not None else ''}]")
+    return KStr(eval(f"obj[{posarr[0]}:{posarr[1]}]"))
 
 def lslicepos(num):
     return (0, num)
 
 def rslicepos(num):
-    return (num, None)
+    return (-num, None)
 
 from kae.common import dict2obj
 

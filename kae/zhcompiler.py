@@ -217,12 +217,17 @@ def evalExpression(gdb, words):
         return str(words[0].name)
     elif len(words)==1 and words[0].wordclass=="ns": # 纯路径
         return str(words[0].name)
-    # 要重做一次分词，不然可能有词性错误的问题。
-    full = "".join([w.name for w in words])
-    # 对数字可能会分词错误，比如“前8位”，需要在数字前后加一个空格，然后在数字前补0，变为“前 08 位”才能正确分词
-    full = re.sub(r"(\d+)", lambda i: f" 0{i.group(0)} ", full)
-    words = cut(full)
-    words = [w for w in words if w.name!=" "]
+    # 如果内部有数字，要重做一次分词，不然可能有词性错误的问题。
+    if len([w for w in words if w.wordclass=="m"])>0:
+        full = "".join([w.name for w in words])
+        # 对数字可能会分词错误，比如“前8位”，需要在数字前后加一个空格，然后在数字前补0，变为“前 08 位”才能正确分词
+        full = re.sub(r"(\d+)", lambda i: f" 0{i.group(0)} ", full)
+        words = cut(full)
+        words = [w for w in words if w.name!=" "]
+        for w in words:# 去掉数字前的0
+            if w.wordclass=="m" and w.name.startswith("0"):
+                w.name = w.name[1:]
+        _joinSubpart(words)
     print("n"*10, words)
     # if len(words)==4 and words[0].name=="公式" and words[-2].name=="的" and words[-1].name=="值": #表达式的值
     #     return {"type":"foo" ,"op":"eval", "val":words[1].name}
@@ -455,13 +460,9 @@ def iscomment(words):
         return True
     return False
 
-
-
-def splitSentence(paragraph):
-    '''拆分句子（顺带划分整体语素：括弧，引号等）'''
+def _joinSubpart(words):
+    '''合并引号'''
     sents =[[]]
-    words = cut(paragraph)
-    print("w"*100, words)
     yh = 0
     for word in words:
         if word.wordclass=="x" and word.name in YH:
@@ -481,8 +482,16 @@ def splitSentence(paragraph):
             continue
         if word.wordclass=="x" and word.name in ENDSENT:
             sents.append([])
-    print("!"*100, sents)
     return sents[:-1] if len(sents)>1 else sents
+
+def splitSentence(paragraph):
+    '''拆分句子（顺带划分整体语素：括弧，引号等）'''
+    words = cut(paragraph)
+    print("w"*100, words)
+    sents = _joinSubpart(words)
+    print("!"*100, sents)
+    return sents
+    
 
 remakeLine = lambda words: "".join([word.name for word in words])
 
