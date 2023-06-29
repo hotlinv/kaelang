@@ -38,24 +38,11 @@ class KNarray:
         outfile = fpath(path)
         np.savetxt(outfile, self.val)
 
-
-def create_zeros(size, mode):
-    """新建全0矩阵"""
-    import numpy as np
-    arr=np.zeros(tuple([int(s) for s in size]), dtype=mat_getmode(mode))
-    return NArray(arr)
-
-def create_ones(size, mode):
-    """新建全1矩阵"""
-    import numpy as np
-    arr=np.ones(tuple([int(s) for s in size]), dtype=mat_getmode(mode))
-    return NArray(arr)
-
 def load_numpy_txt(path):
     """加载矩阵文本文件"""
     import numpy as np
     arr = np.loadtxt(path)
-    return NArray(arr)
+    return KNarray(arr)
 
 # def ka_numpy_savetxt(mn, path):
 #     """保存矩阵文本文件"""
