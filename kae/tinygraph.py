@@ -283,6 +283,9 @@ def _newlist(comm):
     arr = [vars[vn] for vn in carr[2:]]
     vars[listname] = arr
 
+import jieba.posseg as pseg
+import jieba
+
 def parseUserWords(g, comm):
     # 分析分词词典
     carr = comm.split()
@@ -292,13 +295,30 @@ def parseUserWords(g, comm):
             word, weight, wordtype = line.split()
             cmd = f'newnode UserWord {{"name":"{word}", "wordclass":"{wordtype}"}}'
             _newnode(g, cmd)
+            jieba.add_word(word, weight, wordtype)
+
+ 
+def parseSameWords(g, comm):
+    # 分析分词词典
+    carr = comm.split()
+    with open(carr[1], "r", encoding="utf-8") as f:
+        lines = f.readlines()
+        for line in lines:
+            words = line.split()
+            wordclass = [flag for w,flag in pseg.cut(words[0])][0]
+            print(wordclass)
+            for idx, word in enumerate(words):
+                if idx!=0:
+                    cmd = f'newnode SameWord {{"name":"{word}", "wordclass":"{wordclass}", "sameas":"{words[0]}"}}'
+                    _newnode(g, cmd)
 
 TAGMAP = {"动作":r"{action}", "[目标]":r"[target]", "目标":r"{target}", "源":r"{src}", "源参数":r"{srcargs}", "源路径":r"{src}", "内容":r"{args}", "目标名称":r"{tarargs}", "对象参数":r"{tarargs}", "可选":"~", "目标类型": r"{tartype}"}
 
 def parseTemplFile(g, comm):
     # 解析word来进行语料训练
-    import docx
     carr = comm.split()
+    # if carr[1].endswith(".docx"):
+    import docx
     document = docx.Document(carr[1])
 
     for p in document.paragraphs:
@@ -459,6 +479,8 @@ def graphcli(db, script):
                         parseTemplFile(g, line)
                     elif line.startswith("userwords"):
                         parseUserWords(g, line)
+                    elif line.startswith("samewords"):
+                        parseSameWords(g, line)
         return 
     comm = click.prompt('~~> ')
     while comm!="quit" and comm!="exit":

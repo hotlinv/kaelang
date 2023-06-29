@@ -325,6 +325,7 @@ def parseSubSentence(gdb, words):
         sub = []
         for i in range(subi,endidx):
             w = words.pop(subi)
+            # print(w)
             if w.name not in SPLIT:
                 sub.append(w)
             else:
@@ -405,6 +406,7 @@ def match(wl, gdb):
     session = []
     hasnext = True
     beg = 0
+    print("w"*30, wl)
     while hasnext:
         ss = gdb.query(Sentence)
         if not hasnext:
