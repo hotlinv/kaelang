@@ -447,7 +447,7 @@ def understand(gdb, intes, session):
                     else:
                         # print("c"*10, sen["args"])
                         inte["args"] = [evalExpression(gdb, w) for w in sen["args"]]
-                runers.append(inte)
+                runers.append(copy.deepcopy(inte))
                 break
     return runers
 
@@ -522,7 +522,13 @@ def compile(paragraph=" ".join(sys.argv[1:])):
     dbf = os.path.join(os.path.split(os.path.split(kae.__file__)[0])[0], "kae.db")
     # print(kae.__file__) #需要考虑在某个特别目录下放db文件
     g = Graph(dbf)
+    
+    # 先把action都抽出来，变成关键字，并附词性v
+    intes = g.query(Intention)
+    for intei in intes:
+        jieba.add_word(intei["action"], 10000, "v")
 
+    #准备替换词，无用词等
     prepareWordDict(g)
     # name = " ".join(sys.argv[1:])
     # words = cut(name)
@@ -551,7 +557,6 @@ def compile(paragraph=" ".join(sys.argv[1:])):
         
         print("sessions:",":"*50 ,s)
         if s is not None and len(s)>0:
-            intes = g.query(Intention)
             uintes = understand(g, intes, s)
             
             if len(uintes)>0:
@@ -560,13 +565,17 @@ def compile(paragraph=" ".join(sys.argv[1:])):
                 regex = r"{{(\w+)}}"
                 execs = []
                 for inte in uintes:
+                    print("I"*40, inte)
                     foo = inte['foo'] #({'' if 'args' not in inte else ARGS(inte['args'])})
                     matches = re.findall(regex, foo)
                     if len(matches)>0:
                         fooexec = re.sub(regex, lambda m: STR(inte[m.group()[2:-2]]), foo)
                     else:
                         fooexec = foo
-                    execs.append(f"{inte['model']}.{fooexec}")
+                    cmd = f"{inte['model']}.{fooexec}"
+                    if "retcls" in inte and inte["retcls"] is not None:
+                        cmd = f"{inte['retcls']}({cmd})"
+                    execs.append(cmd)
                     if inte['model'] not in mods and inte['model']!="":
                         mods.append(inte['model'])
                 res["exec"] = "".join(execs)
