@@ -67,9 +67,15 @@ class KStr:
         self.val = val
         self.type = str
         if val is not None:
-            self.val = str(val)
+            if type(val)==bytes:
+                self.val = val.decode("utf-8")
+            else:
+                self.val = str(val)
     def set(self, val):
-        self.val = val
+        if type(val)==bytes:
+            self.val = val.decode("utf-8")
+        else:
+            self.val = str(val)
     def __str__(self) -> str:
         return self.val
 

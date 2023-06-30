@@ -177,7 +177,7 @@ newnode Intention {"name":"转化字符串", "foo":"convert2str({{tarargs}})", "
 newnode Intention {"name":"前切片", "foo":"lslicepos({{args}})", "model":"kae.libs.sys", "target":"位", "action":"前切片"}
 newnode Intention {"name":"后切片", "foo":"rslicepos({{args}})", "model":"kae.libs.sys", "target":"位", "action":"后切片"}
 newnode Intention {"name":"截取串", "foo":"slice({{tarargs}}, {{args}})", "model":"kae.libs.sys", "target":"变量", "action":"截取"}
-newnode Intention {"name":"Base64编码", "foo":"b64encode({{src}})", "retcls":"kae.libs.sys.KStr" , "model":"base64", "target":"字符串", "action":"六十四位替换编码"}
+newnode Intention {"name":"Base64编码", "foo":"b64encode({{src}}.encode('utf-8'))", "retcls":"kae.libs.sys.KStr" , "model":"base64", "target":"字符串", "action":"六十四位替换编码"}
 
 #newnode Module {"name":"矩阵", "mod":"kae.libs.narray"}
 #newnode Module {"name":"图像", "mod":"kae.libs.image"}
