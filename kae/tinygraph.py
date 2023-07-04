@@ -328,8 +328,11 @@ def parseExcelFile(g, comm):
             j = 0
             kv = {}
             for key in line:
-                if key.value is not None or heads[j]=="model":
-                    kv[heads[j]] = key.value
+                val = key.value
+                if val is None:
+                    val = ""
+                if val!="" or heads[j]=="model":
+                    kv[heads[j]] = val
                 j+=1
             # print(kv)
 
