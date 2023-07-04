@@ -312,6 +312,34 @@ def parseSameWords(g, comm):
                     cmd = f'newnode SameWord {{"name":"{word}", "wordclass":"{wordclass}", "sameas":"{words[0]}"}}'
                     _newnode(g, cmd)
 
+def parseExcelFile(g, comm):
+    # 解析excel来进行意图训练
+    carr = comm.split()
+    import openpyxl # 导入openpyxl模块
+    wb = openpyxl.load_workbook(carr[1]) # 创建workbook对象
+    ws = wb.active
+    heads = []
+    i = 0
+    for line in ws:
+        if i==0:
+            for key in line:
+                heads.append(key.value)
+        else:
+            j = 0
+            kv = {}
+            for key in line:
+                if key.value is not None or heads[j]=="model":
+                    kv[heads[j]] = key.value
+                j+=1
+            # print(kv)
+
+            kvstr = "{"+",".join([f'"{k}":"{v}"'  for k,v in kv.items()])+"}"
+            cmd = f'newnode Intention {kvstr}'
+            print(cmd)
+            _newnode(g, cmd)
+        i+=1
+
+
 TAGMAP = {"动作":r"{action}", "[目标]":r"[target]", "目标":r"{target}", "源":r"{src}", "源参数":r"{srcargs}", "源路径":r"{src}", "内容":r"{args}", "目标名称":r"{tarargs}", "对象参数":r"{tarargs}", "可选":"~", "目标类型": r"{tartype}"}
 
 def parseTemplFile(g, comm):
@@ -477,6 +505,8 @@ def graphcli(db, script):
                         parseTempl(g, line)
                     elif line.startswith("train"):
                         parseTemplFile(g, line)
+                    elif line.startswith("intentions"):
+                        parseExcelFile(g, line)
                     elif line.startswith("userwords"):
                         parseUserWords(g, line)
                     elif line.startswith("samewords"):

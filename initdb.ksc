@@ -138,46 +138,51 @@ samewords dict/同义词.txt
 #newlist creats _act operan antype typearg argsjuz tarjuz
 #newnode Sentence {"name":"创建一个变量", "$edges":"creats"}
 
-newnode Intention {"name":"打开空调", "foo":"openf()", "model":"devs", "target":"空调", "action":"打开"}
-newnode Intention {"name":"打开图像", "foo":"open()", "model":"kae.libs.img", "target":"图像", "action":"打开"}
-newnode Intention {"name":"旋转图像", "foo":"ra()", "model":"kae.libs.img", "target":"图像", "action":"旋转"}
-newnode Intention {"name":"终端输出文本", "foo":"stdprint({{args}})", "model":"kae.libs.io", "target":"终端", "action":"输出"}
-newnode Intention {"name":"文件输出文本", "foo":"fprint('{{tarargs}}', {{args}})", "model":"kae.libs.io", "target":"文件", "action":"输出"}
-newnode Intention {"name":"语音输出", "foo":"speakprint({{args}})", "model":"kae.libs.io", "target":"语音", "action":"输出"}
-newnode Intention {"name":"语音说出", "foo":"speakprint({{args}})", "model":"kae.libs.io", "target":"语音", "action":"说出"}
-newnode Intention {"name":"新建变量", "foo":"newobj('{{tartype}}',{{tarargs}},{{args}})", "model":"kae.libs.sys", "action":"新建"}
-newnode Intention {"name":"定义变量", "foo":"newobj('{{tartype}}',{{tarargs}},{{args}})", "model":"kae.libs.sys", "action":"有"}
-newnode Intention {"name":"新建变量2", "foo":"newobj('{{tartype}}',{{tarargs}},{{args}})", "model":"kae.libs.sys", "target":"变量", "action":"新建"}
-newnode Intention {"name":"定义变量2", "foo":"newobj('{{tartype}}',{{tarargs}},{{args}})", "model":"kae.libs.sys", "target":"变量", "action":"有"}
-newnode Intention {"name":"计算公式", "foo":"cacl({{args}})", "model":"kae.libs.sys", "target":"公式", "action":"计算"}
-newnode Intention {"name":"计算表达式", "foo":"cacl({{args}})", "model":"kae.libs.sys", "target":"表达式", "action":"计算"}
-newnode Intention {"name":"获取变量的值", "foo":"getobj({{tarargs}})", "model":"kae.libs.sys", "target":"值", "action":"获取值"}
-newnode Intention {"name":"获取变量的属性", "foo":"getattr({{src}}, {{tarargs}})", "model":"kae.libs.sys", "target":"属性", "action":"获取属性"}
-newnode Intention {"name":"计算倍数的值", "foo":"multiply({{tarargs}},{{args}})", "model":"kae.libs.sys", "target":"倍", "action":"取倍数"}
-newnode Intention {"name":"压缩视频", "foo":"VideoTransform().compress('{{src}}')", "model":"kae.libs.video", "target":"视频", "action":"压缩"}
-newnode Intention {"name":"设置视频帧率", "foo":"setr({{args}})", "model":"", "target":"帧率", "action":"设置"}
-newnode Intention {"name":"设置视频分辨率", "foo":"sets({{args}})", "model":"", "target":"分辨率", "action":"设置"}
-newnode Intention {"name":"设置视频码率", "foo":"setbv({{args}})", "model":"", "target":"码率", "action":"设置"}
-newnode Intention {"name":"设置形状", "foo":"setshape({{args}})", "model":"", "target":"形状", "action":"设置"}
-newnode Intention {"name":"设置模式", "foo":"setmode({{args}})", "model":"", "target":"模式", "action":"设置"}
-newnode Intention {"name":"设置值", "foo":"set({{args}})", "model":"", "target":"值", "action":"设置"}
-newnode Intention {"name":"它的值是", "foo":"set({{args}})", "model":"", "target":"值", "action":"是"}
-newnode Intention {"name":"另存为", "foo":"saveas('{{args}}')", "model":"", "action":"另存为"}
-newnode Intention {"name":"命名为", "foo":"renameme('{{args}}')", "model":"", "action":"命名为"}
-newnode Intention {"name":"描述构建对象", "foo":"createobj({{src}}, {{tarargs}})", "model":"kae.libs.sys", "target":"对象", "action":"构建"}
-newnode Intention {"name":"描述已有对象", "foo":"wapperobj({{src}}, {{tarargs}})", "model":"kae.libs.sys", "target":"对象", "action":"描述"}
-newnode Intention {"name":"设置属性值", "foo":"setattr({{src}}, {{tarargs}}, {{args}})", "model":"kae.libs.sys", "target":"属性", "action":"设置"}
-newnode Intention {"name":"打开表格", "foo":"KAnyDB('{{tarargs}}')", "model":"kae.libs.db", "target":"表格", "action":"打开"}
-newnode Intention {"name":"表格查询", "foo":"getobj({{tarargs}}).query({{args}})", "model":"kae.libs.sys", "target":"表格", "action":"查询"}
-newnode Intention {"name":"引用模块", "foo":"importmod({{tarargs}})", "model":"kae.libs.sys", "target":"模块", "action":"引用"}
-newnode Intention {"name":"获取内容", "foo":"StructuredData('{{src}}',{{tarargs}}, {{srcargs}})", "model":"kae.libs.sys", "target":"数据", "action":"获取"}
-newnode Intention {"name":"读取内容", "foo":"StructuredData('{{src}}',{{tarargs}}, {{srcargs}})", "model":"kae.libs.sys", "target":"数据", "action":"读取"}
-newnode Intention {"name":"访问内容", "foo":"StructuredData('{{src}}',{{tarargs}}, {{srcargs}})", "model":"kae.libs.sys", "target":"数据", "action":"访问"}
-newnode Intention {"name":"转化字符串", "foo":"convert2str({{tarargs}})", "model":"kae.libs.sys", "target":"字符串", "action":"转化"}
-newnode Intention {"name":"前切片", "foo":"lslicepos({{args}})", "model":"kae.libs.sys", "target":"位", "action":"前切片"}
-newnode Intention {"name":"后切片", "foo":"rslicepos({{args}})", "model":"kae.libs.sys", "target":"位", "action":"后切片"}
-newnode Intention {"name":"截取串", "foo":"slice({{tarargs}}, {{args}})", "model":"kae.libs.sys", "target":"变量", "action":"截取"}
-newnode Intention {"name":"Base64编码", "foo":"b64encode({{src}}.encode('utf-8'))", "retcls":"kae.libs.sys.KStr" , "model":"base64", "target":"字符串", "action":"六十四位替换编码"}
+#newnode Intention {"name":"打开空调", "foo":"openf()", "model":"devs", "target":"空调", "action":"打开"}
+#newnode Intention {"name":"打开图像", "foo":"open()", "model":"kae.libs.img", "target":"图像", "action":"打开"}
+#newnode Intention {"name":"旋转图像", "foo":"ra()", "model":"kae.libs.img", "target":"图像", "action":"旋转"}
+#newnode Intention {"name":"终端输出文本", "foo":"stdprint({{args}})", "model":"kae.libs.io", "target":"终端", "action":"输出"}
+#newnode Intention {"name":"文件输出文本", "foo":"fprint('{{tarargs}}', {{args}})", "model":"kae.libs.io", "target":"文件", "action":"输出"}
+#newnode Intention {"name":"语音输出", "foo":"speakprint({{args}})", "model":"kae.libs.io", "target":"语音", "action":"输出"}
+#newnode Intention {"name":"语音说出", "foo":"speakprint({{args}})", "model":"kae.libs.io", "target":"语音", "action":"说出"}
+#newnode Intention {"name":"新建变量", "foo":"newobj('{{tartype}}',{{tarargs}},{{args}})", "model":"kae.libs.sys", "action":"新建"}
+#newnode Intention {"name":"定义变量", "foo":"newobj('{{tartype}}',{{tarargs}},{{args}})", "model":"kae.libs.sys", "action":"有"}
+#newnode Intention {"name":"新建变量2", "foo":"newobj('{{tartype}}',{{tarargs}},{{args}})", "model":"kae.libs.sys", "target":"变量", "action":"新建"}
+#newnode Intention {"name":"定义变量2", "foo":"newobj('{{tartype}}',{{tarargs}},{{args}})", "model":"kae.libs.sys", "target":"变量", "action":"有"}
+#newnode Intention {"name":"计算公式", "foo":"cacl({{args}})", "model":"kae.libs.sys", "target":"公式", "action":"计算"}
+#newnode Intention {"name":"计算表达式", "foo":"cacl({{args}})", "model":"kae.libs.sys", "target":"表达式", "action":"计算"}
+#newnode Intention {"name":"获取变量的值", "foo":"getobj({{tarargs}})", "model":"kae.libs.sys", "target":"值", "action":"获取值"}
+#newnode Intention {"name":"获取变量的属性", "foo":"getattr({{src}}, {{tarargs}})", "model":"kae.libs.sys", "target":"属性", "action":"获取属性"}
+#newnode Intention {"name":"计算倍数的值", "foo":"multiply({{tarargs}},{{args}})", "model":"kae.libs.sys", "target":"倍", "action":"取倍数"}
+#newnode Intention {"name":"压缩视频", "foo":"VideoTransform().compress('{{src}}')", "model":"kae.libs.video", "target":"视频", "action":"压缩"}
+#newnode Intention {"name":"设置视频帧率", "foo":"setr({{args}})", "model":"", "target":"帧率", "action":"设置"}
+#newnode Intention {"name":"设置视频分辨率", "foo":"sets({{args}})", "model":"", "target":"分辨率", "action":"设置"}
+#newnode Intention {"name":"设置视频码率", "foo":"setbv({{args}})", "model":"", "target":"码率", "action":"设置"}
+#newnode Intention {"name":"设置形状", "foo":"setshape({{args}})", "model":"", "target":"形状", "action":"设置"}
+#newnode Intention {"name":"设置模式", "foo":"setmode({{args}})", "model":"", "target":"模式", "action":"设置"}
+#newnode Intention {"name":"设置值", "foo":"set({{args}})", "model":"", "target":"值", "action":"设置"}
+#newnode Intention {"name":"它的值是", "foo":"set({{args}})", "model":"", "target":"值", "action":"是"}
+#newnode Intention {"name":"另存为", "foo":"saveas('{{args}}')", "model":"", "action":"另存为"}
+#newnode Intention {"name":"命名为", "foo":"renameme('{{args}}')", "model":"", "action":"命名为"}
+#newnode Intention {"name":"描述构建对象", "foo":"createobj({{src}}, {{tarargs}})", "model":"kae.libs.sys", "target":"对象", "action":"构建"}
+#newnode Intention {"name":"描述已有对象", "foo":"wapperobj({{src}}, {{tarargs}})", "model":"kae.libs.sys", "target":"对象", "action":"描述"}
+#newnode Intention {"name":"设置属性值", "foo":"setattr({{src}}, {{tarargs}}, {{args}})", "model":"kae.libs.sys", "target":"属性", "action":"设置"}
+#newnode Intention {"name":"打开表格", "foo":"KAnyDB('{{tarargs}}')", "model":"kae.libs.db", "target":"表格", "action":"打开"}
+#newnode Intention {"name":"表格查询", "foo":"getobj({{tarargs}}).query({{args}})", "model":"kae.libs.sys", "target":"表格", "action":"查询"}
+#newnode Intention {"name":"引用模块", "foo":"importmod({{tarargs}})", "model":"kae.libs.sys", "target":"模块", "action":"引用"}
+#newnode Intention {"name":"获取内容", "foo":"StructuredData('{{src}}',{{tarargs}}, {{srcargs}})", "model":"kae.libs.sys", "target":"数据", "action":"获取"}
+#newnode Intention {"name":"读取内容", "foo":"StructuredData('{{src}}',{{tarargs}}, {{srcargs}})", "model":"kae.libs.sys", "target":"数据", "action":"读取"}
+#newnode Intention {"name":"访问内容", "foo":"StructuredData('{{src}}',{{tarargs}}, {{srcargs}})", "model":"kae.libs.sys", "target":"数据", "action":"访问"}
+#newnode Intention {"name":"转化字符串", "foo":"convert2str({{tarargs}})", "model":"kae.libs.sys", "target":"字符串", "action":"转化"}
+#newnode Intention {"name":"前切片", "foo":"lslicepos({{args}})", "model":"kae.libs.sys", "target":"位", "action":"前切片"}
+#newnode Intention {"name":"后切片", "foo":"rslicepos({{args}})", "model":"kae.libs.sys", "target":"位", "action":"后切片"}
+#newnode Intention {"name":"截取串", "foo":"slice({{tarargs}}, {{args}})", "model":"kae.libs.sys", "target":"变量", "action":"截取"}
+#newnode Intention {"name":"Base64编码", "foo":"b64encode({{src}}.encode('utf-8'))", "retcls":"kae.libs.sys.KStr" , "model":"base64", "target":"字符串", "action":"六十四位替换编码"}
+
+intentions 训练语料/基本意图.xlsx
+intentions 训练语料/表格意图.xlsx
+intentions 训练语料/视频意图.xlsx
+intentions 训练语料/编码意图.xlsx
 
 #newnode Module {"name":"矩阵", "mod":"kae.libs.narray"}
 #newnode Module {"name":"图像", "mod":"kae.libs.image"}
