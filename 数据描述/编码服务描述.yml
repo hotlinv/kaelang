@@ -1,0 +1,9 @@
+端口: 8080
+接口: 
+ -
+  name: md5
+  url: md5
+  method: get
+  resp: json
+  foo: kae.libs.webserv.md5
+

@@ -183,6 +183,7 @@ intentions 训练语料/基本意图.xlsx
 intentions 训练语料/表格意图.xlsx
 intentions 训练语料/视频意图.xlsx
 intentions 训练语料/编码意图.xlsx
+intentions 训练语料/服务意图.xlsx
 
 #newnode Module {"name":"矩阵", "mod":"kae.libs.narray"}
 #newnode Module {"name":"图像", "mod":"kae.libs.image"}
