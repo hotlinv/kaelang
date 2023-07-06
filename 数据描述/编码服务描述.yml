@@ -6,4 +6,9 @@
   method: get
   resp: json
   foo: kae.libs.webserv.md5
-
+ -
+  name: base64encode
+  url: base64encode
+  method: get
+  resp: json
+  foo: kae.libs.webserv.base64encode

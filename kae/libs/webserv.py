@@ -39,6 +39,11 @@ def md5(serv, inputstr):
     m = hashlib.md5(inputstr.encode(encoding="UTF-8")).hexdigest()
     return {"input":inputstr, "output":m}
 
+def base64encode(serv, inputstr):
+    import base64
+    m = base64.b64encode(inputstr.encode('utf-8')).decode()
+    return {"input":inputstr, "output":m}
+
 # def md52(self, inputstr):
 #     print(inputstr)
 #     import hashlib
