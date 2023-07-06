@@ -104,7 +104,14 @@ def ka_setobj_rename(cntype="", entype=""):
         return wapperfoo
     return decorate
 
-import types
+def ka_get_namedobj(fn):# 把参数中getobj获取的对象变为.val的对象
+    @functools.wraps(fn) 
+    def inner(*args):
+        args = [lambda a: a if not hasattr(a, "val") else a.val for a in args]
+        ret = fn(*args)
+        return ret
+    return inner
+
 # from functools import wraps
 def ka_datasource(pathname):
     '''注册数据格式'''

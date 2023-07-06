@@ -1,7 +1,7 @@
 import cherrypy
-from kae.annotations import ka_setobj_rename, ka_datasource
-
+from kae.annotations import ka_setobj_rename, ka_get_namedobj
 import types, functools
+models = []
 def ka_cls():
     '''为对象注入页面的方法'''
     def decorate(cls):
@@ -12,7 +12,13 @@ def ka_cls():
             for inter in inters:
                 name = inter["name"]
                 foo = inter["foo"]
-                efn = eval(f"cherrypy.expose({foo})")
+                foos = foo.split(".")
+                model = ".".join(foos[:-1])
+                fooname = foos[-1]
+                if model not in models:
+                    exec(f"from {model} import {fooname}")
+                    models.append(model)
+                efn = eval(f"cherrypy.expose({fooname})")
                 if inter["resp"]=="json":
                     efn = cherrypy.tools.json_out()(efn)
                 exec(f"obj.{name} = types.MethodType(efn, obj)")
@@ -42,10 +48,12 @@ def md5(serv, inputstr):
 @ka_cls()
 @ka_setobj_rename(cntype="在线服务")
 class KServer:
+    # @ka_get_namedobj
     def __init__(self, conf):
         self.conf = conf
         self.port = 8080 if "端口" not in conf else conf["端口"]
         self.inters = conf["接口"]
 
+# @ka_get_namedobj
 def runkserv(serv):
     cherrypy.quickstart(serv)
