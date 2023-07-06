@@ -737,6 +737,7 @@ kæ现支持单句注释。只要在想注释的句子前加“说明：”或�
 ##### 4. [表格操作](https://gitee.com/linux_23/kaelang/wikis/%E5%8A%9F%E8%83%BD%E5%BA%93%E8%AF%B4%E6%98%8E/%E8%A1%A8%E6%A0%BC%E6%93%8D%E4%BD%9C)
 ##### 5. [网络请求](https://gitee.com/linux_23/kaelang/wikis/%E5%8A%9F%E8%83%BD%E5%BA%93%E8%AF%B4%E6%98%8E/%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82)
 ##### 6. [视频转换](https://gitee.com/linux_23/kaelang/wikis/%E5%8A%9F%E8%83%BD%E5%BA%93%E8%AF%B4%E6%98%8E/%E8%A7%86%E9%A2%91?sort_id=8104495)
+##### 7. [Web接口服务器](https://gitee.com/linux_23/kaelang/wikis/%E5%8A%9F%E8%83%BD%E5%BA%93%E8%AF%B4%E6%98%8E/Web%E6%8E%A5%E5%8F%A3%E6%9C%8D%E5%8A%A1%E7%A8%8B%E5%BA%8F)
 
 
 更多的语言细节请看[维基页面](https://gitee.com/linux_23/kaelang/wikis/pages) 。
