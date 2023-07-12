@@ -70,10 +70,10 @@ class KAnyDB:
             self.fieldconf = yaml.load(yf, Loader=yaml.FullLoader) # 字段 英文:中文
             self.rfieldconf = {v:k for k,v in self.fieldconf.items()} # 字段 中文:英文
     def query(self, q):
-        # print(q)
+        print(q)
         import re
         ret = self.db
-        regexall = r"(?:所有)?(.+)的((?:[^、]+(?:、|等)?)*)记录(?:中第(\d+)行的?信息){0,1}"
+        regexall = r"(?:所有)?(.+)的((?:[^、]+(?:、|等)?)*)记录(?:中的?第(\d+)[行条]的?信息){0,1}(?:中的?前(\d+)[行条]的?信息){0,1}"
         regex = r"([^、等]+)(?:、|等){0,1}"
 
         matches = re.findall(regexall, q)
@@ -97,9 +97,14 @@ class KAnyDB:
             ret = tab[res]
             if len(fs)>0:
                 ret = ret[[self.rfieldconf[f] for f in fs]]
-        if len(matches[0])>1:
+        if len(matches[0])>1: 
+            print(matches)
             iloc = matches[0][2]
-            ret = ret.iloc[int(iloc), :]
+            if iloc != "":
+                ret = ret.iloc[int(iloc), :]
+            leftloc = matches[0][3]
+            if leftloc != "":
+                ret = ret.iloc[:int(leftloc), :]
         
         return KTableResultSet(ret, self.fieldconf, self.rfieldconf)
     def saveas(self, path):
