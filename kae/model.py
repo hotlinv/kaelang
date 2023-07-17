@@ -57,6 +57,7 @@ class Sentence(BaseModel):
     tarargs: Optional[str] = Field(title="目标参数（文件名等）")
     tartype: Optional[str] = Field(title="目标类型")
     action: Optional[str] = Field(title="动作")
+    actname: Optional[str] = Field(title="动作名")
     args: Optional[str] = Field(title="参数")
     # _next:Union[NextRef, MayRef] = Field(title="下一个")
 
