@@ -413,6 +413,7 @@ def match(wl, gdb):
             beg = 0
         hasnext = False
         for s in ss:
+            s = copy.deepcopy(s)
             # lines = s.next
             if _match(gdb, None, s, wl, beg) and s["action"] is not None: #找到匹配的语法了
                 if "__next" in s: #还没结束
@@ -420,7 +421,7 @@ def match(wl, gdb):
                     beg = s["__next"]
                     del s["__next"]
                 # print("U"*50, session)
-                session.append(copy.deepcopy(s))
+                session.append(s)
                 break
     print("M"*50, session)
     return session
