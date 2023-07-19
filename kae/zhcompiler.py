@@ -433,6 +433,7 @@ def understand(gdb, intes, session):
     for sen in session:
         print(sen)
         for inte in intes:
+            inte = copy.deepcopy(inte)
             # print(inte["action"], sen["action"], inte["target"]==sen["target"] if "target" in sen else True)
             if inte["action"]==sen["action"] and (inte["target"]==sen["target"] if "target" in sen else True):#带目标对象的最好目标对象也一致
                 for key in sen.keys():
@@ -448,20 +449,20 @@ def understand(gdb, intes, session):
                     else:
                         # print("c"*10, sen["args"])
                         inte["args"] = [evalExpression(gdb, w) for w in sen["args"]]
-                runers.append(copy.deepcopy(inte))
+                runers.append(inte)
                 break
     return runers
 
 
 
 
-def iscomment(words):
-    '''判断是注释'''
-    if (words[0].name=="说明" or words[0].name=="声明") and words[1].name in MAO:
-        return True
-    elif words[0].name=="【" and words[1].name=="注" and words[2].name=="】":
-        return True
-    return False
+# def iscomment(words):
+#     '''判断是注释'''
+#     if (words[0].name=="说明" or words[0].name=="声明") and words[1].name in MAO:
+#         return True
+#     elif words[0].name=="【" and words[1].name=="注" and words[2].name=="】":
+#         return True
+#     return False
 
 def _joinSubpart(words):
     '''合并引号'''
@@ -540,11 +541,11 @@ def compile(paragraph=" ".join(sys.argv[1:])):
     for sent in sents:
         # print(sent)
         res = {"input":remakeLine(sent)}
-        if iscomment(sent): #判断是否是注释
-            res["errno"] = 0
-            res["exec"] = "# "
-            ress.append(res)
-            continue
+        # if iscomment(sent): #判断是否是注释
+        #     res["errno"] = 0
+        #     res["exec"] = "# "
+        #     ress.append(res)
+        #     continue
 
         print("原始"*10, sent)
         joinPath(g, sent)
@@ -568,14 +569,20 @@ def compile(paragraph=" ".join(sys.argv[1:])):
                 for inte in uintes:
                     print("I"*40, inte)
                     foo = inte['foo'] #({'' if 'args' not in inte else ARGS(inte['args'])})
-                    matches = re.findall(regex, foo)
-                    if len(matches)>0:
-                        fooexec = re.sub(regex, lambda m: STR(inte[m.group()[2:-2]]), foo)
-                    else:
-                        fooexec = foo
-                    cmd = f"{inte['model']}.{fooexec}"
-                    if "retcls" in inte and inte["retcls"] is not None:
-                        cmd = f"{inte['retcls']}({cmd})"
+                    if not foo.startswith("#"): 
+                        matches = re.findall(regex, foo)
+                        if len(matches)>0:
+                            fooexec = re.sub(regex, lambda m: STR(inte[m.group()[2:-2]]), foo)
+                        else:
+                            fooexec = foo
+                        cmd = f"{inte['model']}.{fooexec}"
+                        if "retcls" in inte and inte["retcls"] is not None:
+                            cmd = f"{inte['retcls']}({cmd})"
+                    else: #注释
+                        matches = re.findall(regex, foo)
+                        if len(matches)>0:
+                            fooexec = re.sub(regex, lambda m: res["input"], foo)
+                        cmd = fooexec
                     execs.append(cmd)
                     if inte['model'] not in mods and inte['model']!="":
                         mods.append(inte['model'])
