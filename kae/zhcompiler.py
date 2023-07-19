@@ -579,9 +579,9 @@ def compile(paragraph=" ".join(sys.argv[1:])):
                         if "retcls" in inte and inte["retcls"] is not None:
                             cmd = f"{inte['retcls']}({cmd})"
                     else: #注释
-                        matches = re.findall(regex, foo)
+                        matches = re.findall(r"{{original}}", foo)
                         if len(matches)>0:
-                            fooexec = re.sub(regex, lambda m: res["input"], foo)
+                            fooexec = re.sub(r"{{original}}", lambda m: res["input"], foo)
                         cmd = fooexec
                     execs.append(cmd)
                     if inte['model'] not in mods and inte['model']!="":
