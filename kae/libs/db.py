@@ -69,7 +69,10 @@ class KAnyDB:
         with open(conffile, 'r',encoding='utf-8') as yf:
             self.fieldconf = yaml.load(yf, Loader=yaml.FullLoader) # 字段 英文:中文
             self.rfieldconf = {v:k for k,v in self.fieldconf.items()} # 字段 中文:英文
-    def query(self, q):
+    def query(self, q, qname):
+        if qname is not None:
+            import kae
+            q = kae.sys.getobj(qname)
         print(q)
         import re
         ret = self.db
