@@ -358,15 +358,16 @@ def _match(gdb, sid, o, wl, i):
             continue
         nowi = si
         print(" +", s, "->", wl[i])
-        if s["name"]==r"{args}":
+        if s["name"] in (r"{args}",r"{sub}"):
+            argname = s["name"][1:-1]
             if type(wl[i])==list:
                 # 如果已经是列表
-                o["args"] = []
+                o[argname] = []
                 for part in wl[i]:
-                    o["args"].append(part)
+                    o[argname].append(part)
             else:
                 # 复杂内容延续直至结束。
-                o["args"] = [[]]
+                o[argname] = [[]]
                 while i<len(wl):
                     if wl[i].name in ENDSENT+"，,":
                         # args 结束了。
@@ -374,10 +375,10 @@ def _match(gdb, sid, o, wl, i):
                             o["__next"] = i+1
                         return True
                     elif wl[i].name in SPLIT:
-                        o["args"].append([])
+                        o[argname].append([])
                     else:
                         # args 开启
-                        o['args'][-1].append(wl[i])
+                        o[argname][-1].append(wl[i])
                     i+=1
         if type(wl[i])!=list and s["name"].startswith("{") and s["name"].endswith("}") and wl[i].wordclass in s["wordclass"]:
             exec(f"o['{s['name'][1:-1]}']=wl[i].name")
@@ -406,7 +407,7 @@ def match(wl, gdb):
     session = []
     hasnext = True
     beg = 0
-    print("w"*30, wl)
+    # print("w"*30, wl)
     while hasnext:
         ss = gdb.query(Sentence)
         if not hasnext:
@@ -553,7 +554,7 @@ def compile(paragraph=" ".join(sys.argv[1:])):
         replaceSame(g, sent) #替换同义词
         delUseless(g, sent) #去除无用词
 
-        parseSubSentence(g, sent)
+        # parseSubSentence(g, sent)
 
         s = match(sent, g)
         
