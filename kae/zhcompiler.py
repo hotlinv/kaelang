@@ -338,6 +338,7 @@ def parseSubSentence(gdb, words):
 def _match(gdb, sid, o, wl, i):
     # print([di(li) for li in o.edges])
     sl = []
+    slst = []
     for li in o["edges"]:
         edge = gdb.di(li)
         if edge["src"]==sid:
@@ -353,12 +354,15 @@ def _match(gdb, sid, o, wl, i):
     # print("_", sl, "->", wl[i])
     for si, st in sl:
         s = gdb.di(si)
+        slst.append(copy.deepcopy(s))
+    for si, st in sl:
+        s = slst[si]
             # _match(gdb, si, o, wl, i)
         if i>=len(wl):
             continue
         nowi = si
         print(" +", s, "->", wl[i])
-        if s["name"] in (r"{args}",r"{sub}"):
+        if s["name"] in (r"{args}",r"{sub}"): #args和sub都要贪婪匹配
             argname = s["name"][1:-1]
             if type(wl[i])==list:
                 # 如果已经是列表
@@ -376,6 +380,9 @@ def _match(gdb, sid, o, wl, i):
                         return True
                     elif wl[i].name in SPLIT:
                         o[argname].append([])
+                    elif wl[i].name == slst[si+1]["name"]: 
+                        #后面内容和args已经不匹配了，终止args片段
+                        break
                     else:
                         # args 开启
                         o[argname][-1].append(wl[i])
