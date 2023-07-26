@@ -334,15 +334,24 @@ def parseSubSentence(gdb, words):
         subs.append(sub)
         words.insert(subi, subs)
 
-
-def _match(gdb, sid, o, wl, i):
-    # print([di(li) for li in o.edges])
+def _snextwords(gdb, sid, o):
     sl = []
-    slst = []
     for li in o["edges"]:
         edge = gdb.di(li)
         if edge["src"]==sid:
-            sl.append((edge["tar"], edge["name"]))  
+            sl.append((edge["tar"], edge["name"])) 
+    return sl
+
+def _snextwordnames(gdb, sl):
+    ns = []
+    for si, st in sl:
+        s = copy.deepcopy(gdb.di(si))
+        ns.append(s["name"])
+    return ns
+
+def _match(gdb, sid, o, wl, i):
+    # print([di(li) for li in o.edges])
+    sl = _snextwords(gdb, sid, o) 
     # isok = 0
     if len(sl)==0:
         if i==len(wl):#寻到底了
@@ -353,10 +362,7 @@ def _match(gdb, sid, o, wl, i):
             return True
     # print("_", sl, "->", wl[i])
     for si, st in sl:
-        s = gdb.di(si)
-        slst.append(copy.deepcopy(s))
-    for si, st in sl:
-        s = slst[si]
+        s = copy.deepcopy(gdb.di(si))
             # _match(gdb, si, o, wl, i)
         if i>=len(wl):
             continue
@@ -380,7 +386,7 @@ def _match(gdb, sid, o, wl, i):
                         return True
                     elif wl[i].name in SPLIT:
                         o[argname].append([])
-                    elif wl[i].name == slst[si+1]["name"]: 
+                    elif wl[i].name in _snextwordnames(gdb, _snextwords(gdb, nowi, o)): 
                         #后面内容和args已经不匹配了，终止args片段
                         break
                     else:
