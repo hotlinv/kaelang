@@ -400,7 +400,9 @@ def _match(gdb, sid, o, wl, i):
                     if _matchnext(wl[i], gdb, nowi, o): 
                         #后面内容和args已经不匹配了，终止args片段
                         argsend = True
+                        i-=1
                         break
+                    
         if not argsend:
             if type(wl[i])!=list and s["name"].startswith("{") and s["name"].endswith("}") and wl[i].wordclass in s["wordclass"]:
                 exec(f"o['{s['name'][1:-1]}']=wl[i].name")
