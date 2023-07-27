@@ -349,6 +349,11 @@ def _snextwordnames(gdb, sl):
         ns.append(s["name"])
     return ns
 
+def _matchnext(wi, gdb, nowi, o):
+    names = _snextwordnames(gdb, _snextwords(gdb, nowi, o))
+    # print(" --", names)
+    return wi.name in names
+
 def _match(gdb, sid, o, wl, i):
     # print([di(li) for li in o.edges])
     sl = _snextwords(gdb, sid, o) 
@@ -362,12 +367,13 @@ def _match(gdb, sid, o, wl, i):
             return True
     # print("_", sl, "->", wl[i])
     for si, st in sl:
-        s = copy.deepcopy(gdb.di(si))
+        s = gdb.di(si)
             # _match(gdb, si, o, wl, i)
         if i>=len(wl):
             continue
         nowi = si
         print(" +", s, "->", wl[i])
+        argsend = False
         if s["name"] in (r"{args}",r"{sub}"): #args和sub都要贪婪匹配
             argname = s["name"][1:-1]
             if type(wl[i])==list:
@@ -379,6 +385,7 @@ def _match(gdb, sid, o, wl, i):
                 # 复杂内容延续直至结束。
                 o[argname] = [[]]
                 while i<len(wl):
+                    print(" ++", wl[i])
                     if wl[i].name in ENDSENT+"，,":
                         # args 结束了。
                         if  wl[i].name in "，,":
@@ -386,25 +393,27 @@ def _match(gdb, sid, o, wl, i):
                         return True
                     elif wl[i].name in SPLIT:
                         o[argname].append([])
-                    elif wl[i].name in _snextwordnames(gdb, _snextwords(gdb, nowi, o)): 
-                        #后面内容和args已经不匹配了，终止args片段
-                        break
                     else:
                         # args 开启
                         o[argname][-1].append(wl[i])
                     i+=1
-        if type(wl[i])!=list and s["name"].startswith("{") and s["name"].endswith("}") and wl[i].wordclass in s["wordclass"]:
-            exec(f"o['{s['name'][1:-1]}']=wl[i].name")
-        elif type(wl[i])==list and s["name"].startswith("{") and s["name"].endswith("}"):
-            exec(f"o['{s['name'][1:-1]}']=wl[i]")
-        elif type(wl[i])!=list and wl[i].name in ENDSENT+"，,":
-            # 结束了。
-            if wl[i].name in "，,":
-                o["__next"] = i+1
-            return True
-        elif type(wl[i])!=list and (s["name"] != wl[i].name or wl[i].wordclass not in s['wordclass']): 
-            print(" X", wl[i])
-            continue
+                    if _matchnext(wl[i], gdb, nowi, o): 
+                        #后面内容和args已经不匹配了，终止args片段
+                        argsend = True
+                        break
+        if not argsend:
+            if type(wl[i])!=list and s["name"].startswith("{") and s["name"].endswith("}") and wl[i].wordclass in s["wordclass"]:
+                exec(f"o['{s['name'][1:-1]}']=wl[i].name")
+            elif type(wl[i])==list and s["name"].startswith("{") and s["name"].endswith("}"):
+                exec(f"o['{s['name'][1:-1]}']=wl[i]")
+            elif type(wl[i])!=list and wl[i].name in ENDSENT+"，,":
+                # 结束了。
+                if wl[i].name in "，,":
+                    o["__next"] = i+1
+                return True
+            elif type(wl[i])!=list and (s["name"] != wl[i].name or wl[i].wordclass not in s['wordclass']): 
+                print(" X", wl[i])
+                continue
         # el
         
         # _next = s.next

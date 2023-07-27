@@ -25,15 +25,16 @@ def fpath(path):
     return os.path.expanduser(os.path.join(*ospath))
 
 
-def importmod(modename):
+def importmod(*modenames):
     '''导入模块'''
     from kae import ka_modules
-    print(ka_modules)
-    impm = compile(f"import {ka_modules[modename]}", "导入", "exec")
-    try:
-        exec(impm, globals())
-    except:
-        raise Exception(f"导入依赖库{ka_modules[modename]}失败")
+    # print(ka_modules)
+    for modename in modenames:
+        impm = compile(f"import {ka_modules[modename]}", "导入", "exec")
+        try:
+            exec(impm, globals())
+        except:
+            raise Exception(f"导入依赖库{ka_modules[modename]}失败")
     # exec(f"import {}", globals())
     # print(kae.libs.narray)
 
