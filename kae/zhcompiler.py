@@ -150,7 +150,7 @@ def delUseless(gdb, words):
 def _expre(regx, nowre, words, wi, begend, args):
     r = regx if nowre is None else nowre
     w = words[wi]
-    print(wi, words, w , r["name"], "*"*10, r, r["wordclass"])
+    # print(wi, words, w , r["name"], "*"*10, r, r["wordclass"])
     if (r["name"][0]=="{" and r["name"][-1]=="}" and "expid" in w) \
         or ("expid" not in w and w.name==r["name"] and w.wordclass in r["wordclass"]) \
         or ("expid" not in w and r["name"][0]=="{" and r["name"][-1]=="}" and w.wordclass in r["wordclass"]) \
@@ -191,7 +191,7 @@ def expre(gdb, regx, words):
     begend = []
     args = []
     _expre(regx["next"], None, words, 0, begend, args)
-    print("*"*10, begend, regx["name"])
+    # print("*"*10, begend, regx["name"])
     if len(begend)>0 and len(begend[-1])==1: #去除不完整的匹配
         begend.pop(-1)
     
@@ -214,6 +214,15 @@ import re
 def evalExpression(gdb, words):
     # 把子句转换成表达式
     print("e"*10, words)
+    subexpress = [[]]
+    for word in words: 
+        if not (word.wordclass=="x" and word.name in SPLIT):
+            subexpress[-1].append(word)
+        else:
+            subexpress.append([])
+    if len(subexpress)!=1:#带、分割
+        return [evalExpression(gdb, subw) for subw in subexpress]
+
     if len(words)==1 and words[0].wordclass in "*m": #单纯字符串或数字
         return str(words[0].name)
     elif len(words)==1 and words[0].wordclass=="ns": # 纯路径
@@ -271,7 +280,7 @@ def evalExpression(gdb, words):
                 break
         if count==0:
             break
-    print(res)
+    print("evalExpression res", res)
 
     intes = gdb.query(Intention)
     result=_understandexp(intes, res[0])
@@ -391,7 +400,10 @@ def _match(gdb, sid, o, wl, i):
                     o[argname].append(part)
             else:
                 # 复杂内容延续直至结束。
-                o[argname] = [[]]
+                if o[argname] is None:
+                    o[argname] = [[]]
+                elif type(o[argname])==list:
+                    o[argname].append([])
                 while i<len(wl):
                     print(" ++", wl[i])
                     if wl[i].name in ENDSENT+"，,":
@@ -399,8 +411,11 @@ def _match(gdb, sid, o, wl, i):
                         if  wl[i].name in "，,":
                             o["__next"] = i+1
                         return True
-                    elif wl[i].name in SPLIT:
-                        o[argname].append([])
+                    # elif wl[i].name in SPLIT:
+                    #     # 除了插入新项，还要把前一个纳入
+                    #     # if type(o[argname][-1])!=list:
+                    #     it = o[argname][-1].pop()
+                    #     o[argname].append([it])
                     else:
                         # args 开启
                         o[argname][-1].append(wl[i])
@@ -474,18 +489,20 @@ def understand(gdb, intes, session):
                         inte[key] = sen[key]
                 if "args" in sen and sen["args"] is not None:
                     if type(sen["args"])!=list:
-                        # print("a"*10, sen["args"])
+                        print("args no list", sen["args"])
                         inte["args"] = sen["args"]
                     elif len(sen["args"])==1:
-                        # print("b"*10, sen["args"])
+                        print("args 1 ", sen["args"])
                         inte["args"] = []
                         args = evalExpression(gdb, sen["args"][0])
+                        if args is None:
+                            print("X"*40, "无法匹配的表达式参数")
                         if type(args)==list:
                             inte["args"].extend(args)
-                        else:
+                        elif args is not None:
                             inte["args"].append(args)
                     else:
-                        # print("c"*10, sen["args"])
+                        print("args list", sen["args"])
                         inte["args"] = []
                         for w in sen["args"]:
                             args = evalExpression(gdb, w)
