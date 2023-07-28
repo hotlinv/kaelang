@@ -220,6 +220,9 @@ def StructuredData(path,  varname, queryname=None):
     #     self.meta = meta
     return obj
 
+ASC = "ASC"
+DESC = "DESC"
+
 def multiply(a, b):
     '''乘法'''
     return a*b
