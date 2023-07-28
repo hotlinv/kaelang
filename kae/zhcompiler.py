@@ -283,6 +283,9 @@ argregex = r"{{(\w+)}}"
 def _understandexp(intes, expm):
     res = {"type":"expression" ,"foo":""}
     # print(intes, expm)
+    if type(expm)!=dict:
+        print("X"*30, "_understandexp", "表达式无法理解", expm)
+        return 
     
     intefs = [i for i in intes if type(i)!=list and i["target"]==expm["target"] and i["action"]==expm["action"]]
     # print("E"*30, expm["target"], expm, [type(i) for i in intes], [i["target"] for i in intes])
