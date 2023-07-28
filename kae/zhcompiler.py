@@ -56,6 +56,7 @@ def cut(s):
     seg_list = pseg.cut(s)
     words = []
     for word, flag in seg_list:
+        print("cuted", word, flag)
         words.append(Word(name=word, wordclass=flag))
     return words
 
@@ -201,7 +202,7 @@ def expre(gdb, regx, words):
         expinf = {k:v for k,v in gdb.di(regx["name"]).items() if k not in exudek}
         subexp = {"expid": regx["name"],"subexp":words[beg:end+1]}
         subexp.update(expinf)
-        print(subexp)
+        # print(subexp)
         subexp.update(args[idx])
         sl.append(subexp)
         laste = end+1
@@ -222,12 +223,14 @@ def evalExpression(gdb, words):
         full = "".join([w.name for w in words])
         # 对数字可能会分词错误，比如“前8位”，需要在数字前后加一个空格，然后在数字前补0，变为“前 08 位”才能正确分词
         full = re.sub(r"(\d+)", lambda i: f" 0{i.group(0)} ", full)
+        # print("full", full)
         words = cut(full)
         words = [w for w in words if w.name!=" "]
         for w in words:# 去掉数字前的0
             if w.wordclass=="m" and w.name.startswith("0"):
                 w.name = w.name[1:]
-        _joinSubpart(words)
+        words = _joinSubpart(words)[0]
+
     print("n"*10, words)
     # if len(words)==4 and words[0].name=="公式" and words[-2].name=="的" and words[-1].name=="值": #表达式的值
     #     return {"type":"foo" ,"op":"eval", "val":words[1].name}
@@ -248,12 +251,14 @@ def evalExpression(gdb, words):
         nownode = es[-1]
         for link in lis:
             wd = gdb.di(link[1])
+            # print(wd)
             node = {"name":wd["name"], "wordclass":wd["wordclass"]}
             nownode["next"] = node
             nownode = node
             # _makeexpress(gdb, es[-1], lis)
-
+    # es内部放所有表达式的图
     print(es)
+
     res = words
     while True:
         count = 0
@@ -269,7 +274,7 @@ def evalExpression(gdb, words):
     print(res)
 
     intes = gdb.query(Intention)
-    result = _understandexp(intes, res[0])
+    result=_understandexp(intes, res[0])
     
     return result
 
@@ -456,7 +461,7 @@ def understand(gdb, intes, session):
     DEFARG = ["type", "nodetype", "name", "edges", "args"]
     runers = []
     for sen in session:
-        print(sen)
+        print("understand_sen", sen)
         for inte in intes:
             inte = copy.deepcopy(inte)
             # print(inte["action"], sen["action"], inte["target"]==sen["target"] if "target" in sen else True)
@@ -470,10 +475,22 @@ def understand(gdb, intes, session):
                         inte["args"] = sen["args"]
                     elif len(sen["args"])==1:
                         # print("b"*10, sen["args"])
-                        inte["args"] = [evalExpression(gdb, sen["args"][0])]
+                        inte["args"] = []
+                        args = evalExpression(gdb, sen["args"][0])
+                        if type(args)==list:
+                            inte["args"].extend(args)
+                        else:
+                            inte["args"].append(args)
                     else:
                         # print("c"*10, sen["args"])
-                        inte["args"] = [evalExpression(gdb, w) for w in sen["args"]]
+                        inte["args"] = []
+                        for w in sen["args"]:
+                            args = evalExpression(gdb, w)
+                            if type(args)==list:
+                                inte["args"].extend(args)
+                            else:
+                                inte["args"].append(args)
+                print("understand_inte", inte)
                 runers.append(inte)
                 break
     return runers
@@ -496,11 +513,11 @@ def _joinSubpart(words):
     for word in words:
         if word.wordclass=="x" and word.name in YH:
             yh+=1
-            if yh%2==0:
-                sents[-1][-1].name = sents[-1][-1].name+'"' #收尾
+            if yh%2==0:#收尾
+                sents[-1][-1].name = sents[-1][-1].name+'"' 
                 continue
-            else:
-                sents[-1].append(word) #开启
+            else:#开启, 上一个需要收尾
+                sents[-1].append(word) 
                 sents[-1][-1].name='"'
                 sents[-1][-1].wordclass="*"
                 continue
@@ -511,7 +528,8 @@ def _joinSubpart(words):
             continue
         if word.wordclass=="x" and word.name in ENDSENT:
             sents.append([])
-    return sents[:-1] if len(sents)>1 else sents
+    # print("joinsub", sents)
+    return sents[:-1] if len(sents)>1 and len(sents[-1])==0 else sents
 
 def splitSentence(paragraph):
     '''拆分句子（顺带划分整体语素：括弧，引号等）'''
