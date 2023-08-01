@@ -131,9 +131,11 @@ def createobj(descname, name):
     ka_vals[name] = dict2obj({"__desc__": desc.val, "val":{}})
     return ka_vals[name]
 
-def getobj(name):
+def getobj(name,default=None):
     '''获取变量'''
     from kae import ka_vals
+    if name not in ka_vals:
+        ka_vals[name] = default
     if hasattr(ka_vals[name], "val"):
         return ka_vals[name].val
     return ka_vals[name]

@@ -29,6 +29,30 @@ class KTableResultSet:
 ka_pandas_foo = {"xlsx":"excel", "xls":"excel"}
 ka_pandas_engine = {"xlsx":"openpyxl"}
 
+class TabQuery:
+    def __init__(self, tab, fieldconf, rfieldconf):
+        self.init = False
+        self.tab = tab
+        self.fieldconf = fieldconf
+        self.rfieldconf = rfieldconf
+    def orderby(self, ofield, aord):
+        self.ofield = ofield
+        self.aord = aord
+        return self
+    def queryend(self, limits, *rfs):
+        import kae
+        self.init = True
+        ret = self.tab
+        if self.ofield:
+            ret = ret.sort_values(by=self.rfieldconf[self.ofield], ascending=(self.aord==kae.libs.sys.ASC))
+        if limits:
+            ret = ret.iloc[int(limits[0]):int(limits[1]), :]
+        if len(rfs)>0:
+            # print(rfs, self.rfieldconf)
+            ret = ret[[self.rfieldconf[f] for f in rfs]]
+        return KTableResultSet(ret, self.fieldconf, self.rfieldconf)
+
+
 @ka_setobj_rename(cntype="表格")
 @ka_datasource("库源国")
 class KAnyDB:
@@ -72,7 +96,8 @@ class KAnyDB:
     def query(self, q, qname):
         if qname is not None:
             import kae
-            q = kae.sys.getobj(qname)
+            qobj = kae.libs.sys.getobj(qname, TabQuery(self.db, self.fieldconf, self.rfieldconf))
+            return qobj
         print(q)
         import re
         ret = self.db
