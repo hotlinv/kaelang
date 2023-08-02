@@ -520,7 +520,7 @@ def doo(foo=None, file=None):
             ###################################
             runcmd()
             import time
-            time.sleep(5)
+            # time.sleep(5)
 
             # 请求
             import requests

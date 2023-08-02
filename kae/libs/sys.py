@@ -198,6 +198,9 @@ def lslicepos(num):
 def rslicepos(num):
     return (-num, None)
 
+def ipos(num):
+    return (num)
+
 from kae.common import dict2obj
 
 @ka_setobj_rename(cntype="结构化数据", entype="anyStream")

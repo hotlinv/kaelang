@@ -46,7 +46,10 @@ class TabQuery:
         if self.ofield:
             ret = ret.sort_values(by=self.rfieldconf[self.ofield], ascending=(self.aord==kae.libs.sys.ASC))
         if limits:
-            ret = ret.iloc[int(limits[0]):int(limits[1]), :]
+            if len(limits)>1:
+                ret = ret.iloc[int(limits[0]):int(limits[1]), :]
+            else:
+                ret = ret.iloc[int(limits[0]), :]
         if len(rfs)>0:
             # print(rfs, self.rfieldconf)
             ret = ret[[self.rfieldconf[f] for f in rfs]]
