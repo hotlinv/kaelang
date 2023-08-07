@@ -50,16 +50,16 @@ userwords dict/分词词典.txt
 
 newnode UserSpWord {"name":"计算/公式"}
 
-newnode UselessWord {"name":"给", "wordclass":"p"}
-newnode UselessWord {"name":"立刻", "wordclass":"d"}
-newnode UselessWord {"name":"请", "wordclass":"v"}
-newnode UselessWord {"name":"你", "wordclass":"r"}
-newnode UselessWord {"name":"我", "wordclass":"r"}
-newnode UselessWord {"name":"并", "wordclass":"c"}
-newnode UselessWord {"name":"并且", "wordclass":"c"}
-newnode UselessWord {"name":"首先", "wordclass":"c"}
-newnode UselessWord {"name":"然后", "wordclass":"c"}
-newnode UselessWord {"name":"最后", "wordclass":"c"}
+#newnode UselessWord {"name":"给", "wordclass":"p"}
+#newnode UselessWord {"name":"立刻", "wordclass":"d"}
+#newnode UselessWord {"name":"请", "wordclass":"v"}
+#newnode UselessWord {"name":"你", "wordclass":"r"}
+#newnode UselessWord {"name":"我", "wordclass":"r"}
+#newnode UselessWord {"name":"并", "wordclass":"c"}
+#newnode UselessWord {"name":"并且", "wordclass":"c"}
+#newnode UselessWord {"name":"首先", "wordclass":"c"}
+#newnode UselessWord {"name":"然后", "wordclass":"c"}
+#newnode UselessWord {"name":"最后", "wordclass":"c"}
 
 #newnode SameWord {"name":"新建", "wordclass":"d", "sameas":"创建"}
 #newnode SameWord {"name":"定义", "wordclass":"d", "sameas":"创建"}
@@ -76,7 +76,7 @@ newnode UselessWord {"name":"最后", "wordclass":"c"}
 #newnode SameWord {"name":"；", "wordclass":"x", "sameas":";"}
 #newnode SameWord {"name":"！", "wordclass":"x", "sameas":"!"}
 
-samewords dict/同义词.txt
+samewords 训练语料/替换词.txt
 
 #newedge NextRef operan {action} ~> 一个
 #newedge NextRef antype 一个 ~> {args}

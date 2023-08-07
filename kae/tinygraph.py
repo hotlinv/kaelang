@@ -304,12 +304,14 @@ def parseSameWords(g, comm):
     with open(carr[1], "r", encoding="utf-8") as f:
         lines = f.readlines()
         for line in lines:
-            words = line.split()
-            wordclass = [flag for w,flag in pseg.cut(words[0])][0]
-            print(wordclass)
+            words = line.split(" ")
+            # wordclass = [flag for w,flag in pseg.cut(words[0])][0]
+            print(words)
+            firstword,wordclass = words[0].split("/")
+            # print(wordclass)
             for idx, word in enumerate(words):
                 if idx!=0:
-                    cmd = f'newnode SameWord {{"name":"{word}", "wordclass":"{wordclass}", "sameas":"{words[0]}"}}'
+                    cmd = f'newnode SameWord {{"name":"{word}", "wordclass":"{wordclass}", "sameas":"{firstword}"}}'
                     _newnode(g, cmd)
 
 def parseExcelFile(g, comm):
