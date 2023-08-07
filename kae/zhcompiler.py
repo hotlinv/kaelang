@@ -83,19 +83,36 @@ def joinPath(gdb, words): #把路径连成一整个
     
 
 def replaceSame(gdb, words):
-    # 同义词替代
+    # 同义词迭代替换
+    count = 0
     for word in words:
         sws = gdb.getNodes("SameWord", name=word.name)
         # print("s   ", sws)
         if len(sws)>0:
             word.name = sws[0]["sameas"] 
+            count+=1 #替换了1次
+    # 移除无用词
+    for idx, pi in  enumerate([i for i,w in enumerate(words) if w.name==""]):
+        words.pop(pi-idx)
+    
+    if count!=0:
+        replaceSame(gdb, words)
+    
 
 def replaceSameLst(gdb, words):
-    # 同义词替代 适用于lcut
+    # 同义词迭代替换 适用于lcut
+    count = 0
     for word in words:
         sws = gdb.getNodes("SameWord", name=word.word)
         if len(sws)>0:
             word.word = sws[0].sameas 
+            count+=1 #替换了1次
+    # 移除无用词
+    for idx, pi in  enumerate([i for i,w in enumerate(words) if w.word==""]):
+        words.pop(pi-idx)
+
+    if count!=0:
+        replaceSame(gdb, words)
 
 def delUseless(gdb, words):
     # 去除无用词
