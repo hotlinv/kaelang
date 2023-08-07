@@ -84,10 +84,11 @@ def joinPath(gdb, words): #把路径连成一整个
 
 def replaceSame(gdb, words):
     # 同义词迭代替换
+    # print("same:::", words)
     count = 0
     for word in words:
         sws = gdb.getNodes("SameWord", name=word.name)
-        # print("s   ", sws)
+        # print("same   ", sws)
         if len(sws)>0:
             word.name = sws[0]["sameas"] 
             count+=1 #替换了1次
@@ -104,6 +105,7 @@ def replaceSameLst(gdb, words):
     count = 0
     for word in words:
         sws = gdb.getNodes("SameWord", name=word.word)
+        # print("samelst   ", sws)
         if len(sws)>0:
             word.word = sws[0].sameas 
             count+=1 #替换了1次
