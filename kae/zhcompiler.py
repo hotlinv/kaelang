@@ -88,7 +88,7 @@ def replaceSame(gdb, words):
     count = 0
     for word in words:
         sws = gdb.getNodes("SameWord", name=word.name)
-        # print("same   ", sws)
+        # print("same>>   ", sws)
         if len(sws)>0:
             word.name = sws[0]["sameas"] 
             count+=1 #替换了1次
@@ -117,7 +117,7 @@ def replaceSameLst(gdb, words):
         replaceSame(gdb, words)
 
 def delUseless(gdb, words):
-    # 去除无用词
+    # 去除无用词(包括语气词)
     uls = [ul["name"] for ul in gdb.getNodes("UselessWord")]
     dels = []
     for word in words:
@@ -633,7 +633,7 @@ def compile(paragraph=" ".join(sys.argv[1:])):
         joinPath(g, sent)
         
         replaceSame(g, sent) #替换同义词
-        delUseless(g, sent) #去除无用词
+        # delUseless(g, sent) #去除无用词
 
         # parseSubSentence(g, sent)
 
