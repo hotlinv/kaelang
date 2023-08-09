@@ -345,9 +345,9 @@ def parseExcelFile(g, comm):
         i+=1
 
 
-TAGMAP = {"动作":r"{action}","动作2":r"{action2}", "[目标]":r"[target]", "目标":r"{target}", "源":r"{src}", "源参数":r"{srcargs}", "源路径":r"{src}", 
+TAGMAP = {"动作":r"{action}","动作2":r"{action2}", "可选动作":r"/action/", "[目标]":r"[target]", "目标":r"{target}", "源":r"{src}", "源参数":r"{srcargs}", "源路径":r"{src}", 
         "内容":r"{args}", "目标名称":r"{tarargs}", "对象参数":r"{tarargs}", "可选":"~", "目标类型": r"{tartype}", "动作名":r"{actname}",
-        "子句":r"{sub}"}
+        "子句":r"{sub}", "文本内容":r"<args>"}
 
 def parseTemplFile(g, comm):
     # 解析word来进行语料训练
@@ -393,7 +393,7 @@ def parseTempl(g, comm):
     segoa = splitSentence(f"{tmpl}")[0] #先分词一遍，获取词性
     print(tmpl, carr[3:])
     segks = [w.name for w in segoa]
-    keyts = {r"{args}":r"nm*+", r"{tarargs}":r"nmnznsnfs*", r"{srcargs}":r"nmnznsnfs*", r"{src}":r"ns*"}   #需要修改此处
+    keyts = {r"{args}":r"vnm*+", r"{tarargs}":r"nmnznsnfs*", r"{srcargs}":r"nmnznsnfs*", r"{src}":r"ns*"}   #需要修改此处
     optionals = []
     vir = {}
     for it in carr[3:]: #对应参数
@@ -404,16 +404,29 @@ def parseTempl(g, comm):
         if k1 in segks:
             keyts[v]=[w.wordclass for w in segoa if w.name==k1][0]
         if v.startswith("{") and v.endswith("}") :
-            if v not in wordls:
+            if k not in wordls:
                 jieba.add_word(k)
         elif v.startswith("[") and v.endswith("]") :
             # 这是一个不需要替换的关键字。
+            if k not in wordls:
+                jieba.add_word(k)
             vir[v] = k
+        elif v.startswith("<") and v.endswith(">") :
+            # 这是一个需要拼接成文本名词的关键字。
+            # k2 = "{"+v[1:-1]+"}"
+            # vir[v] = '"'+k+'"'
+            tmpl = tmpl.replace(k, v)
+        elif v.startswith("/") and v.endswith("/") :
+            # 这是一个不纯在的关键字。
+            if k not in wordls:
+                jieba.add_word(k)
+            vir[v] = k
+            tmpl = tmpl.replace(k, "")
         elif v=="~":#可选
             optionals.append(k)
             continue
         
-        if not (v.startswith("[") and v.endswith("]")):
+        if not (v.startswith("[") and v.endswith("]")) and not (v.startswith("/") and v.endswith("/")) and not (v.startswith("<") and v.endswith(">")):
             tmpl = tmpl.replace(k, v)
     
     print(tmpl, segoa, keyts, optionals)
@@ -422,13 +435,16 @@ def parseTempl(g, comm):
     replaceSame(g, seg_list)
     print("XX"*5, seg_list)
     # print(tmpl, [s for s in seg_list])
-    #合并{}
+    #合并{}和<>
     for ix, si in enumerate(seg_list): 
         if si.name=="}":
             seg_list[ix-1].name = "{"+seg_list[ix-1].name+"}"
             seg_list[ix-1].wordclass = keyts[seg_list[ix-1].name]
+        if si.name==">":
+            seg_list[ix-1].name = "<"+seg_list[ix-1].name+">"
+            seg_list[ix-1].wordclass = "*"
     # print(seg_list)
-    seglist = [(s.name, s.wordclass) for s in seg_list if s.name not in "}{" ]
+    seglist = [(s.name, s.wordclass) for s in seg_list if s.name not in "}{<>" ]
     # for w,f in seg_list:
     #     #print(s)
     #     seglist.append((w,f))
@@ -478,6 +494,7 @@ def parseTempl(g, comm):
     sf= Sentence(name=tmpl, edges=edges)
     for vk in vir.keys():
         exec(f"sf.{vk[1:-1]} = '{vir[vk]}'")
+    print("sf:", sf)
     g.createNode(nodetype.capitalize(), data=sf)
     
     

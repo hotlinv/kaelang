@@ -444,6 +444,37 @@ def _match(gdb, sid, o, wl, i):
                         argsend = True
                         i-=1
                         break
+        elif s["name"] == r"<args>": #args贪婪
+            argname = s["name"][1:-1]
+            if type(wl[i])==list:
+                # 如果已经是列表
+                o[argname] = []
+                for part in wl[i]:
+                    o[argname].append(part)
+            else:
+                # 复杂内容延续直至结束。
+                if o[argname] is None:
+                    o[argname] = [[]]
+                elif type(o[argname])==list:
+                    o[argname].append([])
+                while i<len(wl):
+                    print(" ++", wl[i])
+                    if wl[i].name in ENDSENT+"，,":
+                        # args 结束了。
+                        if  wl[i].name in "，,":
+                            o["__next"] = i+1
+                        o[argname] = [[Word(name="".join([ai.name for ai in a]), wordclass="*")] for a in o[argname]]
+                        return True
+                    else:
+                        # args 开启
+                        o[argname][-1].append(wl[i])
+                    i+=1
+                    if _matchnext(wl[i], gdb, nowi, o): 
+                        #后面内容和args已经不匹配了，终止args片段
+                        argsend = True
+                        i-=1
+                        break
+                o[argname] = [[Word(name="".join([ai.name for ai in a]), wordclass="*")] for a in o[argname]]
                     
         if not argsend:
             if type(wl[i])!=list and s["name"].startswith("{") and s["name"].endswith("}") and wl[i].wordclass in s["wordclass"]:
