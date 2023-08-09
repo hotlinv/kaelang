@@ -34,8 +34,8 @@ from kae.model import *
 from kae.tinygraph import *
 
 MAO = ":："
-ENDSENT = ".。!！?？"
-YH = '“”"'
+ENDSENT = ".。!！"
+YH = '“”"《》'
 KUOSTAR = '('
 KUOEND = ')'
 SHUSTAR = '《'
@@ -463,7 +463,7 @@ def _match(gdb, sid, o, wl, i):
                         # args 结束了。
                         if  wl[i].name in "，,":
                             o["__next"] = i+1
-                        o[argname] = [[Word(name="".join([ai.name for ai in a]), wordclass="*")] for a in o[argname]]
+                        o[argname] = [[Word(name='"'+"".join([ai.name for ai in a])+'"', wordclass="*")] for a in o[argname]]
                         return True
                     else:
                         # args 开启
@@ -474,7 +474,7 @@ def _match(gdb, sid, o, wl, i):
                         argsend = True
                         i-=1
                         break
-                o[argname] = [[Word(name="".join([ai.name for ai in a]), wordclass="*")] for a in o[argname]]
+                o[argname] = [[Word(name='"'+"".join([ai.name for ai in a])+'"', wordclass="*")] for a in o[argname]]
                     
         if not argsend:
             if type(wl[i])!=list and s["name"].startswith("{") and s["name"].endswith("}") and wl[i].wordclass in s["wordclass"]:
@@ -483,7 +483,7 @@ def _match(gdb, sid, o, wl, i):
                 exec(f"o['{s['name'][1:-1]}']=wl[i]")
             elif type(wl[i])!=list and wl[i].name in ENDSENT+"，,":
                 # 结束了。
-                if wl[i].name in "，,":
+                if wl[i].name in "，,?？":
                     o["__next"] = i+1
                 return True
             elif type(wl[i])!=list and (s["name"] != wl[i].name or wl[i].wordclass not in s['wordclass']): 
@@ -518,7 +518,7 @@ def match(wl, gdb):
                     hasnext = True
                     beg = s["__next"]
                     del s["__next"]
-                # print("U"*50, session)
+                print("U"*50, session)
                 session.append(s)
                 break
     print("M"*50, session)

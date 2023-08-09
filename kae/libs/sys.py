@@ -201,6 +201,17 @@ def rslicepos(num):
 def ipos(num):
     return (num)
 
+class Foo:
+    def __init__(self, name):
+        self.name = name
+    def foo(self, sourcename):
+        '''指定函数体'''
+        pass
+
+def deffoo(name):
+    '''定义函数'''
+    return Foo(name)
+
 from kae.common import dict2obj
 
 @ka_setobj_rename(cntype="结构化数据", entype="anyStream")
