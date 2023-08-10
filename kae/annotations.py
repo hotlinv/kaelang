@@ -104,6 +104,27 @@ def ka_setobj_rename(cntype="", entype=""):
         return wapperfoo
     return decorate
 
+def _lowtitle(s, s2):
+    return s.lower().endswith("k"+s2)
+
+def ka_return_rename(fn):
+    '''为对象注入renameme方法'''
+    @functools.wraps(fn)
+    def wapperfoo(*args, **kw):
+        obj = fn(*args, **kw)
+        from kae import ka_valtypes
+        # print(ka_valtypes)
+        regtypes = [it for it in ka_valtypes.values()]
+        ot = type(obj).__name__
+        t = [rt for rt in regtypes if _lowtitle(rt, ot)]
+        if len(t)>0:
+            p, c = ".".join(t[0].split(".")[:-1]), t[0].split(".")[-1]
+            exec(f"from {p} import {c}")
+            obj = eval(f"{c}({obj})")
+        obj.renameme = types.MethodType(ka_reset_object_name, obj)
+        return obj
+    return wapperfoo
+
 def ka_get_namedobj(fn):# 把参数中getobj获取的对象变为.val的对象
     @functools.wraps(fn) 
     def inner(*args):

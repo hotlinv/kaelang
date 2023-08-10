@@ -544,7 +544,7 @@ def understand(gdb, intes, session):
         if "isfoo" in sen:
             # 需要运行函数
             fooname = sen["name"]
-            intefoo = {"name":fooname, "foo":f"mkmodule('{fooname}').{fooname}()", "model":f"kae"}
+            intefoo = {"name":fooname, "foo":f"mkmodule('{fooname}').K{fooname}()", "model":f"kae"}
             runers.append(intefoo)
             continue
         for inte in intes:

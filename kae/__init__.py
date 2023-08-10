@@ -37,23 +37,30 @@ def isnamedfoo(name):
 
 def mkmodule(name):
     '''编译源码'''
-    import os.path
+    import os
     import hashlib
     sp = os.path.join("功能单元", ka_foos[name]+".ae")
     print(sp)
     hl = hashlib.md5()
     hl.update(name.encode("utf-8"))
     modelname = f"m{hl.hexdigest()}"
-    with open(os.path.join("modbin", modelname+".py"), "w", encoding="utf-8") as af:
-        lines = ["from kae.annotations import ka_setobj_rename",
-            f"@ka_setobj_rename(cntype='整数', entype='int')",
-            f"def {name}():",
+    if not os.access("modbin", os.F_OK):
+        os.mkdir("modbin")
+    if not os.access("modbin/__init__.py", os.F_OK):
+        os.mknod("modbin/__init__.py")
+    with open(os.path.join("modbin", f"{modelname}.py"), "w", encoding="utf-8") as af:
+        lines = ["from kae.annotations import ka_return_rename",
+            f"from kae.libs.sys import newobj,getobj",
+            f"@ka_return_rename",
+            f"def K{name}():",
             f"  print('{name}', 'is', 'run')",
-            f"  return 1000"
+            f"  newobj('整数', '{name}_ret', 100)",
         ]
+        lines.append(f"  return getobj('{name}_ret')")
         af.writelines([ w+"\n" for w in lines])
     # import importlib
     # m = importlib.import_module(f'modbin.{modelname}')
+    # print(f'modbin.{modelname}')
     m = __import__(f'modbin.{modelname}', fromlist=["modbin"])
     return m
 
