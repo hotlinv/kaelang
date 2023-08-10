@@ -38,7 +38,7 @@ def importmod(*modenames):
     # exec(f"import {}", globals())
     # print(kae.libs.narray)
 
-@ka_setobj_rename("整数", "int")
+@ka_setobj_rename(cntype="整数", entype="int")
 class KInt:
     def __init__(self, val):
         self.val = val
@@ -50,7 +50,7 @@ class KInt:
     def __str__(self) -> str:
         return str(self.val)
 
-@ka_setobj_rename("浮点数", "float")
+@ka_setobj_rename(cntype="浮点数", entype="float")
 class KFloat:
     def __init__(self, val):
         self.val = val
@@ -62,7 +62,7 @@ class KFloat:
     def __str__(self) -> str:
         return str(self.val)
 
-@ka_setobj_rename("字符串", "str")
+@ka_setobj_rename(cntype="字符串", entype="str")
 class KStr:
     def __init__(self, val):
         self.val = val
@@ -80,7 +80,7 @@ class KStr:
     def __str__(self) -> str:
         return self.val
 
-@ka_setobj_rename("数组", "list")
+@ka_setobj_rename(cntype="数组", entype="list")
 class KList:
     def __init__(self, val):
         self.val = val
@@ -102,7 +102,13 @@ def newobj(type, name, val):
         objtype = ka_valtypes[objtype]
     # print(globals())
     # print(kae.libs.narray)
-    ka_vals[name] = eval(f"{objtype}({val})")
+    # __import__(".".join(objtype.split(".")[:-1]), fromlist=["kae"])
+    pack = ".".join(objtype.split(".")[:-1])
+    tn = objtype.split(".")[-1]
+    exec(f'from {pack} import {tn}')
+    # eval("KInt(None)")
+    # print(type, name, val, f"{tn}({val})")
+    ka_vals[name] = eval(f"{tn}({val})")
     return ka_vals[name]
 
 def wapperobj(clsname, dataname):
@@ -200,17 +206,6 @@ def rslicepos(num):
 
 def ipos(num):
     return (num)
-
-class Foo:
-    def __init__(self, name):
-        self.name = name
-    def foo(self, sourcename):
-        '''指定函数体'''
-        pass
-
-def deffoo(name):
-    '''定义函数'''
-    return Foo(name)
 
 from kae.common import dict2obj
 

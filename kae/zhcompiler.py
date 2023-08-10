@@ -392,6 +392,16 @@ def _matchnext(wi, gdb, nowi, o):
 
 def _match(gdb, sid, o, wl, i):
     # print([di(li) for li in o.edges])
+    if wl[i].wordclass=="foo": #调用函数
+        o["name"] = wl[i].name
+        o["isfoo"] = True
+        o["action"] = "调用函数"
+        nexti = i+1
+        if wl[nexti].name in "，,":
+            nexti = i+2
+        if _match(gdb, 0, o, wl, nexti):
+            return True
+        return False
     sl = _snextwords(gdb, sid, o) 
     # isok = 0
     if len(sl)==0:
@@ -526,14 +536,27 @@ def match(wl, gdb):
 
 def understand(gdb, intes, session):
     '''从句式对应意图'''
+    import kae
     DEFARG = ["type", "nodetype", "name", "edges", "args"]
     runers = []
     for sen in session:
         print("understand_sen", sen)
+        if "isfoo" in sen:
+            # 需要运行函数
+            fooname = sen["name"]
+            intefoo = {"name":fooname, "foo":f"mkmodule('{fooname}').{fooname}()", "model":f"kae"}
+            runers.append(intefoo)
+            continue
         for inte in intes:
             inte = copy.deepcopy(inte)
             # print(inte["action"], sen["action"], inte["target"]==sen["target"] if "target" in sen else True)
             if inte["action"]==sen["action"] and (inte["target"]==sen["target"] if "target" in sen else True):#带目标对象的最好目标对象也一致
+                if inte["action"]=="定义函数":
+                    # 把函数名注册到jieba里，并设定词性
+                    fooname = eval(evalExpression(gdb, sen["args"][0]))
+                    print("识别并注册函数名:", "="*50, fooname)
+                    import jieba
+                    jieba.add_word(fooname, 10000, "foo")
                 for key in sen.keys():
                     if key not in DEFARG:
                         inte[key] = sen[key]
@@ -653,7 +676,16 @@ def compile(paragraph=" ".join(sys.argv[1:])):
     mods = ["kae.libs.sys"]
     for sent in sents:
         # print(sent)
-        res = {"input":remakeLine(sent)}
+        source = remakeLine(sent)
+        res = {"input":source}
+        # print("source", "$"*60, source, kae.ka_foos)
+        # if kae.isnamedfoo(re.split(",|，|。", source)[0]): #如果是已经注册的函数，则直接调用。
+        #     # kae.runfoo(source[:-1])
+        #     res["errno"] = 0
+        #     foonames = re.split(",|，|。", source)
+        #     res["exec"] = f"{foonames[0]}()"
+        #     ress.append(res)
+        #     continue
         # if iscomment(sent): #判断是否是注释
         #     res["errno"] = 0
         #     res["exec"] = "# "
@@ -661,10 +693,16 @@ def compile(paragraph=" ".join(sys.argv[1:])):
         #     continue
 
         print("原始"*10, sent)
+        # 再进行一次分词，怕其中有注册函数，如果是已经注册的函数，就会转换词性foo，match里需要对foo词性进行处理。
+        sent = splitSentence("".join([se.name for se in sent]))[0]
+
         joinPath(g, sent)
         
+        
+
         replaceSame(g, sent) #替换同义词
         # delUseless(g, sent) #去除无用词
+
 
         # parseSubSentence(g, sent)
 
