@@ -41,6 +41,8 @@ KUOEND = ')'
 SHUSTAR = '《'
 SHUEND = '》'
 SPLIT = "、；;"
+DOU = "，,"
+WEN = "?？"
 
 def prepareWordDict(g):
     '''修改词典'''
@@ -370,7 +372,7 @@ def parseSubSentence(gdb, words):
         subs.append(sub)
         words.insert(subi, subs)
 
-def _snextwords(gdb, sid, o):
+def _snextwords(gdb, sid, o): #拿句式里下一个word
     sl = []
     for li in o["edges"]:
         edge = gdb.di(li)
@@ -387,8 +389,12 @@ def _snextwordnames(gdb, sl):
 
 def _matchnext(wi, gdb, nowi, o):
     names = _snextwordnames(gdb, _snextwords(gdb, nowi, o))
-    # print(" --", names)
+    print(" --", names, wi.name)
     return wi.name in names
+
+def _isDouOrEnd(gdb, nowi, o):
+    names = _snextwordnames(gdb, _snextwords(gdb, nowi, o))
+    return names[0] in ENDSENT+DOU
 
 def _match(gdb, sid, o, wl, i):
     # print([di(li) for li in o.edges])
@@ -397,20 +403,23 @@ def _match(gdb, sid, o, wl, i):
         o["isfoo"] = True
         o["action"] = "调用函数"
         nexti = i+1
-        if wl[nexti].name in "，,":
-            nexti = i+2
-        if _match(gdb, 0, o, wl, nexti):
+        if wl[nexti].name in DOU:
+            o["__next"] = nexti+1
             return True
+        # if _match(gdb, None, o, wl, nexti):
+        #     return True
         return False
     sl = _snextwords(gdb, sid, o) 
     # isok = 0
-    if len(sl)==0:
-        if i==len(wl):#寻到底了
+    if len(sl)==0: #这个子句分析完了
+        if i==len(wl):#words寻到底了
             return True
-        else: #说明是逗号，还要继续解析下去
+        elif wl[i].name in DOU+WEN: #说明是逗号，还要继续解析下去
             o["__next"] = i
             print(","*40)
             return True
+        else:
+            return False
     # print("_", sl, "->", wl[i])
     for si, st in sl:
         s = gdb.di(si)
@@ -435,16 +444,14 @@ def _match(gdb, sid, o, wl, i):
                     o[argname].append([])
                 while i<len(wl):
                     print(" ++", wl[i])
-                    if wl[i].name in ENDSENT+"，,":
-                        # args 结束了。
-                        if  wl[i].name in "，,":
+                    if wl[i].name in ENDSENT+DOU:
+                        # 遇到句尾或逗号，args 就结束了。
+                        if  wl[i].name in DOU:
                             o["__next"] = i+1
+                        elif not _isDouOrEnd(gdb, nowi, o): #如果wl[i]是句号，句式还在继续且不是标点，则匹配失败
+                            return False
+                        # print("end", "。"*100, wl[i], _snextwordnames(gdb,_snextwords(gdb, nowi, o)))
                         return True
-                    # elif wl[i].name in SPLIT:
-                    #     # 除了插入新项，还要把前一个纳入
-                    #     # if type(o[argname][-1])!=list:
-                    #     it = o[argname][-1].pop()
-                    #     o[argname].append([it])
                     else:
                         # args 开启
                         o[argname][-1].append(wl[i])
@@ -469,10 +476,12 @@ def _match(gdb, sid, o, wl, i):
                     o[argname].append([])
                 while i<len(wl):
                     print(" ++", wl[i])
-                    if wl[i].name in ENDSENT+"，,":
-                        # args 结束了。
-                        if  wl[i].name in "，,":
+                    if wl[i].name in ENDSENT+DOU:
+                        # 遇到句尾或逗号， args 结束了。
+                        if  wl[i].name in DOU:
                             o["__next"] = i+1
+                        elif not _isDouOrEnd(gdb, nowi, o): #如果wl[i]是句号，句式却还在继续且不是标点，则匹配失败
+                            return False
                         o[argname] = [[Word(name='"'+"".join([ai.name for ai in a])+'"', wordclass="*")] for a in o[argname]]
                         return True
                     else:
@@ -491,10 +500,11 @@ def _match(gdb, sid, o, wl, i):
                 exec(f"o['{s['name'][1:-1]}']=wl[i].name")
             elif type(wl[i])==list and s["name"].startswith("{") and s["name"].endswith("}"):
                 exec(f"o['{s['name'][1:-1]}']=wl[i]")
-            elif type(wl[i])!=list and wl[i].name in ENDSENT+"，,":
+            elif type(wl[i])!=list and wl[i].name in ENDSENT+DOU+WEN:
                 # 结束了。
-                if wl[i].name in "，,?？":
+                if wl[i].name in DOU+WEN: #问号不能作为一句结尾，因为后面有对其解释和完善。
                     o["__next"] = i+1
+                print("end", "."*100)
                 return True
             elif type(wl[i])!=list and (s["name"] != wl[i].name or wl[i].wordclass not in s['wordclass']): 
                 print(" X", wl[i])

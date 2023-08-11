@@ -98,15 +98,18 @@ def newobj(vtype, name, val):
     '''新建变量'''
     from kae import ka_vals, ka_valtypes
     objtype = vtype
-    if objtype is None:
+    if objtype is None: #不一定都能直接确定数据类型，可能需要靠val猜。
+        if val is None:
+            objtype = "字符串"
         if hasattr(val, "cntype"):
             objtype = val.cntype
-        else:
+        elif val is not None:
             ot = type(val).__name__
             regtypes = [it for it in ka_valtypes.values()]
             ts = [rt for rt in regtypes if (lambda s, s2: s.lower().endswith("k"+s2))(rt, ot)]
             if len(ts)>0:
                 objtype = [k for k, v in ka_valtypes.items() if v==ts[0]][0]
+        
     if objtype in ka_valtypes.keys():
         objtype = ka_valtypes[objtype]
     # print(globals())
@@ -116,7 +119,7 @@ def newobj(vtype, name, val):
     tn = objtype.split(".")[-1]
     exec(f'from {pack} import {tn}')
     # eval("KInt(None)")
-    # print(type, name, val, f"{tn}({val})")
+    # print(vtype, name, val, f"{tn}({val})")
     ka_vals[name] = eval(f"{tn}({val})")
     return ka_vals[name]
 
