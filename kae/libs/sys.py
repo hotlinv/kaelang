@@ -94,10 +94,19 @@ class KList:
     def __str__(self) -> str:
         return str(self.val)
 
-def newobj(type, name, val):
+def newobj(vtype, name, val):
     '''新建变量'''
     from kae import ka_vals, ka_valtypes
-    objtype = type
+    objtype = vtype
+    if objtype is None:
+        if hasattr(val, "cntype"):
+            objtype = val.cntype
+        else:
+            ot = type(val).__name__
+            regtypes = [it for it in ka_valtypes.values()]
+            ts = [rt for rt in regtypes if (lambda s, s2: s.lower().endswith("k"+s2))(rt, ot)]
+            if len(ts)>0:
+                objtype = [k for k, v in ka_valtypes.items() if v==ts[0]][0]
     if objtype in ka_valtypes.keys():
         objtype = ka_valtypes[objtype]
     # print(globals())

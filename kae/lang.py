@@ -474,7 +474,7 @@ def runcmd():
         execp = sys.executable
         # 定义启动的命令行命令
         command = [execp, "-m" "kae.ear"]
-
+        print(command)
         # 启动进程，不等待其结果
         subprocess.Popen(command)
     except:
@@ -502,25 +502,9 @@ def doo(foo=None, file=None):
             with open(f".bin/{fmd5}.af", "r", encoding='UTF-8') as af:
                 pycallable = af.read()
         else:
-            # codes = []
-            #codes存放代码段
-            #######################################
-            # ka_fragments = {"step":0, "codes":{"main":[]}, "stack":["main"], "foo":[]}
-            # for line in lines:
-            #     ka_prepare_a_line(ka_fragments, line)
-
-            # mainlines = ["    {0}".format(ka_parse(ml)) for ml in ka_fragments["codes"]["main"]]
-            # kc = DEF_TMP.format(foo, "\n".join(mainlines)[4:])
-            # ka_fragments["foo"].append(kc)
-            #         # codes.append(kc)
-            # if foo=="main":
-            #     ka_fragments["foo"].append("main(vals={})")
-            # pycallable = "".join(ka_fragments["foo"])
-            # print2kc(pycallable, fmd5, True)
-            ###################################
             runcmd()
-            import time
-            # time.sleep(5)
+            # import time
+            # time.sleep(2)
 
             # 请求
             import requests
