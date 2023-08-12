@@ -398,6 +398,21 @@ def _isDouOrEnd(gdb, nowi, o):
 
 def _match(gdb, sid, o, wl, i):
     # print([di(li) for li in o.edges])
+    sl = _snextwords(gdb, sid, o) 
+    # isok = 0
+    if len(sl)==0: #这个子句分析完了
+        if i==len(wl):#words寻到底了
+            return True
+        elif wl[i].name in DOU+WEN: #说明是逗号，还要继续解析下去
+            o["__next"] = i
+            print(","*40)
+            return True
+        else:
+            print("sl无了", sl)
+            return False
+    if i==len(wl):#words寻到底了
+        print("words无了")
+        return False
     if wl[i].wordclass=="foo": #调用函数
         o["name"] = wl[i].name
         o["isfoo"] = True
@@ -409,17 +424,6 @@ def _match(gdb, sid, o, wl, i):
         # if _match(gdb, None, o, wl, nexti):
         #     return True
         return False
-    sl = _snextwords(gdb, sid, o) 
-    # isok = 0
-    if len(sl)==0: #这个子句分析完了
-        if i==len(wl):#words寻到底了
-            return True
-        elif wl[i].name in DOU+WEN: #说明是逗号，还要继续解析下去
-            o["__next"] = i
-            print(","*40)
-            return True
-        else:
-            return False
     # print("_", sl, "->", wl[i])
     for si, st in sl:
         s = gdb.di(si)
@@ -427,7 +431,7 @@ def _match(gdb, sid, o, wl, i):
         if i>=len(wl):
             continue
         nowi = si
-        print(" +", s, "->", wl[i])
+        print(" +", s, "->", i, wl[i])
         argsend = False
         if s["name"] in (r"{args}",r"{sub}"): #args和sub都要贪婪匹配
             argname = s["name"][1:-1]
@@ -513,9 +517,9 @@ def _match(gdb, sid, o, wl, i):
         
         # _next = s.next
         # if _next is not None:
-        if _match(gdb, nowi, o, wl, i+1):
+        return _match(gdb, nowi, o, wl, i+1)
             # isok +=1
-            return True
+            # return True
     return False #isok>0 or len(sl)==0
     
 
