@@ -517,9 +517,9 @@ def _match(gdb, sid, o, wl, i):
         
         # _next = s.next
         # if _next is not None:
-        return _match(gdb, nowi, o, wl, i+1)
+        if _match(gdb, nowi, o, wl, i+1):
             # isok +=1
-            # return True
+            return True
     return False #isok>0 or len(sl)==0
     
 
