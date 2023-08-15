@@ -246,6 +246,8 @@ def evalExpression(gdb, words):
 
     if len(words)==1 and words[0].wordclass in "*m": #单纯字符串或数字
         return str(words[0].name)
+    elif len(words)==2 and words[0].wordclass in "*m": #单纯字符串或数字(后带一个单位)
+        return str(words[0].name)
     elif len(words)==1 and words[0].wordclass=="ns": # 纯路径
         return str(words[0].name)
     # 如果内部有数字，要重做一次分词，不然可能有词性错误的问题。
