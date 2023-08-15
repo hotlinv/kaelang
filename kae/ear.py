@@ -19,7 +19,7 @@ class KaeEar(object):
         # print(lines)
         bs = zcompile("".join(lines))
         print(bs)
-        ka_fragments["foo"].append(r"aa={}")
+        # ka_fragments["foo"].append(r"aa={}")
         ka_fragments["foo"].extend([zl["exec"] for zl in bs if zl["errno"]==0])
         pycallable = "\n".join(ka_fragments["foo"])
         print(pycallable)

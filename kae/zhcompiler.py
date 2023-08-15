@@ -560,7 +560,7 @@ def understand(gdb, intes, session):
         if "isfoo" in sen:
             # 需要运行函数
             fooname = sen["name"]
-            intefoo = {"name":fooname, "foo":f"mkmodule('{fooname}').K{fooname}()", "model":f"kae"}
+            intefoo = {"name":fooname, "foo":f"mkmodule('{fooname}').K{fooname}()", "model":f"kae", "isfoo": True}
             runers.append(intefoo)
             continue
         for inte in intes:
@@ -733,7 +733,7 @@ def compile(paragraph=" ".join(sys.argv[1:])):
                 res["errno"] = 0
                 regex = r"{{(\w+)}}"
                 execs = []
-                for inte in uintes:
+                for inti, inte in enumerate(uintes):
                     print("I"*40, inte)
                     foo = inte['foo'] #({'' if 'args' not in inte else ARGS(inte['args'])})
                     if not foo.startswith("#"): 
@@ -742,7 +742,12 @@ def compile(paragraph=" ".join(sys.argv[1:])):
                             fooexec = re.sub(regex, lambda m: STR(inte[m.group()[2:-2]]), foo)
                         else:
                             fooexec = foo
-                        cmd = f"{inte['model']}.{fooexec}"
+                        if inti==0 and "model" in inte and inte['model'] is not None and inte['model']!="":
+                            cmd = f"{inte['model']}.{fooexec}"
+                        elif inti>0: # 后续方法，不需要模块名，调用者是前方返回
+                            cmd = f".{fooexec}"
+                        else:
+                            cmd = f"{fooexec}"
                         if "retcls" in inte and inte["retcls"] is not None:
                             cmd = f"{inte['retcls']}({cmd})"
                     else: #注释
@@ -753,6 +758,8 @@ def compile(paragraph=" ".join(sys.argv[1:])):
                     execs.append(cmd)
                     if inte['model'] not in mods and inte['model']!="":
                         mods.append(inte['model'])
+                if "isfoo" in uintes[0]:
+                    execs.append(".exec()")
                 res["exec"] = "".join(execs)
                 print("运行语句: ", res["exec"])
             else:

@@ -229,7 +229,7 @@ def StructuredData(path,  varname, queryname=None):
         path = f"磁颐国构申省{varname}室另类标记间"
     from kae import ka_path_m , ka_dataname_class_map
     mf = [p for p in ka_path_m.findall(path)[0]]
-    # print(">>>", mf)
+    # print(">>>", mf, ka_dataname_class_map)
     t = mf[0]
     cls = ka_dataname_class_map[t+"国"]
     

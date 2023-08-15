@@ -104,6 +104,33 @@ def ka_setobj_rename(cntype="", entype=""):
         return wapperfoo
     return decorate
 
+def ka_foo_reset(self, name):
+    if name.startswith('"') and name.endswith('"'):#如果有双引号，就去掉
+        name = name[1:-1]
+    from kae import ka_vals
+    ka_vals[name] = self
+    self.objname = name # 对象可知自己叫什么变量名
+    if hasattr(self, "kacb_setobjNameOK"):
+        self.kacb_setobjNameOK()
+    return self
+
+def ka_foo_setarg(self, arg, attr, val):
+    self.argname = arg
+    myid = id(self)
+    from kae.libs.sys import setattr as syssetattr
+    syssetattr(arg, attr, val)
+    return self
+
+'''为对象注入renameme方法'''
+def ka_kfoo(cls):
+    @functools.wraps(cls)
+    def wapperfoo(*args, **kw):
+        obj = cls(*args, **kw)
+        obj.renameme = types.MethodType(ka_foo_reset, obj)
+        obj.setattr = types.MethodType(ka_foo_setarg, obj)
+        return obj
+    return wapperfoo
+
 def _lowtitle(s, s2):
     return s.lower().endswith("k"+s2)
 

@@ -59,6 +59,11 @@ def deffoo(name):
 def isnamedfoo(name):
     return name in ka_foos
 
+def waitat(self, oname, nname):
+    '''实参转形参'''
+    from kae import ka_vals
+    ka_vals[nname] = ka_vals[oname]
+
 def mkmodule(name):
     '''编译源码'''
     import os
@@ -79,12 +84,14 @@ def mkmodule(name):
             open("modbin/__init__.py",'w').close()
     with open(os.path.join("modbin", f"{modelname}.py"), "w", encoding="utf-8") as af:
         preblock = "    "
-        lines = ["from kae.annotations import ka_return_rename",
+        lines = ["from kae.annotations import ka_kfoo",
             f"from kae.libs.sys import newobj,getobj",
-            f"@ka_return_rename",
-            f"def K{name}():",
-            f"{preblock}print('{name}', 'is', 'run')",
-            f"{preblock}newobj('整数', '{name}_ret', 100)",
+            f"from kae.libs.sys import setattr as syssetattr",
+            f"@ka_kfoo",
+            f"class K{name}:",
+            f"{preblock}def exec(self):",
+            f"{preblock*2}print('{name}', 'is', 'run')",
+            f"{preblock*2}newobj('整数', '{name}_ret', 100)",
         ]
         serv = "localhost"
         if "运行时" in ka_mount and "服务器" in ka_mount["运行时"]:
@@ -93,8 +100,8 @@ def mkmodule(name):
         for cmdline in pycallable.splitlines():
             if r"%fooname%" in cmdline:
                 cmdline = cmdline.replace(r"%fooname%", name) #把函数名换成现在函数的名字
-            lines.append(preblock+cmdline)
-        lines.append(f"{preblock}return getobj('{name}_ret')")
+            lines.append(preblock*2+cmdline)
+        # lines.append(f"{preblock*2}return self")
         af.writelines([ w+"\n" for w in lines])
     # import importlib
     # m = importlib.import_module(f'modbin.{modelname}')
