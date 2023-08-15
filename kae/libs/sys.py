@@ -225,11 +225,14 @@ from kae.common import dict2obj
 def StructuredData(path,  varname, queryname=None):
     '''可以打开任何流，包括文件，网络'''
     # self.varname= varname
+    if path is None or path=="None":
+        path = f"磁颐国构申省{varname}室另类标记间"
     from kae import ka_path_m , ka_dataname_class_map
     mf = [p for p in ka_path_m.findall(path)[0]]
     # print(">>>", mf)
     t = mf[0]
     cls = ka_dataname_class_map[t+"国"]
+    
     print(cls, path, varname)
     obj = eval(f"{cls}('{path}')")
     data, dt = obj.readdata(queryname)

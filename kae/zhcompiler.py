@@ -433,7 +433,7 @@ def _match(gdb, sid, o, wl, i):
         nowi = si
         print(" +", s, "->", i, wl[i])
         argsend = False
-        if s["name"] in (r"{args}",r"{sub}"): #args和sub都要贪婪匹配
+        if s["name"] in (r"{args}",r"{sub}") and wl[i].name not in ENDSENT+DOU+WEN: #args和sub都要贪婪匹配
             argname = s["name"][1:-1]
             if type(wl[i])==list:
                 # 如果已经是列表
@@ -465,7 +465,7 @@ def _match(gdb, sid, o, wl, i):
                         argsend = True
                         i-=1
                         break
-        elif s["name"] == r"<args>": #args贪婪
+        elif s["name"] == r"<args>" and wl[i].name not in ENDSENT+DOU+WEN: #args贪婪
             argname = s["name"][1:-1]
             if type(wl[i])==list:
                 # 如果已经是列表
@@ -504,7 +504,7 @@ def _match(gdb, sid, o, wl, i):
                 exec(f"o['{s['name'][1:-1]}']=wl[i].name")
             elif type(wl[i])==list and s["name"].startswith("{") and s["name"].endswith("}"):
                 exec(f"o['{s['name'][1:-1]}']=wl[i]")
-            elif type(wl[i])!=list and wl[i].name in ENDSENT+DOU+WEN:
+            elif type(wl[i])!=list and wl[i].name in ENDSENT+DOU+WEN and s["name"] in ENDSENT+DOU+WEN:
                 # 结束了。
                 if wl[i].name in DOU+WEN: #问号不能作为一句结尾，因为后面有对其解释和完善。
                     o["__next"] = i+1
