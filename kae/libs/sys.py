@@ -160,7 +160,7 @@ def getobj(name,default=None):
         callingframe = sys._getframe(1)
         caller = callingframe.f_locals['self']
         name = "arg"+name
-        if name in caller:
+        if hasattr(caller, name):
             obj = getattr(caller, name)
         else:
             obj = default
