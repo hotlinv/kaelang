@@ -61,8 +61,10 @@ def isnamedfoo(name):
 
 def waitat(self, oname, nname):
     '''实参转形参'''
+    # print(id(self))
     from kae import ka_vals
-    ka_vals[nname] = ka_vals[oname]
+    #设置到局部变量，以便内部得到。
+    setattr(self, "arg"+nname, ka_vals[oname])
 
 def mkmodule(name):
     '''编译源码'''

@@ -35,6 +35,7 @@ def di(obj_id):
 class Dict(dict):
     __setattr__ = dict.__setitem__
     __getattr__ = dict.__getitem__
+    __contains__ = dict.__contains__
 
 
 def dict2obj(dictObj):

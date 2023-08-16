@@ -152,25 +152,48 @@ def createobj(descname, name):
 def getobj(name,default=None):
     '''获取变量'''
     from kae import ka_vals
-    if name not in ka_vals:
-        ka_vals[name] = default
-    if hasattr(ka_vals[name], "val"):
-        return ka_vals[name].val
-    return ka_vals[name]
+    if name in ka_vals:
+        obj = ka_vals[name]
+    else:
+        #如果是局部变量，就获取到我的调用者
+        import sys
+        callingframe = sys._getframe(1)
+        caller = callingframe.f_locals['self']
+        name = "arg"+name
+        if name in caller:
+            obj = getattr(caller, name)
+        else:
+            obj = default
+    
+    if obj is not None and hasattr(obj, "val"):
+        return obj.val
+    return obj
 
-def getattr(name, attr):
+def kgetattr(name, attr):
     '''获取变量属性'''
     from kae import ka_vals
-    obj = ka_vals[name]
-    if "val" in ka_vals[name]:
-        obj = ka_vals[name]["val"]
-    if hasattr(ka_vals[name], "val"):
-        obj = ka_vals[name].val
-    
+    if name in ka_vals:
+        obj = ka_vals[name]
+    else:
+        #如果是局部变量，就获取到我的调用者
+        import sys
+        callingframe = sys._getframe(1)
+        caller = callingframe.f_locals['self']
+        name = "arg"+name
+        obj = getattr(caller, name)
+
     # print(obj, ka_vals[name], attr)
-    if "__desc__" in ka_vals[name]:
-        if attr in ka_vals[name]["__desc__"].keys():
-            attr = ka_vals[name]["__desc__"][attr]
+    if "__desc__" in obj: #获取属性中英对照表
+        if attr in obj["__desc__"].keys():
+            attr = obj["__desc__"][attr]
+
+    if "val" in obj:
+        obj = obj["val"]
+    try:
+        if hasattr(obj, "val"):
+            obj = obj.val
+    except:
+        pass
 
     # print(obj, attr)
     # print("XX"*10, attr, type(attr))
