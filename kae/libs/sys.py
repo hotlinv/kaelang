@@ -164,7 +164,7 @@ def getobj(name,default=None):
             obj = getattr(caller, name)
         else:
             obj = default
-    
+    print(obj)
     if obj is not None and hasattr(obj, "val"):
         return obj.val
     return obj

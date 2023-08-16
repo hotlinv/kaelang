@@ -93,7 +93,7 @@ def mkmodule(name):
             f"class K{name}:",
             f"{preblock}def exec(self):",
             f"{preblock*2}print('{name}', 'is', 'run')",
-            f"{preblock*2}newobj('整数', '{name}_ret', 100)",
+            # f"{preblock*2}newobj('整数', '{name}_ret', 100)",
         ]
         serv = "localhost"
         if "运行时" in ka_mount and "服务器" in ka_mount["运行时"]:
@@ -108,12 +108,18 @@ def mkmodule(name):
     # import importlib
     # m = importlib.import_module(f'modbin.{modelname}')
     # print(f'modbin.{modelname}')
+    print(f'modbin.{modelname}', os.curdir)
     m = __import__(f'modbin.{modelname}', fromlist=["modbin"])
     return m
 
 def fooreturn(fooname, val):
-    from kae.libs.sys import newobj
-    newobj(None, fooname+"_ret", val)
+    # from kae.libs.sys import newobj
+    # newobj(None, fooname+"_ret", val)
+    import sys
+    callingframe = sys._getframe(1)
+    caller = callingframe.f_locals['self']
+    # print(caller, "return.....", val)
+    caller.val = val
 
 def runfoo(name):
     '''运行函数'''

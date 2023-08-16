@@ -105,6 +105,7 @@ def ka_setobj_rename(cntype="", entype=""):
     return decorate
 
 def ka_foo_reset(self, name):
+    print("foo reset name", name)
     if name.startswith('"') and name.endswith('"'):#如果有双引号，就去掉
         name = name[1:-1]
     from kae import ka_vals
