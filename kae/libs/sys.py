@@ -140,7 +140,7 @@ def setattr(objname, attrname, obj):
     #     ka_vals[objname][attrname] = re.findall(r"\d+",obj)[0]
     # else:
     ka_vals[objname]["val"][attrname] = obj
-    print(ka_vals[objname])
+    # print(ka_vals[objname])
 
 def createobj(descname, name):
     '''新建变量'''
@@ -164,7 +164,7 @@ def getobj(name,default=None):
             obj = getattr(caller, name)
         else:
             obj = default
-    print(obj)
+    # print(obj)
     if obj is not None and hasattr(obj, "val"):
         return obj.val
     return obj
