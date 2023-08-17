@@ -435,6 +435,14 @@ def _match(gdb, sid, o, wl, i):
         nowi = si
         print(" +", s, "->", i, wl[i])
         argsend = False
+        if s["name"] == r"{nouse}" and wl[i].name not in ENDSENT+DOU+WEN:#注释
+            print(f" {'#'*20}")
+            while i<len(wl):
+                if wl[i].name in ENDSENT+DOU+WEN:
+                    if  wl[i].name in DOU:
+                        o["__next"] = i+1
+                    return True
+                i+=1
         if s["name"] in (r"{args}",r"{sub}") and wl[i].name not in ENDSENT+DOU+WEN: #args和sub都要贪婪匹配
             argname = s["name"][1:-1]
             if type(wl[i])==list:
@@ -444,7 +452,7 @@ def _match(gdb, sid, o, wl, i):
                     o[argname].append(part)
             else:
                 # 复杂内容延续直至结束。
-                if o[argname] is None:
+                if argname not in o or o[argname] is None:
                     o[argname] = [[]]
                 elif type(o[argname])==list:
                     o[argname].append([])
@@ -544,7 +552,7 @@ def match(wl, gdb):
                     hasnext = True
                     beg = s["__next"]
                     del s["__next"]
-                print("U"*50, session)
+                print("U"*50, s)
                 session.append(s)
                 break
     print("M"*50, session)
@@ -761,7 +769,7 @@ def compile(paragraph=" ".join(sys.argv[1:])):
                 if "isfoo" in uintes[0]:
                     execs.append(".exec()")
                 res["exec"] = "".join(execs)
-                print("运行语句: ", res["exec"])
+                print("运行语句: ", ">"*20, res["exec"])
             else:
                 res["errno"] = 2
                 print("我懂，但我不懂怎么做：", res["input"])
