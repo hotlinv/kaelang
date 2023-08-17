@@ -443,7 +443,7 @@ def _match(gdb, sid, o, wl, i):
                         o["__next"] = i+1
                     return True
                 i+=1
-        if s["name"] in (r"{args}",r"{sub}") and wl[i].name not in ENDSENT+DOU+WEN: #args和sub都要贪婪匹配
+        if s["name"] in (r"{args}") and wl[i].name not in ENDSENT+DOU+WEN: #args和sub都要贪婪匹配
             argname = s["name"][1:-1]
             if type(wl[i])==list:
                 # 如果已经是列表
@@ -475,7 +475,7 @@ def _match(gdb, sid, o, wl, i):
                         argsend = True
                         i-=1
                         break
-        elif s["name"] == r"<args>" and wl[i].name not in ENDSENT+DOU+WEN: #args贪婪
+        elif s["name"] == r"<args>" and wl[i].name not in ENDSENT+DOU+WEN: #args非贪婪
             argname = s["name"][1:-1]
             if type(wl[i])==list:
                 # 如果已经是列表
@@ -508,7 +508,54 @@ def _match(gdb, sid, o, wl, i):
                         i-=1
                         break
                 o[argname] = [[Word(name='"'+"".join([ai.name for ai in a])+'"', wordclass="*")] for a in o[argname]]
-                    
+        elif s["name"] == r"{sub}" and wl[i].name not in ENDSENT+DOU+WEN: #sub非贪婪
+            argname = s["name"][1:-1]
+            sublist = None
+            if type(wl[i])==list:
+                # 如果已经是列表
+                sublist = []
+                for part in wl[i]:
+                    sublist.append(part)
+            else:
+                # 复杂内容延续直至结束。
+                if sublist is None:
+                    sublist = [[]]
+                elif type(sublist)==list:
+                    sublist.append([])
+                while i<len(wl):
+                    print(" +++", wl[i])
+                    if wl[i].name in ENDSENT+DOU:
+                        # 遇到句尾或逗号， args 结束了。
+                        if  wl[i].name in DOU:
+                            o["__next"] = i+1
+                        elif not _isDouOrEnd(gdb, nowi, o): #如果wl[i]是句号，句式却还在继续且不是标点，则匹配失败
+                            return False
+                        # sublist = [[Word(name='"'+"".join([ai.name for ai in a])+'"', wordclass="*")] for a in sublist]
+                        break
+                    else:
+                        # args 开启
+                        sublist[-1].append(wl[i])
+                    i+=1
+                    if _matchnext(wl[i], gdb, nowi, o): 
+                        #后面内容和args已经不匹配了，终止args片段
+                        break
+            sublist[-1].append(Word(name='。', wordclass='x')) #要补一个符号不然跟句式不符
+            print("sublist::::", sublist)
+            subss = gdb.query(Sentence)
+            found = False
+            for subs in subss:
+                subs = copy.deepcopy(subs)
+                if _match(gdb, None, subs, sublist[0], 0) and subs["action"] is not None: #找到匹配的语法了
+                    found = True
+                    break
+            
+            if found:
+                o[argname] = subs
+            print("sub sent::::", subs, o)
+            argsend = True
+            i-=1
+            
+
         if not argsend:
             if type(wl[i])!=list and s["name"].startswith("{") and s["name"].endswith("}") and wl[i].wordclass in s["wordclass"]:
                 exec(f"o['{s['name'][1:-1]}']=wl[i].name")
@@ -521,7 +568,7 @@ def _match(gdb, sid, o, wl, i):
                 print("end", "."*100)
                 return True
             elif type(wl[i])!=list and (s["name"] != wl[i].name or wl[i].wordclass not in s['wordclass']): 
-                print(" X", wl[i])
+                print(" X", wl[i], s["name"])
                 continue
         # el
         
