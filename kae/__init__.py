@@ -128,8 +128,20 @@ def runfoo(name):
         return True
     return False
 
-def kif(fo):
-    pass 
 
-def thendo(fo):
-    pass
+class IfElse:
+    def __init__(self, fo):
+        self.condoo=[]
+        self.condoo.append({"if":fo})
+    def thendo(self, fo):
+        self.condoo[-1]["foo"] = fo
+    def kelse(self, fo):
+        self.condoo.append({"else": fo})
+    def exec(self):
+        pass
+
+def kif(fo):
+    ie = IfElse(fo)
+    return ie
+
+
