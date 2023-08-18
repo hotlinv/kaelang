@@ -415,17 +415,7 @@ def _match(gdb, sid, o, wl, i):
     if i==len(wl):#words寻到底了
         print("words无了")
         return False
-    if wl[i].wordclass=="foo": #调用函数
-        o["name"] = wl[i].name
-        o["isfoo"] = True
-        o["action"] = "调用函数"
-        nexti = i+1
-        if wl[nexti].name in DOU:
-            o["__next"] = nexti+1
-            return True
-        # if _match(gdb, None, o, wl, nexti):
-        #     return True
-        return False
+        
     # print("_", sl, "->", wl[i])
     for si, st in sl:
         s = gdb.di(si)
@@ -434,13 +424,20 @@ def _match(gdb, sid, o, wl, i):
             continue
         nowi = si
         print(" +", s, "->", i, wl[i])
+        if i==0 and wl[i].wordclass=="foo" and s["wordclass"]!="foo":#直接的函数调用，非子句。
+            o["name"] = wl[i].name
+            o["isfoo"] = True
+            o["action"] = "调用函数"
+            nexti = i+1
+            if wl[nexti].name in DOU:#后接逗号，还有下面的语句
+                o["__next"] = nexti+1
+                return True
+            return False
         argsend = False
         if s["name"] == r"{nouse}" and wl[i].name not in ENDSENT+DOU+WEN:#注释
             print(f" {'#'*20}")
             while i<len(wl):
-                if wl[i].name in ENDSENT+DOU+WEN:
-                    if  wl[i].name in DOU:
-                        o["__next"] = i+1
+                if wl[i].name in ENDSENT:
                     return True
                 i+=1
         if s["name"] in (r"{args}") and wl[i].name not in ENDSENT+DOU+WEN: #args和sub都要贪婪匹配
@@ -509,52 +506,56 @@ def _match(gdb, sid, o, wl, i):
                         break
                 o[argname] = [[Word(name='"'+"".join([ai.name for ai in a])+'"', wordclass="*")] for a in o[argname]]
         elif s["name"] == r"{sub}" and wl[i].name not in ENDSENT+DOU+WEN: #sub非贪婪
-            argname = s["name"][1:-1]
-            sublist = None
-            if type(wl[i])==list:
-                # 如果已经是列表
-                sublist = []
-                for part in wl[i]:
-                    sublist.append(part)
+            if wl[i].wordclass=="foo": #子句调用函数
+                o["sub"]={"name": wl[i].name, "isfoo": True, "action": "调用函数"}
+                argsend = True
             else:
-                # 复杂内容延续直至结束。
-                if sublist is None:
-                    sublist = [[]]
-                elif type(sublist)==list:
-                    sublist.append([])
-                while i<len(wl):
-                    print(" +++", wl[i])
-                    if wl[i].name in ENDSENT+DOU:
-                        # 遇到句尾或逗号， args 结束了。
-                        if  wl[i].name in DOU:
-                            o["__next"] = i+1
-                        elif not _isDouOrEnd(gdb, nowi, o): #如果wl[i]是句号，句式却还在继续且不是标点，则匹配失败
-                            return False
-                        # sublist = [[Word(name='"'+"".join([ai.name for ai in a])+'"', wordclass="*")] for a in sublist]
+                argname = s["name"][1:-1]
+                sublist = None
+                if type(wl[i])==list:
+                    # 如果已经是列表
+                    sublist = []
+                    for part in wl[i]:
+                        sublist.append(part)
+                else:
+                    # 复杂内容延续直至结束。
+                    if sublist is None:
+                        sublist = [[]]
+                    elif type(sublist)==list:
+                        sublist.append([])
+                    while i<len(wl):
+                        print(" +++", wl[i])
+                        if wl[i].name in ENDSENT+DOU:
+                            # 遇到句尾或逗号， args 结束了。
+                            if  wl[i].name in DOU:
+                                o["__next"] = i+1
+                            elif not _isDouOrEnd(gdb, nowi, o): #如果wl[i]是句号，句式却还在继续且不是标点，则匹配失败
+                                return False
+                            # sublist = [[Word(name='"'+"".join([ai.name for ai in a])+'"', wordclass="*")] for a in sublist]
+                            break
+                        else:
+                            # args 开启
+                            sublist[-1].append(wl[i])
+                        i+=1
+                        if _matchnext(wl[i], gdb, nowi, o): 
+                            #后面内容和args已经不匹配了，终止args片段
+                            break
+                sublist[-1].append(Word(name='。', wordclass='x')) #要补一个符号不然跟句式不符
+                print("sublist::::", sublist)
+                subss = gdb.query(Sentence)
+                found = False
+                for subs in subss:
+                    subs = copy.deepcopy(subs)
+                    if _match(gdb, None, subs, sublist[0], 0) and subs["action"] is not None: #找到匹配的语法了
+                        found = True
                         break
-                    else:
-                        # args 开启
-                        sublist[-1].append(wl[i])
-                    i+=1
-                    if _matchnext(wl[i], gdb, nowi, o): 
-                        #后面内容和args已经不匹配了，终止args片段
-                        break
-            sublist[-1].append(Word(name='。', wordclass='x')) #要补一个符号不然跟句式不符
-            print("sublist::::", sublist)
-            subss = gdb.query(Sentence)
-            found = False
-            for subs in subss:
-                subs = copy.deepcopy(subs)
-                if _match(gdb, None, subs, sublist[0], 0) and subs["action"] is not None: #找到匹配的语法了
-                    found = True
-                    break
-            
-            if found:
-                o[argname] = subs
-            print("sub sent::::", subs, o)
-            argsend = True
-            i-=1
-            
+                
+                if found:
+                    o[argname] = subs
+                print("sub sent::::", subs, o)
+                argsend = True
+                i-=1
+                
 
         if not argsend:
             if type(wl[i])!=list and s["name"].startswith("{") and s["name"].endswith("}") and wl[i].wordclass in s["wordclass"]:
@@ -605,7 +606,7 @@ def match(wl, gdb):
     print("M"*50, session)
     return session
 
-def understand(gdb, intes, session):
+def understand(gdb, mods, intes, session):
     '''从句式对应意图'''
     import kae
     DEFARG = ["type", "nodetype", "name", "edges", "args"]
@@ -625,12 +626,26 @@ def understand(gdb, intes, session):
                 if inte["action"]=="定义函数":
                     # 把函数名注册到jieba里，并设定词性
                     fooname = eval(evalExpression(gdb, sen["args"][0]))
-                    print("识别并注册函数名:", "="*50, fooname)
+                    nofooname = None
+                    if fooname.startswith("判断"):
+                        fooname = fooname[2:]
+                        nofooname = "不"+fooname
+                    print("识别并注册函数名:", "="*50, fooname, "/", nofooname)
                     import jieba
                     jieba.add_word(fooname, 10000, "foo")
+                    if nofooname is not None:
+                        jieba.add_word(nofooname, 10000, "foo")
                 for key in sen.keys():
                     if key not in DEFARG:
                         inte[key] = sen[key]
+                if "sub" in sen and sen["sub"] is not None:
+                    #子句处理
+                    subintes = gdb.query(Intention)
+                    subuintes = understand(gdb, mods, subintes, [sen["sub"]])
+                    execs = []
+                    _inte2exec(execs, mods, subuintes, "")
+                    inte["sub"] = "".join(execs)
+                    print("sub"*10, inte["sub"])
                 if "args" in sen and sen["args"] is not None:
                     if type(sen["args"])!=list:
                         print("args no list", sen["args"])
@@ -724,6 +739,36 @@ def STR (args):
             return "{"+",".join([STR(a) for a in args])+"}"
     return  str(args)
 
+regex = r"{{(\w+)}}"
+def _inte2exec(execs, mods, uintes, osrc):
+    for inti, inte in enumerate(uintes):
+        print("I"*40, inte)
+        foo = inte['foo'] #({'' if 'args' not in inte else ARGS(inte['args'])})
+        if not foo.startswith("#"): 
+            matches = re.findall(regex, foo)
+            if len(matches)>0:
+                fooexec = re.sub(regex, lambda m: STR(inte[m.group()[2:-2]]), foo)
+            else:
+                fooexec = foo
+            if inti==0 and "model" in inte and inte['model'] is not None and inte['model']!="":
+                cmd = f"{inte['model']}.{fooexec}"
+            elif inti>0: # 后续方法，不需要模块名，调用者是前方返回
+                cmd = f".{fooexec}"
+            else:
+                cmd = f"{fooexec}"
+            if "retcls" in inte and inte["retcls"] is not None:
+                cmd = f"{inte['retcls']}({cmd})"
+        else: #注释
+            matches = re.findall(r"{{original}}", foo)
+            if len(matches)>0:
+                fooexec = re.sub(r"{{original}}", lambda m: osrc, foo)
+            cmd = fooexec
+        execs.append(cmd)
+        if inte['model'] not in mods and inte['model']!="":
+            mods.append(inte['model'])
+    if "isfoo" in uintes[0]:
+        execs.append(".exec()")
+
 def compile(paragraph=" ".join(sys.argv[1:])):
     import kae, os, re
     # initDict()
@@ -781,40 +826,13 @@ def compile(paragraph=" ".join(sys.argv[1:])):
         
         print("sessions:",":"*50 ,s)
         if s is not None and len(s)>0:
-            uintes = understand(g, intes, s)
+            uintes = understand(g, mods, intes, s)
             
             if len(uintes)>0:
                 # s = Sentence(name=name, parts=sent)
                 res["errno"] = 0
-                regex = r"{{(\w+)}}"
                 execs = []
-                for inti, inte in enumerate(uintes):
-                    print("I"*40, inte)
-                    foo = inte['foo'] #({'' if 'args' not in inte else ARGS(inte['args'])})
-                    if not foo.startswith("#"): 
-                        matches = re.findall(regex, foo)
-                        if len(matches)>0:
-                            fooexec = re.sub(regex, lambda m: STR(inte[m.group()[2:-2]]), foo)
-                        else:
-                            fooexec = foo
-                        if inti==0 and "model" in inte and inte['model'] is not None and inte['model']!="":
-                            cmd = f"{inte['model']}.{fooexec}"
-                        elif inti>0: # 后续方法，不需要模块名，调用者是前方返回
-                            cmd = f".{fooexec}"
-                        else:
-                            cmd = f"{fooexec}"
-                        if "retcls" in inte and inte["retcls"] is not None:
-                            cmd = f"{inte['retcls']}({cmd})"
-                    else: #注释
-                        matches = re.findall(r"{{original}}", foo)
-                        if len(matches)>0:
-                            fooexec = re.sub(r"{{original}}", lambda m: res["input"], foo)
-                        cmd = fooexec
-                    execs.append(cmd)
-                    if inte['model'] not in mods and inte['model']!="":
-                        mods.append(inte['model'])
-                if "isfoo" in uintes[0]:
-                    execs.append(".exec()")
+                _inte2exec(execs, mods, uintes, res["input"])
                 res["exec"] = "".join(execs)
                 print("运行语句: ", ">"*20, res["exec"])
             else:

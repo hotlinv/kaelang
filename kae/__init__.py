@@ -127,3 +127,9 @@ def runfoo(name):
         ka_foos[name]()
         return True
     return False
+
+def kif(fo):
+    pass 
+
+def thendo(fo):
+    pass
