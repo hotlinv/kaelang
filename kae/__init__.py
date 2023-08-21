@@ -133,10 +133,15 @@ class IfElse:
     def __init__(self, fo):
         self.condoo=[]
         self.condoo.append({"if":fo})
+    def kif(self, fo):
+        self.condoo.append({"if":fo})
+        return self
     def thendo(self, fo):
         self.condoo[-1]["foo"] = fo
+        return self
     def kelse(self, fo):
         self.condoo.append({"foo": fo})
+        return self
     def exec(self):
         tf = [ief["if"]() for ief in self.condoo if "if" in ief]
         for ifi, itf in enumerate(tf):

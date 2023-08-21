@@ -616,7 +616,7 @@ def understand(gdb, mods, intes, session):
         if "isfoo" in sen:
             # 需要运行函数
             fooname = sen["name"]
-            intefoo = {"name":fooname, "foo":f"mkmodule('{fooname}').K{fooname}()", "model":f"kae", "isfoo": True}
+            intefoo = {"name":fooname, "foo":f"mkmodule('{fooname}').K{fooname}()", "model":f"kae", "laterexec": True}
             runers.append(intefoo)
             continue
         for inte in intes:
@@ -766,7 +766,8 @@ def _inte2exec(execs, mods, uintes, osrc):
         execs.append(cmd)
         if inte['model'] not in mods and inte['model']!="":
             mods.append(inte['model'])
-    if "isfoo" in uintes[0]:
+    # print("十"*50, uintes[0])
+    if "laterexec" in uintes[0] and uintes[0]["laterexec"] is not None:
         execs.append(".exec()")
 
 def compile(paragraph=" ".join(sys.argv[1:])):

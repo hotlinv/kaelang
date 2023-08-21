@@ -79,6 +79,7 @@ class Intention(BaseModel):
     foo: str = Field(title="可执行方法")
     model: str = Field(title="模块")
     retcls: Optional[str] = Field(title="返回值类（需要调用）")
+    laterexec: Optional[str] = Field(title="是否延迟调用")
     src: Optional[str] = Field(title="来源")
     target: Optional[str] = Field(title="目标")
     tarargs: Optional[str] = Field(title="目标参数（文件名等）")
