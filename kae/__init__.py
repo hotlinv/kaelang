@@ -136,9 +136,20 @@ class IfElse:
     def thendo(self, fo):
         self.condoo[-1]["foo"] = fo
     def kelse(self, fo):
-        self.condoo.append({"else": fo})
+        self.condoo.append({"foo": fo})
     def exec(self):
-        pass
+        tf = []
+        for ifi, ife in enumerate(self.condoo):
+            if "if" in ife:
+                tf.append(ife["if"]())
+                if ifi==0 and tf[0]: #if
+                    ife["foo"]()
+                elif not max( tf[0:ifi] ) and tf[-1]: #elif
+                    ife["foo"]()
+            else: #else
+                if not max( tf ):
+                    ife["foo"]()
+                    
 
 def kif(fo):
     ie = IfElse(fo)
