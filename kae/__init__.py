@@ -138,17 +138,13 @@ class IfElse:
     def kelse(self, fo):
         self.condoo.append({"foo": fo})
     def exec(self):
-        tf = []
-        for ifi, ife in enumerate(self.condoo):
-            if "if" in ife:
-                tf.append(ife["if"]())
-                if ifi==0 and tf[0]: #if
-                    ife["foo"]()
-                elif not max( tf[0:ifi] ) and tf[-1]: #elif
-                    ife["foo"]()
-            else: #else
-                if not max( tf ):
-                    ife["foo"]()
+        tf = [ief["if"]() for ief in self.condoo if "if" in ief]
+        for ifi, itf in enumerate(tf):
+            if itf:
+                self.condoo[ifi]["foo"]()
+                break
+        if ifi==len(tf) and "if" not in self.condoo[-1]:
+            self.condoo[-1]["foo"]()
                     
 
 def kif(fo):
