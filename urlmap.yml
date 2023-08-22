@@ -38,3 +38,4 @@
  网络 : kae.libs.netbug
  文件 : kae.libs.file
  在线服务: kae.libs.webserv
+ 数值计算 : kae.libs.num
