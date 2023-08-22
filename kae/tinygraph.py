@@ -347,7 +347,7 @@ def parseExcelFile(g, comm):
 
 TAGMAP = {"动作":r"{action}","[动作]":r"[action]","动作2":r"{action2}", "可选动作":r"/action/", "[目标]":r"[target]", "目标":r"{target}", "源":r"{src}", "源参数":r"{srcargs}", "源路径":r"{src}", 
         "内容":r"{args}", "目标名称":r"{tarargs}", "对象参数":r"{tarargs}", "可选":"~", "目标类型": r"{tartype}", "动作名":r"{actname}",
-        "子句":r"{sub}", "文本内容":r"<args>", "感觉":r"{args}", "注释":r"{nouse}"}
+        "子句":r"{sub}", "文本内容":r"<args>", "感觉":r"{args}", "注释":r"{nouse}", "参数1":r"{args}", "参数2":r"{args}"}
 
 def parseTemplFile(g, comm):
     # 解析word来进行语料训练
