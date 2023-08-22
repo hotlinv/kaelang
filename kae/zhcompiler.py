@@ -232,7 +232,7 @@ def expre(gdb, regx, words):
 
 import re
 
-def evalExpression(gdb, words):
+def evalExpression(gdb, mods, words):
     # 把子句转换成表达式
     print("e"*10, words)
     subexpress = [[]]
@@ -242,7 +242,7 @@ def evalExpression(gdb, words):
         else:
             subexpress.append([])
     if len(subexpress)!=1:#带、分割
-        return [evalExpression(gdb, subw) for subw in subexpress]
+        return [evalExpression(gdb, mods, subw) for subw in subexpress]
 
     if len(words)==1 and words[0].wordclass in "*m": #单纯字符串或数字
         return str(words[0].name)
@@ -306,13 +306,13 @@ def evalExpression(gdb, words):
     print("evalExpression res", res)
 
     intes = gdb.query(Intention)
-    result=_understandexp(intes, res[0])
+    result=_understandexp(intes, mods, res[0])
     
     return result
 
 argregex = r"{{(\w+)}}"
 
-def _understandexp(intes, expm):
+def _understandexp(intes, mods, expm):
     res = {"type":"expression" ,"foo":""}
     # print(intes, expm)
     if type(expm)!=dict:
@@ -323,7 +323,7 @@ def _understandexp(intes, expm):
     # print("E"*30, expm["target"], expm, [type(i) for i in intes], [i["target"] for i in intes])
     if len(intefs)>0:
         intef = intefs[0] #意图
-        print("i"*30, intef)
+        # print("i"*30, intef)
         
         res["foo"] = intef['foo'] 
         matches = re.findall(argregex, res["foo"])
@@ -332,12 +332,14 @@ def _understandexp(intes, expm):
             for ma in matches:
                 m2 = re.match(argregex, expm[ma])
                 if m2 is not None: #需要嵌入下一级
-                    res["foo"] = re.sub(r"{{("+ma+r")}}", lambda m: _understandexp(intes, expm["subexp"][0])["foo"], res["foo"])
+                    res["foo"] = re.sub(r"{{("+ma+r")}}", lambda m: _understandexp(intes, mods, expm["subexp"][0])["foo"], res["foo"])
                 else:
                     # print("now", ma, res["foo"])
                     res["foo"] = re.sub(argregex, lambda m: expm[m.group()[2:-2]], res["foo"])
-        print(res)
+        # print(res)
         res["foo"] = intef["model"]+"."+res["foo"]
+        if intef['model'] not in mods and intef['model']!="": #如果还没有import，就需要import
+            mods.append(intef['model'])
         return res
     
 
@@ -625,7 +627,7 @@ def understand(gdb, mods, intes, session):
             if inte["action"]==sen["action"] and (inte["target"]==sen["target"] if "target" in sen else True):#带目标对象的最好目标对象也一致
                 if inte["action"]=="定义函数":
                     # 把函数名注册到jieba里，并设定词性
-                    fooname = eval(evalExpression(gdb, sen["args"][0]))
+                    fooname = eval(evalExpression(gdb, mods, sen["args"][0]))
                     nofooname = None
                     if fooname.startswith("判断"):
                         fooname = fooname[2:]
@@ -653,7 +655,7 @@ def understand(gdb, mods, intes, session):
                     elif len(sen["args"])==1:
                         print("args 1 ", sen["args"])
                         inte["args"] = []
-                        args = evalExpression(gdb, sen["args"][0])
+                        args = evalExpression(gdb, mods, sen["args"][0])
                         if args is None:
                             print("X"*40, "无法匹配的表达式参数")
                         if type(args)==list:
@@ -664,7 +666,7 @@ def understand(gdb, mods, intes, session):
                         print("args list", sen["args"])
                         inte["args"] = []
                         for w in sen["args"]:
-                            args = evalExpression(gdb, w)
+                            args = evalExpression(gdb, mods, w)
                             if type(args)==list:
                                 inte["args"].extend(args)
                             else:
@@ -764,6 +766,7 @@ def _inte2exec(execs, mods, uintes, osrc):
                 fooexec = re.sub(r"{{original}}", lambda m: osrc, foo)
             cmd = fooexec
         execs.append(cmd)
+        # print("Mod"*50, inte['model'], mods)
         if inte['model'] not in mods and inte['model']!="":
             mods.append(inte['model'])
     # print("十"*50, uintes[0])

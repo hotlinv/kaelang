@@ -144,13 +144,14 @@ class IfElse:
         return self
     def exec(self):
         tf = [ief["if"]() for ief in self.condoo if "if" in ief]
-        for ifi, itf in enumerate(tf):
+        for ifi in range(len(tf)):
+            itf = tf[ifi]
             if itf:
                 self.condoo[ifi]["foo"]()
                 break
-        if ifi==len(tf) and "if" not in self.condoo[-1]:
+        # print(tf, ifi, max(tf), self.condoo)
+        if not max(tf) and "if" not in self.condoo[-1]:#else
             self.condoo[-1]["foo"]()
-                    
 
 def kif(fo):
     ie = IfElse(fo)
