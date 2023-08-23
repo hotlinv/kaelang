@@ -49,6 +49,8 @@ newref kae.model.NextRef
 userwords dict/分词词典.txt
 
 newnode UserSpWord {"name":"计算/公式"}
+newnode UserSpWord {"name":"设置/成"}
+newnode UserSpWord {"name":"将/值"}
 
 #newnode UselessWord {"name":"给", "wordclass":"p"}
 #newnode UselessWord {"name":"立刻", "wordclass":"d"}
