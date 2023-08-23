@@ -177,7 +177,7 @@ def _expre(regx, nowre, words, wi, begend, args):
         or ("expid" not in w and r["name"][0]=="{" and r["name"][-1]=="}" and w.wordclass in r["wordclass"]) \
         :
         # 完全匹配
-        print("匹配")
+        print("匹配", r["name"], w)
         if len(begend)==0 or len(begend[-1])==2:
             begend.append([wi])
             args.append({})
@@ -196,7 +196,7 @@ def _expre(regx, nowre, words, wi, begend, args):
                 _expre(regx, None, words, wi+1, begend, args)
     else:
         # 不匹配，复位
-        print("不匹配")
+        print("不匹配", r["name"], w)
         nwi = wi
         if len(begend)>0 and len(begend[-1])==1:
             lastbe = begend.pop(-1)
@@ -289,7 +289,7 @@ def evalExpression(gdb, mods, words):
             nownode = node
             # _makeexpress(gdb, es[-1], lis)
     # es内部放所有表达式的图
-    print(es)
+    # print(es)
 
     res = words
     while True:
