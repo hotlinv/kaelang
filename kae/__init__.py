@@ -157,4 +157,5 @@ def kif(fo):
     ie = IfElse(fo)
     return ie
 
-
+def repeatn(what, n):
+    return what*n
