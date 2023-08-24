@@ -11,14 +11,14 @@ cn_num = {
         8: '八',
         9: '九'
     }
-    
+
 setp = ['亿', '万', '']
 setp.reverse()
 unit = ['千', '百', '十', '']
 unit.reverse()
 
 def _step2cn(numstr, result, stepi):
-    print(numstr, stepi)
+    # print(numstr, stepi)
     result.append(setp[stepi])
     z = False
     for i, n in enumerate(numstr[::-1]):
@@ -45,11 +45,11 @@ def num2cn(num):
     result = []
     ceilc = math.ceil(len(str(num))/4)*4
     cnn = str(num).rjust(ceilc, "0")
-    print(cnn)
+    # print(cnn)
     for i in range(int(ceilc/4)):
         stepi = int(ceilc/4)-1-i
         _step2cn(cnn[stepi*4:(stepi+1)*4], result, i)
-    print(result)
+    # print(result)
     result.reverse()
     cn = "".join(result)
     cn = re.sub(r'^零','',cn)

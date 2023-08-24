@@ -121,6 +121,7 @@ def newobj(vtype, name, val):
     # eval("KInt(None)")
     # print(vtype, name, val, f"{tn}({val})")
     ka_vals[name] = eval(f"{tn}({val})")
+    ka_vals[name].varname = name
     return ka_vals[name]
 
 def wapperobj(clsname, dataname):
@@ -275,3 +276,23 @@ DESC = "DESC"
 def multiply(a, b):
     '''乘法'''
     return a*b
+
+@ka_setobj_rename(cntype="任务", entype="task")
+class KTask:
+    def __init__(self, val):
+        pass
+
+    def taskfoo(self, foo):
+        self.foo = foo
+        return self
+    
+    def go(self, count):
+        for i in range(count):
+            self.itor = i+1
+            self.foo(self)
+        
+    def set(self, val):
+        return self
+
+    def __str__(self) -> str:
+        return self.val

@@ -83,6 +83,7 @@ class Graph:
         node = {'type': 'node', "nodetype":nodetype, 'name': name}
         for tag in tags:
             node.update({k:n for k, n in tag.dict().items() if k!="type"})
+        # print("insert node", node)
         nid = self._graph.insert(node)
         return nid
 
@@ -257,7 +258,7 @@ def _newref(g, comm):
 def _newnode(g, comm):
     carr = comm.split()
     M = g.getTag(carr[1])
-    args = json.loads("".join(carr[2:]))
+    args = json.loads(" ".join(carr[2:]))
     for k, v in args.items():
         if k.startswith("$"):
             del args[k]
@@ -306,12 +307,14 @@ def parseSameWords(g, comm):
         for line in lines:
             words = line.split(" ")
             # wordclass = [flag for w,flag in pseg.cut(words[0])][0]
-            print(words)
+            # print(words)
             firstword,wordclass = words[0].split("/")
             # print(wordclass)
             for idx, word in enumerate(words):
+                word = word.strip()
                 if idx!=0:
                     cmd = f'newnode SameWord {{"name":"{word}", "wordclass":"{wordclass}", "sameas":"{firstword}"}}'
+                    print(cmd)
                     _newnode(g, cmd)
 
 def parseExcelFile(g, comm):

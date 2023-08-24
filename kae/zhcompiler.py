@@ -53,10 +53,17 @@ def prepareWordDict(g):
     for sd in sdicts:
         jieba.suggest_freq(sd["name"].split("/"), tune=True)
 
+PCI = "次 遍 回"
 def cut(s):
     '''分词'''
-    seg_list = pseg.cut(s)
+    seg_list = [[w,f] for w,f in pseg.cut(s)]
     words = []
+    for i in range(len(seg_list)):
+        #对量词进行处理
+        if seg_list[i][0] in PCI and seg_list[i-1][1] == "m":# 数字后跟着次回量词
+            if seg_list[i][1] != "q":
+                seg_list[i][1] = "q"
+
     for word, flag in seg_list:
         print("cuted", word, flag)
         words.append(Word(name=word, wordclass=flag))
@@ -90,7 +97,7 @@ def replaceSame(gdb, words):
     count = 0
     for word in words:
         sws = gdb.getNodes("SameWord", name=word.name)
-        # print("same>>   ", sws)
+        print("same>>   ", word, sws)
         if len(sws)>0:
             word.name = sws[0]["sameas"] 
             count+=1 #替换了1次
@@ -337,8 +344,10 @@ def _understandexp(intes, mods, expm):
                     # print("now", ma, res["foo"])
                     res["foo"] = re.sub(argregex, lambda m: expm[m.group()[2:-2]], res["foo"])
         # print(res)
-        res["foo"] = intef["model"]+"."+res["foo"]
-        if intef['model'] not in mods and intef['model']!="": #如果还没有import，就需要import
+        if intef["model"] is not None and intef["model"]!="":
+            res["foo"] = intef["model"]+"."+res["foo"]
+
+        if intef["model"] is not None and intef['model']!="" and intef['model'] not in mods: #如果还没有import，就需要import
             mods.append(intef['model'])
         return res
     
@@ -398,6 +407,7 @@ def _matchnext(wi, gdb, nowi, o):
 
 def _isDouOrEnd(gdb, nowi, o):
     names = _snextwordnames(gdb, _snextwords(gdb, nowi, o))
+    print(","*60, names)
     return names[0] in ENDSENT+DOU
 
 def _match(gdb, sid, o, wl, i):
@@ -461,7 +471,7 @@ def _match(gdb, sid, o, wl, i):
                         # 遇到句尾或逗号，args 就结束了。
                         if  wl[i].name in DOU:
                             o["__next"] = i+1
-                        elif not _isDouOrEnd(gdb, nowi, o): #如果wl[i]是句号，句式还在继续且不是标点，则匹配失败
+                        if not _isDouOrEnd(gdb, nowi, o): #如果wl[i]是句号，句式还在继续且不是标点，则匹配失败
                             return False
                         # print("end", "。"*100, wl[i], _snextwordnames(gdb,_snextwords(gdb, nowi, o)))
                         return True
@@ -493,7 +503,7 @@ def _match(gdb, sid, o, wl, i):
                         # 遇到句尾或逗号， args 结束了。
                         if  wl[i].name in DOU:
                             o["__next"] = i+1
-                        elif not _isDouOrEnd(gdb, nowi, o): #如果wl[i]是句号，句式却还在继续且不是标点，则匹配失败
+                        if not _isDouOrEnd(gdb, nowi, o): #如果wl[i]是句号，句式却还在继续且不是标点，则匹配失败
                             return False
                         o[argname] = [[Word(name='"'+"".join([ai.name for ai in a])+'"', wordclass="*")] for a in o[argname]]
                         return True
@@ -531,7 +541,7 @@ def _match(gdb, sid, o, wl, i):
                             # 遇到句尾或逗号， args 结束了。
                             if  wl[i].name in DOU:
                                 o["__next"] = i+1
-                            elif not _isDouOrEnd(gdb, nowi, o): #如果wl[i]是句号，句式却还在继续且不是标点，则匹配失败
+                            if not _isDouOrEnd(gdb, nowi, o): #如果wl[i]是句号，句式却还在继续且不是标点，则匹配失败
                                 return False
                             # sublist = [[Word(name='"'+"".join([ai.name for ai in a])+'"', wordclass="*")] for a in sublist]
                             break
@@ -621,8 +631,8 @@ def understand(gdb, mods, intes, session):
             intefoo = {"name":fooname, "foo":f"mkmodule('{fooname}').K{fooname}()", "model":f"kae", "laterexec": True}
             runers.append(intefoo)
             continue
-        for inte in intes:
-            inte = copy.deepcopy(inte)
+        for inteo in intes:
+            inte = copy.deepcopy(inteo)
             # print(inte["action"], sen["action"], inte["target"]==sen["target"] if "target" in sen else True)
             if inte["action"]==sen["action"] and (inte["target"]==sen["target"] if "target" in sen else True):#带目标对象的最好目标对象也一致
                 if inte["action"]=="定义函数":
@@ -730,7 +740,7 @@ def STR (args):
         if len(args)>1:
             return "*["+",".join([STR(a) for a in args])+"]"
         else:
-            return STR(args[0])
+            return STR(args[0]) if len(args)>0 else None
     elif type(args)==dict:
         if "type" in args.keys() and args["type"]=="expression":#表达式
             return f"{args['foo']}"

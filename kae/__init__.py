@@ -159,3 +159,7 @@ def kif(fo):
 
 def repeatn(what, n):
     return what*n
+
+def fordo(what, n):
+    from kae.libs.sys import getobj
+    getobj(what).go(n)
