@@ -633,8 +633,8 @@ def understand(gdb, mods, intes, session):
             continue
         for inteo in intes:
             inte = copy.deepcopy(inteo)
-            # print(inte["action"], sen["action"], inte["target"]==sen["target"] if "target" in sen else True)
-            if inte["action"]==sen["action"] and (inte["target"]==sen["target"] if "target" in sen else True):#带目标对象的最好目标对象也一致
+            # print(inte["action"], sen["action"], inte["target"], sen["target"])
+            if inte["action"]==sen["action"] and (inte["target"]==sen["target"] if ("target" in sen and sen["target"] is not None or inte["target"] is not None) else True):#带目标对象的最好目标对象也一致
                 if inte["action"]=="定义函数":
                     # 把函数名注册到jieba里，并设定词性
                     fooname = eval(evalExpression(gdb, mods, sen["args"][0]))
@@ -753,6 +753,7 @@ def STR (args):
 
 regex = r"{{(\w+)}}"
 def _inte2exec(execs, mods, uintes, osrc):
+    print("i2"*30, uintes)
     for inti, inte in enumerate(uintes):
         print("I"*40, inte)
         foo = inte['foo'] #({'' if 'args' not in inte else ARGS(inte['args'])})
