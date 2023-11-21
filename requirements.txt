@@ -1,5 +1,6 @@
 pyyaml 
 jieba
+tinydb
 pypinyin
 kivy
 Pinyin2Hanzi
@@ -9,3 +10,4 @@ bayoo-docx
 simple-graph-sqlite
 cogdb
 graphdb
+click
